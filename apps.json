@@ -8,6 +8,13 @@
       "status": "active"
     },
     {
+      "name": "Gamepad Signal Path",
+      "blurb": "Controller input detection reference",
+      "url": "apps/gamepad-signal-path/",
+      "icon": "🎮",
+      "status": "active"
+    },
+    {
       "name": "Glowline",
       "blurb": "Glowing-line arcade game",
       "url": "https://chargingthefuture.github.io/glowline/",

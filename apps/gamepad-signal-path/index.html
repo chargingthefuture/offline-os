@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gamepad Signal Path — Input Detection Reference</title>
+
+<!-- PWA / iOS home-screen (keeps the app's own branding) -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#15171c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Signal Path">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+
+<link rel="stylesheet" href="fonts.css">
+<style>
+  :root{
+    --base:#15171c;
+    --panel:#1e222b;
+    --panel-2:#252b36;
+    --stroke:#3a4250;
+    --stroke-soft:#2c333f;
+    --text:#c9d1dc;
+    --muted:#6b7585;
+    --signal:#f2a93b;   /* live input */
+    --ok:#5bc8af;        /* recognized / standard mapping */
+    --warn:#e8654f;      /* unrecognized / raw indices */
+    --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+    --disp:'Space Grotesk',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #1b2330 0%, transparent 55%),
+      var(--base);
+    color:var(--text);
+    font-family:var(--disp);
+    line-height:1.45;
+    padding:clamp(16px,4vw,40px);
+    min-height:100vh;
+  }
+  .wrap{max-width:980px;margin:0 auto}
+
+  /* back to OS — styled to match this app's own look */
+  .back{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--muted);
+    text-decoration:none;margin-bottom:8px;letter-spacing:.04em}
+  .back:hover{color:var(--signal)}
+
+  /* ---- Header ---- */
+  header{
+    display:flex;align-items:flex-start;justify-content:space-between;
+    gap:20px;flex-wrap:wrap;margin-bottom:28px;
+  }
+  h1{
+    font-size:clamp(22px,3.4vw,34px);font-weight:700;margin:0;letter-spacing:-.02em;
+  }
+  .sub{color:var(--muted);font-size:14px;margin-top:6px;max-width:46ch;font-family:var(--mono)}
+  .lamp{
+    display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:13px;
+    border:1px solid var(--stroke);border-radius:999px;padding:8px 14px;white-space:nowrap;
+    background:var(--panel);
+  }
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--muted);
+    box-shadow:0 0 0 0 transparent;transition:background .2s}
+  .lamp.live .dot{background:var(--ok);box-shadow:0 0 12px var(--ok)}
+
+  /* ---- Verdict banner: the signature element ---- */
+  .verdict{
+    border:1px solid var(--stroke);border-left-width:4px;border-radius:10px;
+    padding:18px 20px;margin-bottom:24px;background:var(--panel);
+    transition:border-color .25s,background .25s;
+  }
+  .verdict .tag{font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .verdict .line{font-size:17px;font-weight:500}
+  .verdict .why{color:var(--muted);font-size:13px;margin-top:8px;font-family:var(--mono);line-height:1.6}
+  .verdict.ok{border-left-color:var(--ok)}
+  .verdict.ok .line{color:var(--ok)}
+  .verdict.warn{border-left-color:var(--warn)}
+  .verdict.warn .line{color:var(--warn)}
+  .verdict.idle{border-left-color:var(--stroke)}
+
+  /* ---- Grid of panels ---- */
+  .grid{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:760px){.grid{grid-template-columns:1.3fr 1fr}}
+  .panel{background:var(--panel);border:1px solid var(--stroke-soft);border-radius:10px;
+    padding:18px}
+  .panel h2{font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 14px;font-family:var(--mono);font-weight:500}
+
+  /* identity table */
+  .id-row{display:flex;justify-content:space-between;gap:12px;font-family:var(--mono);
+    font-size:13px;padding:7px 0;border-bottom:1px solid var(--stroke-soft)}
+  .id-row:last-child{border-bottom:none}
+  .id-row .k{color:var(--muted)}
+  .id-row .v{text-align:right;word-break:break-word;max-width:60%}
+  .id-row .v.flag-ok{color:var(--ok)}
+  .id-row .v.flag-warn{color:var(--warn)}
+
+  /* button grid */
+  .btn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+  .cell{border:1px solid var(--stroke-soft);border-radius:7px;padding:8px 6px;
+    text-align:center;font-family:var(--mono);transition:background .06s,border-color .06s,color .06s;
+    background:var(--panel-2)}
+  .cell .idx{font-size:11px;color:var(--muted)}
+  .cell .nm{font-size:12px;font-weight:500;margin-top:2px}
+  .cell .val{font-size:10px;color:var(--muted);margin-top:3px;height:12px}
+  .cell.on{background:var(--signal);border-color:var(--signal);color:#15171c}
+  .cell.on .idx,.cell.on .nm,.cell.on .val{color:#15171c}
+
+  /* axes / sticks */
+  .sticks{display:flex;gap:18px;flex-wrap:wrap}
+  .stick{flex:1;min-width:120px}
+  .stick .label{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px;
+    display:flex;justify-content:space-between}
+  .pad{position:relative;aspect-ratio:1;border:1px solid var(--stroke);border-radius:50%;
+    background:radial-gradient(circle,var(--panel-2),var(--panel))}
+  .pad .cross{position:absolute;inset:0}
+  .pad .cross::before,.pad .cross::after{content:"";position:absolute;background:var(--stroke-soft)}
+  .pad .cross::before{left:50%;top:8%;bottom:8%;width:1px;transform:translateX(-.5px)}
+  .pad .cross::after{top:50%;left:8%;right:8%;height:1px;transform:translateY(-.5px)}
+  .nub{position:absolute;width:18px;height:18px;border-radius:50%;background:var(--signal);
+    box-shadow:0 0 10px rgba(242,169,59,.6);left:50%;top:50%;
+    transform:translate(-50%,-50%);transition:none}
+
+  /* remap demo */
+  .remap{margin-top:18px}
+  .actions{display:flex;flex-direction:column;gap:8px}
+  .action{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    border:1px solid var(--stroke-soft);border-radius:7px;padding:10px 12px;font-family:var(--mono);font-size:13px}
+  .action .bound{color:var(--ok)}
+  .action .listening{color:var(--signal)}
+  button.rebind{font-family:var(--mono);font-size:12px;background:var(--panel-2);
+    color:var(--text);border:1px solid var(--stroke);border-radius:6px;padding:6px 11px;cursor:pointer}
+  button.rebind:hover{border-color:var(--signal);color:var(--signal)}
+  button.rebind:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+
+  .empty{font-family:var(--mono);font-size:13px;color:var(--muted);text-align:center;
+    padding:30px 10px;line-height:1.7}
+  code{background:var(--panel-2);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:.9em}
+  footer{margin-top:26px;font-family:var(--mono);font-size:11px;color:var(--muted);
+    border-top:1px solid var(--stroke-soft);padding-top:14px;line-height:1.7}
+
+  @media(prefers-reduced-motion:reduce){
+    .dot,.cell,.lamp.live .dot{transition:none}
+    .nub{box-shadow:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <a class="back" href="../../">‹ OS</a>
+      <h1>Gamepad Signal Path</h1>
+      <div class="sub">Watch one button press travel from raw HID index → standard mapping → game action.</div>
+    </div>
+    <div class="lamp" id="lamp"><span class="dot"></span><span id="lampText">no device</span></div>
+  </header>
+
+  <div class="verdict idle" id="verdict">
+    <div class="tag">Layer 4 — recognition verdict</div>
+    <div class="line" id="verdictLine">Connect a controller and press any button.</div>
+    <div class="why" id="verdictWhy">The browser fires <code>gamepadconnected</code> on first input. Some controllers stay invisible until you press something.</div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="panel">
+        <h2>Live buttons — raw index vs. standard name</h2>
+        <div id="btnGrid" class="btn-grid"></div>
+        <div id="btnEmpty" class="empty">Awaiting device.<br>Plug in USB or pair over Bluetooth, then press a button.</div>
+      </div>
+
+      <div class="panel" style="margin-top:18px">
+        <h2>Analog axes</h2>
+        <div id="sticks" class="sticks"></div>
+        <div id="stickEmpty" class="empty">Sticks and analog triggers appear here.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <h2>Layer 1–3 — device identity</h2>
+        <div id="identity">
+          <div class="empty" style="padding:18px 0">No <code>navigator.getGamepads()</code> entry yet.</div>
+        </div>
+      </div>
+
+      <div class="panel remap">
+        <h2>Layer 5 — game-side remapping</h2>
+        <div class="actions" id="actions"></div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:12px;line-height:1.6">
+          This is the layer you control. Bind actions to <em>whatever index the device reports</em> — never assume button 0 is "jump".
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer id="apiNote">
+    Reads <code>navigator.getGamepads()</code> in a requestAnimationFrame loop. Button state is polled, not event-driven —
+    only connect/disconnect arrive as events.
+  </footer>
+</div>
+
+<script>
+/* =====================================================================
+   GAMEPAD INPUT HANDLER — layered detection reference
+   ---------------------------------------------------------------------
+   The W3C "standard gamepad" button order. When gamepad.mapping ===
+   "standard", THESE names are guaranteed to line up with the indices.
+   When mapping === "" the device was NOT recognized: indices below are
+   only a GUESS, which is exactly why hardcoding them breaks games.
+   ===================================================================== */
+const STANDARD_BUTTONS = [
+  "A / Cross", "B / Circle", "X / Square", "Y / Triangle",
+  "L1 / LB", "R1 / RB", "L2 / LT", "R2 / RT",
+  "Select / Back", "Start", "L3", "R3",
+  "D-Up", "D-Down", "D-Left", "D-Right", "Guide"
+];
+const STANDARD_AXES = ["Left X", "Left Y", "Right X", "Right Y"];
+
+/* Game-side action map. The lesson: actions point AT indices, the
+   player can repoint them. We seed sensible defaults for a standard pad. */
+const actions = [
+  { name: "Jump",      button: 0 },
+  { name: "Interact",  button: 2 },
+  { name: "Pause",     button: 9 },
+];
+let listeningFor = null; // index into `actions` while rebinding
+
+const el = id => document.getElementById(id);
+let connectedIndex = null;
+
+/* ---- Layer: connection events (the only event-driven part) ---- */
+window.addEventListener("gamepadconnected", e => {
+  connectedIndex = e.gamepad.index;
+  buildButtonGrid(e.gamepad);
+  buildSticks(e.gamepad);
+});
+window.addEventListener("gamepaddisconnected", e => {
+  if (e.gamepad.index === connectedIndex) connectedIndex = null;
+});
+
+function activePad(){
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  if (connectedIndex !== null && pads[connectedIndex]) return pads[connectedIndex];
+  for (const p of pads) if (p) return p;   // fall back to any present pad
+  return null;
+}
+
+/* ---- Build the static structure once a pad appears ---- */
+function buildButtonGrid(pad){
+  const grid = el("btnGrid");
+  grid.innerHTML = "";
+  pad.buttons.forEach((_, i) => {
+    const c = document.createElement("div");
+    c.className = "cell"; c.id = "btn"+i;
+    const standardName = pad.mapping === "standard"
+      ? (STANDARD_BUTTONS[i] || "—")
+      : "raw";                                // unknown: no trustworthy name
+    c.innerHTML = `<div class="idx">#${i}</div>
+                   <div class="nm">${standardName}</div>
+                   <div class="val"></div>`;
+    grid.appendChild(c);
+  });
+  el("btnEmpty").style.display = "none";
+}
+
+function buildSticks(pad){
+  const host = el("sticks"); host.innerHTML = "";
+  const pairs = Math.floor(pad.axes.length / 2);
+  for (let s = 0; s < pairs; s++){
+    const xi = s*2, yi = s*2+1;
+    const label = pad.mapping === "standard"
+      ? `${STANDARD_AXES[xi] ?? "axis "+xi} / ${STANDARD_AXES[yi] ?? "axis "+yi}`
+      : `axis ${xi} / axis ${yi}`;
+    const wrap = document.createElement("div");
+    wrap.className = "stick";
+    wrap.innerHTML = `<div class="label"><span>${label}</span><span id="axv${s}">0.00, 0.00</span></div>
+                      <div class="pad"><div class="cross"></div><div class="nub" id="nub${s}"></div></div>`;
+    host.appendChild(wrap);
+  }
+  el("stickEmpty").style.display = pairs ? "none" : "block";
+}
+
+/* ---- The verdict: this is the decision your game must make ---- */
+function renderVerdict(pad){
+  const v = el("verdict");
+  if (!pad){
+    v.className = "verdict idle";
+    el("verdictLine").textContent = "Connect a controller and press any button.";
+    el("verdictWhy").innerHTML = "The browser fires <code>gamepadconnected</code> on first input. Some controllers stay invisible until you press something.";
+    return;
+  }
+  if (pad.mapping === "standard"){
+    v.className = "verdict ok";
+    el("verdictLine").textContent = 'mapping: "standard" — indices are canonical, safe to use.';
+    el("verdictWhy").innerHTML = "The browser recognized this device and reordered its buttons into the W3C layout. Button names on the left are reliable.";
+  } else {
+    v.className = "verdict warn";
+    el("verdictLine").textContent = 'mapping: "" — UNRECOGNIZED. Indices are raw and device-specific.';
+    el("verdictWhy").innerHTML = "No profile matched, so button #0 is whatever this device decided. Hardcoding actions to indices here is the #1 cause of “wrong button” bugs. Offer remapping.";
+  }
+}
+
+function renderIdentity(pad){
+  const host = el("identity");
+  if (!pad){ host.innerHTML = '<div class="empty" style="padding:18px 0">No <code>navigator.getGamepads()</code> entry yet.</div>'; return; }
+  const mapFlag = pad.mapping === "standard" ? "flag-ok" : "flag-warn";
+  const rows = [
+    ["id", pad.id],
+    ["mapping", pad.mapping || '"" (none)'],
+    ["index", pad.index],
+    ["buttons", pad.buttons.length],
+    ["axes", pad.axes.length],
+    ["connected", pad.connected],
+  ];
+  host.innerHTML = rows.map(([k,val]) => {
+    const cls = k === "mapping" ? mapFlag : "";
+    return `<div class="id-row"><span class="k">${k}</span><span class="v ${cls}">${val}</span></div>`;
+  }).join("");
+}
+
+function renderActions(pad){
+  const host = el("actions");
+  host.innerHTML = actions.map((a, i) => {
+    const state = listeningFor === i
+      ? `<span class="listening">press a button…</span>`
+      : `<span class="bound">→ button #${a.button}</span>`;
+    return `<div class="action"><span>${a.name} ${state}</span>
+            <button class="rebind" data-i="${i}">${listeningFor===i?"cancel":"rebind"}</button></div>`;
+  }).join("");
+  host.querySelectorAll(".rebind").forEach(b => {
+    b.onclick = () => {
+      const i = +b.dataset.i;
+      listeningFor = listeningFor === i ? null : i;
+      renderActions(pad);
+    };
+  });
+}
+
+/* ---- The poll loop: button + axis state must be read every frame ---- */
+let prevPressed = [];
+function loop(){
+  const pad = activePad();
+  const lamp = el("lamp");
+
+  if (pad){
+    lamp.classList.add("live");
+    el("lampText").textContent = "device live";
+    if (!el("btn0")) { buildButtonGrid(pad); buildSticks(pad); } // late-appearing pad
+
+    // buttons
+    pad.buttons.forEach((btn, i) => {
+      const cell = el("btn"+i);
+      if (!cell) return;
+      cell.classList.toggle("on", btn.pressed);
+      const valEl = cell.querySelector(".val");
+      if (valEl) valEl.textContent = btn.value > 0 && btn.value < 1 ? btn.value.toFixed(2) : "";
+
+      // rebind capture: bind the action to whatever index fired
+      const wasPressed = prevPressed[i];
+      if (btn.pressed && !wasPressed && listeningFor !== null){
+        actions[listeningFor].button = i;
+        listeningFor = null;
+        renderActions(pad);
+      }
+      prevPressed[i] = btn.pressed;
+    });
+
+    // axes -> nubs
+    const pairs = Math.floor(pad.axes.length / 2);
+    for (let s = 0; s < pairs; s++){
+      const x = pad.axes[s*2] || 0, y = pad.axes[s*2+1] || 0;
+      const nub = el("nub"+s);
+      if (nub) nub.style.transform =
+        `translate(calc(-50% + ${x*38}%), calc(-50% + ${y*38}%))`;
+      const read = el("axv"+s);
+      if (read) read.textContent = `${x.toFixed(2)}, ${y.toFixed(2)}`;
+    }
+  } else {
+    lamp.classList.remove("live");
+    el("lampText").textContent = "no device";
+  }
+
+  renderVerdict(pad);
+  renderIdentity(pad);
+  if (!el("actions").children.length || listeningFor === null) renderActions(pad);
+
+  requestAnimationFrame(loop);
+}
+renderActions(null);
+requestAnimationFrame(loop);
+
+/* ---- offline: register service worker ---- */
+if ("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(e => console.warn("[signal-path] SW failed:", e));
+  });
+}
+</script>
+</body>
+</html>
