@@ -1,13 +1,18 @@
 /* Gut Check — service worker. Precaches the app shell (including the shared
  * theme + storage) so it opens fully offline. Bump VERSION to push updates. */
-var VERSION = 'gut-check-v1';
+var VERSION = 'gut-check-v2';
 var SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   '../../shared/theme.css',
+  '../../shared/fonts.css',
   '../../shared/storage.js',
   '../../shared/pwa.js',
+  '../../shared/fonts/barlow-semi-condensed-500.woff2',
+  '../../shared/fonts/barlow-semi-condensed-600.woff2',
+  '../../shared/fonts/barlow-semi-condensed-700.woff2',
+  '../../shared/fonts/inter-var.woff2',
   '../../shared/icons/icon.svg',
   '../../shared/icons/icon-180.png',
   '../../shared/icons/icon-192.png',
@@ -33,20 +38,6 @@ self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET') return;
   var url = new URL(req.url);
-
-  if (url.hostname.indexOf('fonts.googleapis.com') !== -1 ||
-      url.hostname.indexOf('fonts.gstatic.com') !== -1) {
-    e.respondWith(
-      caches.open('oos-fonts').then(function (c) {
-        return c.match(req).then(function (hit) {
-          var net = fetch(req).then(function (res) { c.put(req, res.clone()); return res; })
-            .catch(function () { return hit; });
-          return hit || net;
-        });
-      })
-    );
-    return;
-  }
 
   if (url.origin === self.location.origin) {
     e.respondWith(

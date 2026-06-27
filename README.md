@@ -88,8 +88,22 @@ python3 -m http.server 8000
 
 Then open `http://localhost:8000/`.
 
+## Fonts
+
+Fonts (Inter + Barlow Semi Condensed, latin subset) are **self-hosted** in
+`shared/fonts/` and declared in `shared/fonts.css` — no Google Fonts request,
+so the OS renders correctly fully offline from the very first load. The service
+workers precache the woff2 files. To change weights/subsets, re-run the
+generator and bump the service-worker `VERSION` strings.
+
 ## Deploying
 
-Intended for GitHub Pages serving the repo root. A `.github/workflows/pages.yml`
-is a planned follow-up; once Pages is enabled for the repo, the dashboard lives
-at the repo's Pages URL and each app at `/<repo>/apps/<name>/`.
+GitHub Pages serves the repo root as-is (no build). `.github/workflows/pages.yml`
+deploys on every push to `main` (and can be run manually via the Actions tab).
+
+One-time setup: in the repo, **Settings → Pages → Build and deployment →
+Source: GitHub Actions**. After that, the dashboard lives at the repo's Pages
+URL and each app at `/<repo>/apps/<name>/`.
+
+> The workflow deploys from `main`. Development happens on a feature branch, so
+> merge to `main` (or trigger the workflow manually) to publish.
