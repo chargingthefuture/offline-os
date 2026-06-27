@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gut Check</title>
+
+<!-- PWA / iOS home-screen -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gut Check">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  /* app-specific styles (shared components live in theme.css) */
+  .testing{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:12px 14px;margin-bottom:18px;}
+  .testing label{display:block;font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:7px;font-weight:600;}
+
+  .trend{display:flex;align-items:flex-end;gap:5px;height:90px;padding:6px 2px 0;}
+  .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;}
+  .bar{width:100%;border-radius:3px 3px 0 0;background:var(--amber);min-height:2px;}
+  .bar.bm{box-shadow:inset 0 -4px 0 var(--green);}
+  .bar-day{font-size:9px;color:var(--muted);}
+
+  .log{display:flex;flex-direction:column;gap:8px;}
+  .entry{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:11px 13px;}
+  .entry .top{display:flex;justify-content:space-between;align-items:center;}
+  .entry .d{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:600;
+    letter-spacing:.04em;font-size:14px;}
+  .entry .pills{margin-top:7px;}
+  .entry .phase{font-size:11px;color:var(--muted);margin-top:6px;font-style:italic;}
+  .entry .nt{font-size:13px;color:var(--text);margin-top:6px;}
+
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+</style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <a class="back" href="../../">‹ OS</a>
+      <h1>Gut Check</h1>
+      <p class="sub">20 seconds. One day at a time.</p>
+    </div>
+    <div class="date" id="today">—</div>
+  </div>
+
+  <div id="app"><div class="loading">Loading your log…</div></div>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+registerPWA('sw.js');
+
+const KEY = 'bloat-log';
+let state = { testing:'', entries:{} }; // entries keyed by YYYY-MM-DD
+
+// today's working values
+let cur = { bloat:0, nausea:0, bm:null, appetite:null, note:'' };
+
+function todayKey(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function fmtDate(k){
+  const [y,m,d]=k.split('-').map(Number);
+  const dt=new Date(y,m-1,d);
+  return dt.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+}
+
+async function load(){
+  try{
+    const r = await window.storage.get(KEY);
+    if(r && r.value){ state = JSON.parse(r.value); }
+  }catch(e){ /* no saved data yet */ }
+  if(!state.entries) state.entries={};
+  if(typeof state.testing!=='string') state.testing='';
+  // preload today's entry if it exists
+  const t = state.entries[todayKey()];
+  if(t){ cur={bloat:t.bloat,nausea:t.nausea,bm:t.bm,appetite:t.appetite,note:t.note||''}; }
+  render();
+}
+
+async function save(){
+  const k = todayKey();
+  state.entries[k] = {
+    bloat:cur.bloat, nausea:cur.nausea, bm:cur.bm,
+    appetite:cur.appetite, note:cur.note.trim(), phase:state.testing.trim()
+  };
+  try{
+    await window.storage.set(KEY, JSON.stringify(state));
+    flashSaved();
+  }catch(e){
+    alert('Could not save right now. Your entry is still on screen — try Save again.');
+  }
+  render(true);
+}
+
+let flash=false;
+function flashSaved(){ flash=true; setTimeout(()=>{flash=false;render();},1400); }
+
+async function saveTesting(v){
+  state.testing=v;
+  try{ await window.storage.set(KEY, JSON.stringify(state)); }catch(e){}
+}
+
+function step(field, delta){
+  cur[field]=Math.max(0,Math.min(10,cur[field]+delta));
+  render();
+}
+function setBM(v){ cur.bm=v; render(); }
+function setApp(v){ cur.appetite=v; render(); }
+function setNote(v){ cur.note=v; }
+
+function render(){
+  document.getElementById('today').textContent = fmtDate(todayKey());
+  const keys = Object.keys(state.entries).sort().reverse();
+  const recent = keys.slice(0,14).reverse(); // oldest->newest for trend
+
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="testing">
+      <label>Currently testing</label>
+      <input id="testing" placeholder="e.g. Baseline week · Magnesium · Split protein"
+        value="${escapeHtml(state.testing)}">
+    </div>
+
+    <div class="card">
+      <div class="lbl">Bloat <span class="hint">0 none · 10 worst</span></div>
+      <div class="gauge">
+        <div class="step" onclick="step('bloat',-1)">−</div>
+        <div class="readout"><div class="num">${cur.bloat}</div><div class="scale">level</div></div>
+        <div class="step" onclick="step('bloat',1)">+</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="lbl">Nausea <span class="hint">0 none · 10 worst</span></div>
+      <div class="gauge">
+        <div class="step" onclick="step('nausea',-1)">−</div>
+        <div class="readout"><div class="num">${cur.nausea}</div><div class="scale">level</div></div>
+        <div class="step" onclick="step('nausea',1)">+</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="lbl">Bowel movement today?</div>
+      <div class="row2">
+        <div class="opt ${cur.bm===true?'on-green':''}" onclick="setBM(true)">Yes</div>
+        <div class="opt ${cur.bm===false?'on-red':''}" onclick="setBM(false)">No</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="lbl">Appetite</div>
+      <div class="row3">
+        <div class="opt ${cur.appetite==='low'?'on-red':''}" onclick="setApp('low')">Low</div>
+        <div class="opt ${cur.appetite==='ok'?'on-amber':''}" onclick="setApp('ok')">OK</div>
+        <div class="opt ${cur.appetite==='good'?'on-green':''}" onclick="setApp('good')">Good</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="lbl">Note <span class="hint">optional</span></div>
+      <textarea class="noteinput" id="note" rows="2"
+        placeholder="Anything unusual you ate, drank, or did">${escapeHtml(cur.note)}</textarea>
+    </div>
+
+    <button class="save ${flash?'saved-flash':''}" onclick="save()">
+      ${flash?'Saved ✓':'Save today'}
+    </button>
+
+    <div class="section-title">Last ${recent.length||0} days</div>
+    ${trendHtml(recent)}
+
+    ${keys.length? `<div class="log">${keys.slice(0,30).map(entryHtml).join('')}</div>`
+      : `<div class="empty">No entries yet. Log today to start your baseline.</div>`}
+  `;
+
+  const ti=document.getElementById('testing');
+  if(ti){ ti.oninput=e=>{ state.testing=e.target.value; }; ti.onblur=e=>saveTesting(e.target.value); }
+  const nt=document.getElementById('note');
+  if(nt){ nt.oninput=e=>setNote(e.target.value); }
+}
+
+function trendHtml(recent){
+  if(!recent.length) return `<div class="empty" style="padding:10px">Your bloat trend shows here once you log a few days.</div>`;
+  const bars = recent.map(k=>{
+    const e=state.entries[k];
+    const h=Math.max(2,(e.bloat/10)*84);
+    const day=fmtDate(k).split(' ')[0][0];
+    return `<div class="bar-wrap">
+      <div class="bar ${e.bm?'bm':''}" style="height:${h}px" title="${fmtDate(k)} · bloat ${e.bloat}"></div>
+      <div class="bar-day">${day}</div></div>`;
+  }).join('');
+  return `<div class="trend">${bars}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">
+    Bar height = bloat · green underline = had a BM</div>`;
+}
+
+function entryHtml(k){
+  const e=state.entries[k];
+  const appCls = e.appetite==='low'?'red':e.appetite==='good'?'green':'amber';
+  return `<div class="entry">
+    <div class="top">
+      <span class="d">${fmtDate(k)}</span>
+      <div class="pills">
+        <span class="pill amber">Bloat ${e.bloat}</span>
+        ${e.nausea>0?`<span class="pill red">Nausea ${e.nausea}</span>`:''}
+        <span class="pill ${e.bm?'green':'red'}">${e.bm?'BM ✓':'No BM'}</span>
+        ${e.appetite?`<span class="pill ${appCls}">${e.appetite}</span>`:''}
+      </div>
+    </div>
+    ${e.phase?`<div class="phase">Testing: ${escapeHtml(e.phase)}</div>`:''}
+    ${e.note?`<div class="nt">${escapeHtml(e.note)}</div>`:''}
+  </div>`;
+}
+
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+load();
+</script>
+</body>
+</html>

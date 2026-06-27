@@ -1,0 +1,11 @@
+{
+  "apps": [
+    {
+      "name": "Gut Check",
+      "blurb": "20-second daily gut symptom log",
+      "url": "apps/gut-check/",
+      "icon": "🩺",
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Offline OS</title>
+
+<!-- PWA / iOS home-screen -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OS">
+<link rel="apple-touch-icon" href="shared/icons/icon-180.png">
+<link rel="icon" href="shared/icons/icon.svg" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/theme.css">
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Offline OS</h1>
+      <p class="sub">Your apps. On your device. Offline.</p>
+    </div>
+    <div class="date" id="today">—</div>
+  </div>
+
+  <div id="apps"><div class="loading">Loading apps…</div></div>
+
+  <div class="section-title">Data &amp; backup</div>
+  <div class="card">
+    <div class="lbl">Backup
+      <span class="hint" id="datameta">—</span>
+    </div>
+    <p class="sub" style="margin:0 0 12px">
+      Your data lives on this device only — iOS can clear it, and a lost phone
+      loses it. Export to Files / iCloud Drive regularly. Reinstall &rarr; Import to restore.
+    </p>
+    <div class="row2">
+      <button class="btn" id="export">Export all</button>
+      <button class="btn ghost" id="importBtn">Import…</button>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" hidden>
+  </div>
+
+<script src="shared/storage.js"></script>
+<script src="shared/pwa.js"></script>
+<script>
+registerPWA('sw.js');
+
+function fmtToday(){
+  var d=new Date();
+  return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+}
+function esc(s){return (s||'').replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+var META_KEY='dashboard-meta'; // tracks last export time
+
+document.getElementById('today').textContent=fmtToday();
+
+function statusPill(s){
+  if(s==='experimental') return '<span class="pill amber tag">experimental</span>';
+  if(s==='external') return '<span class="pill green tag">external</span>';
+  return '';
+}
+
+async function renderApps(){
+  var box=document.getElementById('apps');
+  try{
+    var res=await fetch('apps.json',{cache:'no-cache'});
+    var data=await res.json();
+    var apps=(data&&data.apps)||[];
+    if(!apps.length){ box.innerHTML='<div class="empty">No apps yet. Add one to apps.json.</div>'; return; }
+    box.innerHTML='<div class="app-grid">'+apps.map(function(a){
+      var ext=/^https?:\/\//.test(a.url);
+      var attrs=ext?' target="_blank" rel="noopener"':'';
+      return '<a class="tile" href="'+esc(a.url)+'"'+attrs+'>'
+        +'<span class="ico">'+esc(a.icon||'▦')+'</span>'
+        +'<span class="name">'+esc(a.name)+'</span>'
+        +'<span class="blurb">'+esc(a.blurb||'')+'</span>'
+        +statusPill(a.status)
+        +'</a>';
+    }).join('')+'</div>';
+  }catch(e){
+    box.innerHTML='<div class="empty">Could not load apps.json.</div>';
+  }
+}
+
+async function refreshMeta(){
+  var m=null;
+  try{ var r=await window.storage.get(META_KEY); if(r&&r.value) m=JSON.parse(r.value);}catch(e){}
+  var el=document.getElementById('datameta');
+  el.textContent=(m&&m.lastExport)?('last export '+new Date(m.lastExport).toLocaleDateString()):'never exported';
+}
+
+function pad(n){return String(n).padStart(2,'0');}
+document.getElementById('export').onclick=async function(){
+  var payload={
+    app:'offline-os', version:1,
+    exportedAt:new Date().toISOString(),
+    data:window.storage.exportAll()
+  };
+  // record the export time, then include it in the dump too
+  await window.storage.set(META_KEY, JSON.stringify({lastExport:payload.exportedAt}));
+  payload.data=window.storage.exportAll();
+  var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  var d=new Date();
+  var fn='offline-os-backup-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json';
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=fn;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href); a.remove();},1500);
+  refreshMeta();
+};
+
+document.getElementById('importBtn').onclick=function(){ document.getElementById('importFile').click(); };
+document.getElementById('importFile').onchange=function(ev){
+  var f=ev.target.files[0]; if(!f) return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    try{
+      var parsed=JSON.parse(reader.result);
+      var data=(parsed&&parsed.data)?parsed.data:parsed;
+      if(typeof data!=='object'||data===null) throw new Error('bad file');
+      var keys=Object.keys(data);
+      var ok=confirm('Restore '+keys.length+' item(s) from this backup?\n\nThis merges into your current data (existing keys are overwritten).');
+      if(!ok) return;
+      window.storage.importAll(data,{merge:true});
+      alert('Restored. Your apps now have this data.');
+      refreshMeta();
+    }catch(e){
+      alert('That file could not be read as an Offline OS backup.');
+    }
+  };
+  reader.readAsText(f);
+  ev.target.value='';
+};
+
+renderApps();
+refreshMeta();
+</script>
+</body>
+</html>
