@@ -18,11 +18,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="../../shared/fonts.css">
 <style>
-  :root{
-    --bg:#16171b; --panel:#1f2127; --panel-2:#262931; --line:#33373f;
-    --amber:#ffb000; --amber-dim:#7a5500; --text:#e9e6df; --muted:#8d909a;
-    --green:#4caf7d; --red:#d96a5a;
-  }
+  :root{--bg:#16171b;--panel:#1f2127;--panel-2:#262931;--line:#33373f;--amber:#ffb000;--amber-dim:#7a5500;--text:#e9e6df;--muted:#8d909a;--green:#4caf7d;--red:#d96a5a;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;}
   body{max-width:520px;margin:0 auto;padding:18px 16px 48px;}
@@ -64,6 +60,13 @@
   .bar{width:100%;border-radius:3px 3px 0 0;background:var(--amber);min-height:2px;}
   .bar.bm{box-shadow:inset 0 -4px 0 var(--green);}
   .bar-day{font-size:9px;color:var(--muted);}
+  .phases{display:flex;flex-direction:column;gap:10px;}
+  .phase-row{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .phase-name{font-family:'Barlow Semi Condensed',sans-serif;font-weight:600;letter-spacing:.03em;font-size:15px;}
+  .best-tag{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#1a1300;background:var(--amber);border-radius:20px;padding:2px 8px;margin-left:8px;vertical-align:middle;font-weight:700;}
+  .phase-right{text-align:right;flex:none;}
+  .phase-right .big{font-family:'Barlow Semi Condensed',sans-serif;font-weight:700;font-size:24px;color:var(--amber);}
+  .phase-right .meta{display:block;font-size:11px;color:var(--muted);margin-top:2px;}
   .log{display:flex;flex-direction:column;gap:8px;}
   .entry{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;}
   .entry .top{display:flex;justify-content:space-between;align-items:center;}
@@ -77,6 +80,7 @@
   .entry .nt{font-size:13px;color:var(--text);margin-top:6px;}
   .empty{color:var(--muted);font-size:14px;text-align:center;padding:20px;}
   .loading{color:var(--muted);text-align:center;padding:40px;font-size:14px;}
+  .cmphint{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;}
 </style>
 </head>
 <body>
@@ -98,44 +102,37 @@ registerPWA('sw.js');
    whether or not the page URL has a trailing slash. */
 (function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
 
-const KEY = 'bloat-log';
-const BASELINE = 32;   // your no-bloat waist
-let state = { testing:'', entries:{} };
-let cur = { waist:BASELINE, nausea:0, bm:null, appetite:null, note:'' };
+const KEY='bloat-log';
+const BASELINE=32;
+let state={testing:'',entries:{}};
+let cur={waist:BASELINE,nausea:0,bm:null,appetite:null,note:''};
 
-function todayKey(){
-  const d=new Date();
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
-function fmtDate(k){
-  const [y,m,d]=k.split('-').map(Number);
-  return new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
-}
-function fmtIn(n){ return (Math.round(n*100)/100).toString(); }
+function todayKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtDate(k){const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});}
+function fmtIn(n){return (Math.round(n*100)/100).toString();}
 
 async function load(){
-  try{ const r=await window.storage.get(KEY); if(r&&r.value) state=JSON.parse(r.value); }catch(e){}
-  if(!state.entries) state.entries={};
-  if(typeof state.testing!=='string') state.testing='';
+  try{const r=await window.storage.get(KEY);if(r&&r.value)state=JSON.parse(r.value);}catch(e){}
+  if(!state.entries)state.entries={};
+  if(typeof state.testing!=='string')state.testing='';
   const t=state.entries[todayKey()];
-  if(t){ cur={waist:(t.waist!=null?t.waist:BASELINE),nausea:t.nausea||0,bm:t.bm,appetite:t.appetite,note:t.note||''}; }
+  if(t){cur={waist:(t.waist!=null?t.waist:BASELINE),nausea:t.nausea||0,bm:t.bm,appetite:t.appetite,note:t.note||''};}
   render();
 }
 async function save(){
   state.entries[todayKey()]={waist:cur.waist,nausea:cur.nausea,bm:cur.bm,appetite:cur.appetite,note:cur.note.trim(),phase:state.testing.trim()};
-  try{ await window.storage.set(KEY,JSON.stringify(state)); flashSaved(); }
-  catch(e){ alert('Could not save right now. Your entry is still on screen — try Save again.'); }
+  try{await window.storage.set(KEY,JSON.stringify(state));flashSaved();}
+  catch(e){alert('Could not save right now. Your entry is still on screen — try Save again.');}
   render();
 }
 let flash=false;
-function flashSaved(){ flash=true; setTimeout(()=>{flash=false;render();},1400); }
-async function saveTesting(v){ state.testing=v; try{ await window.storage.set(KEY,JSON.stringify(state)); }catch(e){} }
-
-function stepWaist(d){ cur.waist=Math.max(26,Math.min(50,Math.round((cur.waist+d)*4)/4)); render(); }
-function stepN(d){ cur.nausea=Math.max(0,Math.min(10,cur.nausea+d)); render(); }
-function setBM(v){ cur.bm=v; render(); }
-function setApp(v){ cur.appetite=v; render(); }
-function setNote(v){ cur.note=v; }
+function flashSaved(){flash=true;setTimeout(()=>{flash=false;render();},1400);}
+async function saveTesting(v){state.testing=v;try{await window.storage.set(KEY,JSON.stringify(state));}catch(e){}}
+function stepWaist(d){cur.waist=Math.max(26,Math.min(50,Math.round((cur.waist+d)*4)/4));render();}
+function stepN(d){cur.nausea=Math.max(0,Math.min(10,cur.nausea+d));render();}
+function setBM(v){cur.bm=v;render();}
+function setApp(v){cur.appetite=v;render();}
+function setNote(v){cur.note=v;}
 
 function render(){
   document.getElementById('today').textContent=fmtDate(todayKey());
@@ -143,96 +140,106 @@ function render(){
   const recent=keys.slice(0,14).reverse();
   const app=document.getElementById('app');
   app.innerHTML=`
-    <div class="testing">
-      <label>Currently testing</label>
-      <input id="testing" placeholder="e.g. Baseline week · Magnesium · Split protein" value="${escapeHtml(state.testing)}">
-    </div>
+    <div class="testing"><label>Currently testing</label>
+      <input id="testing" placeholder="e.g. Baseline · Time-box protein · Mag citrate" value="${escapeHtml(state.testing)}"></div>
 
-    <div class="card">
-      <div class="lbl">Waist <span class="hint">measure same spot, same time</span></div>
-      <div class="gauge">
-        <div class="step" onclick="stepWaist(-0.25)">&minus;</div>
+    <div class="card"><div class="lbl">Waist <span class="hint">same spot, same time</span></div>
+      <div class="gauge"><div class="step" onclick="stepWaist(-0.25)">&minus;</div>
         <div class="readout"><div class="num">${fmtIn(cur.waist)}<small>in</small></div>
           <div class="scale">${cur.waist<=BASELINE?'baseline':'+'+fmtIn(cur.waist-BASELINE)+'" over baseline'}</div></div>
-        <div class="step" onclick="stepWaist(0.25)">+</div>
-      </div>
-    </div>
+        <div class="step" onclick="stepWaist(0.25)">+</div></div></div>
 
-    <div class="card">
-      <div class="lbl">Nausea <span class="hint">0 none · 10 worst</span></div>
-      <div class="gauge">
-        <div class="step" onclick="stepN(-1)">&minus;</div>
+    <div class="card"><div class="lbl">Nausea <span class="hint">0 none · 10 worst</span></div>
+      <div class="gauge"><div class="step" onclick="stepN(-1)">&minus;</div>
         <div class="readout"><div class="num">${cur.nausea}</div><div class="scale">level</div></div>
-        <div class="step" onclick="stepN(1)">+</div>
-      </div>
-    </div>
+        <div class="step" onclick="stepN(1)">+</div></div></div>
 
-    <div class="card">
-      <div class="lbl">Bowel movement today?</div>
-      <div class="row2">
-        <div class="opt ${cur.bm===true?'on-green':''}" onclick="setBM(true)">Yes</div>
-        <div class="opt ${cur.bm===false?'on-red':''}" onclick="setBM(false)">No</div>
-      </div>
-    </div>
+    <div class="card"><div class="lbl">Bowel movement today?</div>
+      <div class="row2"><div class="opt ${cur.bm===true?'on-green':''}" onclick="setBM(true)">Yes</div>
+        <div class="opt ${cur.bm===false?'on-red':''}" onclick="setBM(false)">No</div></div></div>
 
-    <div class="card">
-      <div class="lbl">Appetite</div>
-      <div class="row3">
-        <div class="opt ${cur.appetite==='low'?'on-red':''}" onclick="setApp('low')">Low</div>
+    <div class="card"><div class="lbl">Appetite</div>
+      <div class="row3"><div class="opt ${cur.appetite==='low'?'on-red':''}" onclick="setApp('low')">Low</div>
         <div class="opt ${cur.appetite==='ok'?'on-amber':''}" onclick="setApp('ok')">OK</div>
-        <div class="opt ${cur.appetite==='good'?'on-green':''}" onclick="setApp('good')">Good</div>
-      </div>
-    </div>
+        <div class="opt ${cur.appetite==='good'?'on-green':''}" onclick="setApp('good')">Good</div></div></div>
 
-    <div class="card">
-      <div class="lbl">Note <span class="hint">optional</span></div>
-      <textarea class="noteinput" id="note" rows="2" placeholder="Anything unusual you ate, drank, or did">${escapeHtml(cur.note)}</textarea>
-    </div>
+    <div class="card"><div class="lbl">Note <span class="hint">optional</span></div>
+      <textarea class="noteinput" id="note" rows="2" placeholder="Anything unusual you ate, drank, or did">${escapeHtml(cur.note)}</textarea></div>
 
     <button class="save ${flash?'saved-flash':''}" onclick="save()">${flash?'Saved ✓':'Save today'}</button>
+
+    ${phasesSection()}
 
     <div class="section-title">Waist · last ${recent.length||0} days</div>
     ${trendHtml(recent)}
     ${keys.length?`<div class="log">${keys.slice(0,30).map(entryHtml).join('')}</div>`:`<div class="empty">No entries yet. Log today to start your baseline.</div>`}
   `;
   const ti=document.getElementById('testing');
-  if(ti){ ti.oninput=e=>{state.testing=e.target.value;}; ti.onblur=e=>saveTesting(e.target.value); }
+  if(ti){ti.oninput=e=>{state.testing=e.target.value;};ti.onblur=e=>saveTesting(e.target.value);}
   const nt=document.getElementById('note');
-  if(nt){ nt.oninput=e=>setNote(e.target.value); }
+  if(nt){nt.oninput=e=>setNote(e.target.value);}
+}
+
+function phaseStats(){
+  const g={};
+  Object.keys(state.entries).forEach(k=>{
+    const e=state.entries[k];
+    const p=(e.phase||'').trim()||'Unlabeled';
+    if(!g[p])g[p]={n:0,wSum:0,wN:0,nSum:0,bmYes:0,bmN:0,first:k};
+    const x=g[p];x.n++;
+    if(e.waist!=null){x.wSum+=e.waist;x.wN++;}
+    x.nSum+=(e.nausea||0);
+    if(e.bm===true)x.bmYes++; if(e.bm===true||e.bm===false)x.bmN++;
+    if(k<x.first)x.first=k;
+  });
+  return g;
+}
+function phasesSection(){
+  const g=phaseStats();
+  const names=Object.keys(g);
+  if(names.length===0) return '';
+  names.sort((a,b)=>g[a].first<g[b].first?-1:1);
+  const avgs=names.filter(n=>g[n].wN).map(n=>g[n].wSum/g[n].wN);
+  const best=avgs.length?Math.min(...avgs):null;
+  const rows=names.map(n=>{
+    const x=g[n];
+    const aw=x.wN?x.wSum/x.wN:null;
+    const an=x.n?x.nSum/x.n:0;
+    const bm=x.bmN?Math.round(100*x.bmYes/x.bmN):null;
+    const isBest=aw!=null&&best!=null&&Math.abs(aw-best)<0.001&&names.length>1;
+    return `<div class="phase-row">
+      <div><span class="phase-name">${escapeHtml(n)}</span>${isBest?'<span class="best-tag">lowest avg</span>':''}</div>
+      <div class="phase-right"><span class="big">${aw!=null?fmtIn(Math.round(aw*10)/10)+'″':'—'}</span>
+        <span class="meta">${x.n} day${x.n!==1?'s':''} · BM ${bm!=null?bm+'%':'—'} · nausea ${Math.round(an*10)/10}</span></div>
+    </div>`;
+  }).join('');
+  return `<div class="section-title">Phase comparison</div><div class="phases">${rows}</div>
+    <div class="cmphint">Average waist per phase. Change one thing at a time, give it ~2 weeks, then compare.</div>`;
 }
 
 function trendHtml(recent){
-  if(!recent.length) return `<div class="empty" style="padding:10px">Your waist trend shows here once you log a few days.</div>`;
+  if(!recent.length)return `<div class="empty" style="padding:10px">Your waist trend shows here once you log a few days.</div>`;
   const vals=recent.map(k=>state.entries[k].waist).filter(v=>v!=null);
-  const lo=Math.min(...vals), hi=Math.max(...vals);
-  const span=(hi-lo)||1;
+  const lo=Math.min(...vals),hi=Math.max(...vals),span=(hi-lo)||1;
   const bars=recent.map(k=>{
-    const e=state.entries[k]; const w=(e.waist!=null?e.waist:lo);
+    const e=state.entries[k],w=(e.waist!=null?e.waist:lo);
     const h=hi===lo?30:8+((w-lo)/span)*76;
     const day=fmtDate(k).split(' ')[0][0];
     return `<div class="bar-wrap"><div class="bar ${e.bm?'bm':''}" style="height:${h}px" title="${fmtDate(k)} · ${fmtIn(w)} in"></div><div class="bar-day">${day}</div></div>`;
   }).join('');
-  return `<div class="trend">${bars}</div>
-    <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">
-    Range ${fmtIn(lo)}&ndash;${fmtIn(hi)} in · taller = more bloated · green underline = had a BM</div>`;
+  return `<div class="trend">${bars}</div><div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">Range ${fmtIn(lo)}&ndash;${fmtIn(hi)} in · taller = more bloated · green underline = had a BM</div>`;
 }
-
 function entryHtml(k){
   const e=state.entries[k];
   const appCls=e.appetite==='low'?'red':e.appetite==='good'?'green':'amber';
   const over=e.waist!=null&&e.waist>BASELINE;
-  return `<div class="entry">
-    <div class="top"><span class="d">${fmtDate(k)}</span>
-      <div class="pills">
-        ${e.waist!=null?`<span class="pill ${over?'amber':'green'}">${fmtIn(e.waist)} in</span>`:''}
-        ${e.nausea>0?`<span class="pill red">Nausea ${e.nausea}</span>`:''}
-        <span class="pill ${e.bm?'green':'red'}">${e.bm?'BM ✓':'No BM'}</span>
-        ${e.appetite?`<span class="pill ${appCls}">${e.appetite}</span>`:''}
-      </div>
-    </div>
+  return `<div class="entry"><div class="top"><span class="d">${fmtDate(k)}</span>
+    <div class="pills">${e.waist!=null?`<span class="pill ${over?'amber':'green'}">${fmtIn(e.waist)} in</span>`:''}
+      ${e.nausea>0?`<span class="pill red">Nausea ${e.nausea}</span>`:''}
+      <span class="pill ${e.bm?'green':'red'}">${e.bm?'BM ✓':'No BM'}</span>
+      ${e.appetite?`<span class="pill ${appCls}">${e.appetite}</span>`:''}</div></div>
     ${e.phase?`<div class="phase">Testing: ${escapeHtml(e.phase)}</div>`:''}
-    ${e.note?`<div class="nt">${escapeHtml(e.note)}</div>`:''}
-  </div>`;
+    ${e.note?`<div class="nt">${escapeHtml(e.note)}</div>`:''}</div>`;
 }
 function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 load();
