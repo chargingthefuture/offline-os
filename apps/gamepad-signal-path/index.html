@@ -154,7 +154,7 @@
 <div class="wrap">
   <header>
     <div>
-      <a class="back" href="../../">‹ OS</a>
+      <a class="back" href="../../" id="backOS">‹ OS</a>
       <h1>Gamepad Signal Path</h1>
       <div class="sub">Watch one button press travel from raw HID index → standard mapping → game action.</div>
     </div>
@@ -207,6 +207,10 @@
 </div>
 
 <script>
+/* Point the back-to-OS link at the dashboard's absolute path, so it works
+   whether or not the page URL has a trailing slash. */
+(function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
+
 /* =====================================================================
    GAMEPAD INPUT HANDLER — layered detection reference
    ---------------------------------------------------------------------

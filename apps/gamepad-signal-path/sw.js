@@ -1,6 +1,6 @@
 /* Gamepad Signal Path — service worker. Self-contained: precaches its own
  * shell (HTML, fonts, icons) so it runs fully offline. Bump VERSION to update. */
-var VERSION = 'signal-path-v1';
+var VERSION = 'signal-path-v2';
 var SHELL = [
   './',
   './index.html',
