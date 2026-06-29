@@ -50,6 +50,12 @@
     font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;text-transform:uppercase;
     letter-spacing:.04em;font-size:13px;padding:10px 14px;cursor:pointer;}
   .go.ghost{background:var(--panel-2);color:var(--text);border:1px solid var(--line);}
+  .logstrip{margin-top:9px;font-size:12px;color:var(--amber);font-family:'Barlow Semi Condensed','Inter',sans-serif;letter-spacing:.02em;}
+  .logform{margin-top:10px;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:10px;}
+  .logform .stepper{justify-content:flex-start;}
+  .loginput{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--text);font-size:14px;padding:10px 12px;font-family:inherit;}
+  .loginput:focus{outline:none;border-color:var(--amber-dim);}
+  .loghist{margin-top:6px;font-size:11px;color:var(--muted);}
   .steps{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;display:none;}
   .item.open .steps{display:block;}
   .steprow{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--text);}
@@ -197,13 +203,34 @@ const EXLIST = [
   {id:'spinal-twist', name:'Standing Spinal Twist (switch halfway)', cat:'stretch', equip:['bodyweight'], sec:30, cues:'Gentle rotation holding each side, breathe into it. Switch halfway.'},
   {id:'wrist-stretch', name:'Wrist & Forearm Stretch', cat:'stretch', equip:['bodyweight'], sec:30, cues:'Extend an arm, gently pull the fingers back, then down. Relieves grip fatigue from the wheel.'},
   {id:'side-bend', name:'Standing Side Bend', cat:'stretch', equip:['bodyweight'], sec:30, cues:'Reach one arm overhead and lean away, open the ribs. Switch halfway.'},
+
+  // ---- Strength: hinge / squat / carry staples (progressive overload) ----
+  {id:'band-deadlift', name:'Band Deadlift', cat:'lower', equip:['band'], sec:50, cues:'Stand on the band, hinge at the hips (not the low back), drive the floor away and stand tall, squeeze glutes. 8–12 hard reps.'},
+  {id:'band-good-morning', name:'Band Good Morning', cat:'lower', equip:['band'], sec:50, cues:'Band under feet and around the back of the neck/shoulders. Soft knees, push the hips straight back, feel the hamstrings, stand tall. 8–12 reps.'},
+  {id:'band-rdl', name:'Band Romanian Deadlift', cat:'lower', equip:['band'], sec:50, cues:'Stand on the band, knees soft and fixed, push hips back lowering the handles down the thighs, drive hips forward to stand. 8–12 reps.'},
+  {id:'split-squat', name:'Split Squat (switch halfway)', cat:'lower', equip:['bodyweight','weights'], sec:50, cues:'Staggered stance, drop the back knee straight down, drive through the front heel. Hold weights for more. Switch legs at halfway. 8–12 each.'},
+  {id:'band-thruster', name:'Band Thruster', cat:'lower', equip:['band'], sec:50, cues:'Stand on band, handles at shoulders. Squat, then drive up and press overhead in one move. Full-body. 8–12 reps.'},
+  {id:'farmer-march', name:'Farmer March (loaded carry)', cat:'core', equip:['weights'], sec:50, cues:'Hold weights at your sides, stand tall, brace the core, march slow and controlled. Don’t let the ribs flare. Heavier = better when you can.'},
+  {id:'suitcase-hold', name:'Suitcase Hold (switch halfway)', cat:'core', equip:['weights'], sec:40, cues:'Weight in one hand only, stand tall and resist leaning toward it — that anti-lean is the work. Switch sides at halfway.'},
+  {id:'band-pallof', name:'Band Pallof Press (switch halfway)', cat:'core', equip:['band'], sec:40, cues:'Anchor band at chest height to the side, press straight out and resist the rotation, return. Core anti-rotation. Switch sides halfway.'},
 ];
 const EX = {};
 EXLIST.forEach(e => EX[e.id] = e);
 
+// Foundational strength lifts → the 5 patterns (squat, hinge, row, press, carry).
+// Used for the Strength filter, the per-exercise progression log, and strength routines.
+const PATTERN = {
+  'squat':'squat', 'band-squat':'squat', 'split-squat':'squat', 'band-thruster':'squat',
+  'band-deadlift':'hinge', 'band-good-morning':'hinge', 'band-rdl':'hinge', 'glute-bridge':'hinge', 'band-glute-bridge':'hinge',
+  'band-row':'row', 'band-rev-fly':'row', 'band-face-pull':'row',
+  'band-ohp':'press', 'band-chest-press':'press',
+  'farmer-march':'carry', 'suitcase-hold':'carry'
+};
+Object.keys(PATTERN).forEach(id => { if(EX[id]){ EX[id].strength = true; EX[id].pattern = PATTERN[id]; } });
+
 const CATS = [
-  {k:'all', label:'All'}, {k:'upper', label:'Upper'}, {k:'lower', label:'Lower'},
-  {k:'core', label:'Core'}, {k:'cardio', label:'Cardio'}, {k:'stretch', label:'Stretch'}
+  {k:'all', label:'All'}, {k:'strength', label:'Strength'}, {k:'upper', label:'Upper'},
+  {k:'lower', label:'Lower'}, {k:'core', label:'Core'}, {k:'cardio', label:'Cardio'}, {k:'stretch', label:'Stretch'}
 ];
 const CATLABEL = {upper:'Upper', lower:'Lower', core:'Core', cardio:'Cardio', stretch:'Stretch'};
 
@@ -211,6 +238,33 @@ const CATLABEL = {upper:'Upper', lower:'Lower', core:'Core', cardio:'Cardio', st
 function s(id, work, rest){ return {ex:id, work:(work!=null?work:EX[id].sec), rest:(rest!=null?rest:15)}; }
 
 const ROUTINES = [
+  {
+    id:'strength-a', name:'Strength A — Full Body', icon:'🏋️',
+    tags:['strength','full body','2–4×/week','progressive'],
+    desc:'Squat, hinge, row, press, carry — the foundation. Pick a band tension/weight where the last 2 reps of each move are hard. Alternate A and B across the week, and make it harder over time: add reps, slow the lowering, or shorten the band. Strength protects metabolism and bone density and pushes back on abdominal-fat gain.',
+    steps:[
+      s('band-squat',50,35), s('band-deadlift',50,35), s('band-row',50,35),
+      s('band-ohp',50,35), s('farmer-march',50,35), s('band-pallof',40,30), s('plank',40,0)
+    ]
+  },
+  {
+    id:'strength-b', name:'Strength B — Full Body', icon:'🏋️',
+    tags:['strength','full body','2–4×/week','progressive'],
+    desc:'The B-day rotation: single-leg squat, hinge, push, pull, carry. Same rule — last 2 reps hard, progress by adding reps or resistance each week. Pair with A on non-consecutive days.',
+    steps:[
+      s('split-squat',50,35), s('band-good-morning',50,35), s('band-chest-press',50,35),
+      s('band-face-pull',45,30), s('suitcase-hold',40,35), s('band-rev-fly',40,30), s('dead-bug',40,0)
+    ]
+  },
+  {
+    id:'strength-express', name:'Strength Express', icon:'⏱️',
+    tags:['strength','~15 min','full body','progressive'],
+    desc:'Short on time — one hard set of each big pattern. Thruster, hinge, row, press, carry. Push the reps.',
+    steps:[
+      s('band-thruster',50,30), s('band-rdl',50,30), s('band-row',50,30),
+      s('band-ohp',45,30), s('farmer-march',45,0)
+    ]
+  },
   {
     id:'rest-stop', name:'Rest Stop Reset', icon:'🛻',
     tags:['~10 min','after sitting','upper + stretch','quiet'],
@@ -315,18 +369,24 @@ function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 
 /* ============================ STATE ============================ */
 const SKEY = 'roadwork';
-let store = { presets:[], lastInterval:{prep:10,work:30,rest:15,rounds:8}, mute:false };
+let store = { presets:[], lastInterval:{prep:10,work:30,rest:15,rounds:8}, mute:false, log:{} };
 let tab = 'routines';
 let exFilter = 'all';
 let timerSeg = 'interval';
 // transient countdown inputs
 let cd = { min:5, sec:0 };
+// transient strength-log draft
+let logOpenId = null;
+let logDraft = { reps:10, load:'' };
 
 async function loadStore(){
   try{ const r=await window.storage.get(SKEY); if(r&&r.value) store=Object.assign(store,JSON.parse(r.value)); }catch(e){}
   if(!Array.isArray(store.presets)) store.presets=[];
   if(!store.lastInterval) store.lastInterval={prep:10,work:30,rest:15,rounds:8};
+  if(!store.log) store.log={};
 }
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function shortDate(k){const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString(undefined,{month:'short',day:'numeric'});}
 async function saveStore(){ try{ await window.storage.set(SKEY, JSON.stringify(store)); }catch(e){} }
 
 /* ============================ RENDER ============================ */
@@ -368,25 +428,77 @@ function renderRoutines(){
 
 function renderExercises(){
   const chips = CATS.map(c=>`<span class="chip ${exFilter===c.k?'on':''}" onclick="setFilter('${c.k}')">${c.label}</span>`).join('');
-  const list = EXLIST.filter(e=>exFilter==='all'||e.cat===exFilter);
-  view().innerHTML = `<div class="filters">${chips}</div>` +
+  const list = EXLIST.filter(e=> exFilter==='all' ? true : (exFilter==='strength' ? e.strength : e.cat===exFilter));
+  const note = exFilter==='strength'
+    ? `<div class="sub" style="margin:-4px 0 14px">The 5 patterns: squat · hinge · row · press · carry. Log your sets and beat them — add reps, slow the lowering, or shorten the band to make it progressively harder.</div>` : '';
+  view().innerHTML = `<div class="filters">${chips}</div>${note}` +
     list.map(e=>`<div class="item" id="ex-${e.id}">
         <div class="ihead">
           <div>
             <div class="iname">${esc(e.name)}</div>
-            <div class="imeta">${CATLABEL[e.cat]} · ${e.equip.join(', ')} · ${e.sec}s</div>
+            <div class="imeta">${CATLABEL[e.cat]} · ${e.equip.join(', ')} · ${e.sec}s${e.pattern?` · ${e.pattern}`:''}</div>
           </div>
-          <button class="go" onclick="event.stopPropagation();startExercise('${e.id}')">Start</button>
+          <div style="display:flex;gap:6px;flex:none">
+            ${e.strength?`<button class="go ghost" onclick="event.stopPropagation();toggleLog('${e.id}')">Log</button>`:''}
+            <button class="go" onclick="event.stopPropagation();startExercise('${e.id}')">Start</button>
+          </div>
         </div>
+        ${e.strength?logBlock(e):''}
         <div class="icues">${esc(e.cues)}</div>
       </div>`).join('') +
-    (list.length?'':`<div class="empty">Nothing in this category.</div>`);
+    (list.length?'':`<div class="empty">Nothing here.</div>`);
   list.forEach(e=>{
     const el=document.getElementById('ex-'+e.id);
     el.addEventListener('click',()=>el.classList.toggle('open'));
   });
+  if(logOpenId){ const inp=document.getElementById('logLoad'); if(inp) inp.focus(); }
 }
 function setFilter(k){ exFilter=k; renderExercises(); }
+
+function logBlock(e){
+  const entries = store.log[e.id]||[];
+  const last = entries[0];
+  const lastTxt = last ? `Last: ${last.reps} reps${last.load?` · ${esc(last.load)}`:''} · ${shortDate(last.d)}` : 'No sets logged yet';
+  let form='';
+  if(logOpenId===e.id){
+    const prev = entries.slice(0,3).map(x=>`${x.reps}${x.load?` · ${esc(x.load)}`:''} · ${shortDate(x.d)}`).join('<br>');
+    form = `<div class="logform" onclick="event.stopPropagation()">
+      <div class="stepper">
+        <div class="tstep" onclick="logBump(-1)">&minus;</div>
+        <div class="tval">${logDraft.reps}<span style="font-size:12px;color:var(--muted)"> reps</span></div>
+        <div class="tstep" onclick="logBump(1)">+</div>
+      </div>
+      <input class="loginput" id="logLoad" placeholder="load — e.g. heavy band, ½ lb, 3s lower" value="${esc(logDraft.load)}">
+      <button class="go" onclick="saveLogEntry('${e.id}')">Save set</button>
+      ${prev?`<div class="loghist">Recent:<br>${prev}</div>`:''}
+    </div>`;
+  }
+  return `<div class="logstrip">${lastTxt}</div>${form}`;
+}
+function toggleLog(id){
+  if(logOpenId===id){ logOpenId=null; }
+  else {
+    logOpenId=id;
+    const last=(store.log[id]||[])[0];
+    logDraft={ reps:last?last.reps:10, load:last?last.load:'' };
+  }
+  renderExercises();
+}
+function logBump(d){
+  const inp=document.getElementById('logLoad'); if(inp) logDraft.load=inp.value;
+  logDraft.reps=Math.max(1,Math.min(100,logDraft.reps+d));
+  renderExercises();
+}
+function saveLogEntry(id){
+  const inp=document.getElementById('logLoad');
+  const load=inp?inp.value.trim():'';
+  if(!store.log[id]) store.log[id]=[];
+  store.log[id].unshift({ d:today(), reps:logDraft.reps, load });
+  store.log[id]=store.log[id].slice(0,30);
+  logOpenId=null;
+  saveStore();
+  renderExercises();
+}
 
 function renderTimers(){
   const seg = `<div class="seg">
