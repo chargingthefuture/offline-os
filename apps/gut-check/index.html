@@ -45,7 +45,7 @@
 <body>
   <div class="header">
     <div>
-      <a class="back" href="../../">‹ OS</a>
+      <a class="back" href="../../" id="backOS">‹ OS</a>
       <h1>Gut Check</h1>
       <p class="sub">20 seconds. One day at a time.</p>
     </div>
@@ -58,6 +58,10 @@
 <script src="../../shared/pwa.js"></script>
 <script>
 registerPWA('sw.js');
+
+/* Point the back-to-OS link at the dashboard's absolute path, so it works
+   whether or not the page URL has a trailing slash. */
+(function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
 
 const KEY = 'bloat-log';
 let state = { testing:'', entries:{} }; // entries keyed by YYYY-MM-DD
