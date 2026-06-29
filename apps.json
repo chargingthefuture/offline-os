@@ -41,6 +41,13 @@
       "url": "https://chargingthefuture.github.io/chess/",
       "icon": "♟️",
       "status": "external"
+    },
+    {
+      "name": "Cascade",
+      "blurb": "Cascading puzzle game",
+      "url": "https://chargingthefuture.github.io/cascade/",
+      "icon": "💧",
+      "status": "external"
     }
   ]
 }
