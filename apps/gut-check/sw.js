@@ -1,11 +1,10 @@
 /* Gut Check — service worker. Precaches the app shell (including the shared
  * theme + storage) so it opens fully offline. Bump VERSION to push updates. */
-var VERSION = 'gut-check-v3';
+var VERSION = 'gut-check-v4';
 var SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
-  '../../shared/theme.css',
   '../../shared/fonts.css',
   '../../shared/storage.js',
   '../../shared/pwa.js',

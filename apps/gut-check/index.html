@@ -14,45 +14,80 @@
 <link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
 <link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="../../shared/fonts.css">
-<link rel="stylesheet" href="../../shared/theme.css">
 <style>
-  /* app-specific styles (shared components live in theme.css) */
-  .testing{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:12px 14px;margin-bottom:18px;}
-  .testing label{display:block;font-size:11px;letter-spacing:.08em;
-    text-transform:uppercase;color:var(--muted);margin-bottom:7px;font-weight:600;}
-
-  .trend{display:flex;align-items:flex-end;gap:5px;height:90px;padding:6px 2px 0;}
+  :root{
+    --bg:#16171b; --panel:#1f2127; --panel-2:#262931; --line:#33373f;
+    --amber:#ffb000; --amber-dim:#7a5500; --text:#e9e6df; --muted:#8d909a;
+    --green:#4caf7d; --red:#d96a5a;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;}
+  body{max-width:520px;margin:0 auto;padding:18px 16px 48px;}
+  h1{font-family:'Barlow Semi Condensed',sans-serif;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:22px;margin:0;}
+  .sub{color:var(--muted);font-size:13px;margin:2px 0 0;}
+  .date{font-family:'Barlow Semi Condensed',sans-serif;font-weight:600;color:var(--amber);letter-spacing:.05em;text-transform:uppercase;font-size:14px;}
+  .header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:18px;}
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back:hover{color:var(--amber);}
+  .testing{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:18px;}
+  .testing label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;font-weight:600;}
+  .testing input{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--text);font-size:15px;padding:11px 12px;font-family:inherit;}
+  .testing input:focus{outline:none;border-color:var(--amber-dim);}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;}
+  .card .lbl{font-family:'Barlow Semi Condensed',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:14px;color:var(--text);margin-bottom:13px;display:flex;justify-content:space-between;align-items:center;}
+  .lbl .hint{font-family:'Inter';font-weight:400;text-transform:none;letter-spacing:0;font-size:12px;color:var(--muted);}
+  .gauge{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+  .step{width:64px;height:64px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);color:var(--text);font-size:30px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:transform .05s,background .15s;}
+  .step:active{transform:scale(.92);background:#30343d;}
+  .readout{flex:1;text-align:center;}
+  .readout .num{font-family:'Barlow Semi Condensed',sans-serif;font-weight:700;font-size:50px;line-height:1;color:var(--amber);}
+  .readout .num small{font-size:22px;color:var(--muted);font-weight:600;margin-left:2px;}
+  .readout .scale{font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:3px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .opt{padding:16px 8px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);font-size:16px;font-weight:600;text-align:center;cursor:pointer;user-select:none;transition:.12s;font-family:'Barlow Semi Condensed',sans-serif;letter-spacing:.04em;text-transform:uppercase;}
+  .opt:active{transform:scale(.97);}
+  .opt.on-green{background:var(--green);border-color:var(--green);color:#0c1a13;}
+  .opt.on-red{background:var(--red);border-color:var(--red);color:#1a0c0a;}
+  .opt.on-amber{background:var(--amber);border-color:var(--amber);color:#1a1300;}
+  .noteinput{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--text);font-size:15px;padding:11px 12px;font-family:inherit;resize:none;}
+  .noteinput:focus{outline:none;border-color:var(--amber-dim);}
+  .save{width:100%;padding:18px;border:none;border-radius:14px;background:var(--amber);color:#1a1300;font-family:'Barlow Semi Condensed',sans-serif;font-weight:700;font-size:19px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;margin-top:4px;transition:transform .05s;}
+  .save:active{transform:scale(.98);}
+  .saved-flash{background:var(--green);color:#0c1a13;}
+  .section-title{font-family:'Barlow Semi Condensed',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:15px;color:var(--muted);margin:30px 0 12px;border-top:1px solid var(--line);padding-top:22px;}
+  .trend{display:flex;align-items:flex-end;gap:5px;height:96px;padding:6px 2px 0;}
   .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;}
   .bar{width:100%;border-radius:3px 3px 0 0;background:var(--amber);min-height:2px;}
   .bar.bm{box-shadow:inset 0 -4px 0 var(--green);}
   .bar-day{font-size:9px;color:var(--muted);}
-
   .log{display:flex;flex-direction:column;gap:8px;}
-  .entry{background:var(--panel);border:1px solid var(--line);border-radius:12px;
-    padding:11px 13px;}
+  .entry{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;}
   .entry .top{display:flex;justify-content:space-between;align-items:center;}
-  .entry .d{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:600;
-    letter-spacing:.04em;font-size:14px;}
-  .entry .pills{margin-top:7px;}
+  .entry .d{font-family:'Barlow Semi Condensed',sans-serif;font-weight:600;letter-spacing:.04em;font-size:14px;}
+  .pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;}
+  .pill{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--panel-2);color:var(--muted);border:1px solid var(--line);}
+  .pill.amber{color:var(--amber);border-color:var(--amber-dim);}
+  .pill.green{color:var(--green);border-color:#2c5a44;}
+  .pill.red{color:var(--red);border-color:#5a312b;}
   .entry .phase{font-size:11px;color:var(--muted);margin-top:6px;font-style:italic;}
   .entry .nt{font-size:13px;color:var(--text);margin-top:6px;}
-
-  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .empty{color:var(--muted);font-size:14px;text-align:center;padding:20px;}
+  .loading{color:var(--muted);text-align:center;padding:40px;font-size:14px;}
 </style>
 </head>
 <body>
   <div class="header">
     <div>
-      <a class="back" href="../../" id="backOS">‹ OS</a>
-      <h1>Gut Check</h1>
-      <p class="sub">20 seconds. One day at a time.</p>
+      <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+      <h1>Gut Check</h1><p class="sub">20 seconds. One day at a time.</p>
     </div>
-    <div class="date" id="today">—</div>
+    <div class="date" id="today">&mdash;</div>
   </div>
-
-  <div id="app"><div class="loading">Loading your log…</div></div>
+  <div id="app"><div class="loading">Loading your log&hellip;</div></div>
 
 <script src="../../shared/storage.js"></script>
 <script src="../../shared/pwa.js"></script>
@@ -64,10 +99,9 @@ registerPWA('sw.js');
 (function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
 
 const KEY = 'bloat-log';
-let state = { testing:'', entries:{} }; // entries keyed by YYYY-MM-DD
-
-// today's working values
-let cur = { bloat:0, nausea:0, bm:null, appetite:null, note:'' };
+const BASELINE = 32;   // your no-bloat waist
+let state = { testing:'', entries:{} };
+let cur = { waist:BASELINE, nausea:0, bm:null, appetite:null, note:'' };
 
 function todayKey(){
   const d=new Date();
@@ -75,82 +109,61 @@ function todayKey(){
 }
 function fmtDate(k){
   const [y,m,d]=k.split('-').map(Number);
-  const dt=new Date(y,m-1,d);
-  return dt.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+  return new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
 }
+function fmtIn(n){ return (Math.round(n*100)/100).toString(); }
 
 async function load(){
-  try{
-    const r = await window.storage.get(KEY);
-    if(r && r.value){ state = JSON.parse(r.value); }
-  }catch(e){ /* no saved data yet */ }
+  try{ const r=await window.storage.get(KEY); if(r&&r.value) state=JSON.parse(r.value); }catch(e){}
   if(!state.entries) state.entries={};
   if(typeof state.testing!=='string') state.testing='';
-  // preload today's entry if it exists
-  const t = state.entries[todayKey()];
-  if(t){ cur={bloat:t.bloat,nausea:t.nausea,bm:t.bm,appetite:t.appetite,note:t.note||''}; }
+  const t=state.entries[todayKey()];
+  if(t){ cur={waist:(t.waist!=null?t.waist:BASELINE),nausea:t.nausea||0,bm:t.bm,appetite:t.appetite,note:t.note||''}; }
   render();
 }
-
 async function save(){
-  const k = todayKey();
-  state.entries[k] = {
-    bloat:cur.bloat, nausea:cur.nausea, bm:cur.bm,
-    appetite:cur.appetite, note:cur.note.trim(), phase:state.testing.trim()
-  };
-  try{
-    await window.storage.set(KEY, JSON.stringify(state));
-    flashSaved();
-  }catch(e){
-    alert('Could not save right now. Your entry is still on screen — try Save again.');
-  }
-  render(true);
+  state.entries[todayKey()]={waist:cur.waist,nausea:cur.nausea,bm:cur.bm,appetite:cur.appetite,note:cur.note.trim(),phase:state.testing.trim()};
+  try{ await window.storage.set(KEY,JSON.stringify(state)); flashSaved(); }
+  catch(e){ alert('Could not save right now. Your entry is still on screen — try Save again.'); }
+  render();
 }
-
 let flash=false;
 function flashSaved(){ flash=true; setTimeout(()=>{flash=false;render();},1400); }
+async function saveTesting(v){ state.testing=v; try{ await window.storage.set(KEY,JSON.stringify(state)); }catch(e){} }
 
-async function saveTesting(v){
-  state.testing=v;
-  try{ await window.storage.set(KEY, JSON.stringify(state)); }catch(e){}
-}
-
-function step(field, delta){
-  cur[field]=Math.max(0,Math.min(10,cur[field]+delta));
-  render();
-}
+function stepWaist(d){ cur.waist=Math.max(26,Math.min(50,Math.round((cur.waist+d)*4)/4)); render(); }
+function stepN(d){ cur.nausea=Math.max(0,Math.min(10,cur.nausea+d)); render(); }
 function setBM(v){ cur.bm=v; render(); }
 function setApp(v){ cur.appetite=v; render(); }
 function setNote(v){ cur.note=v; }
 
 function render(){
-  document.getElementById('today').textContent = fmtDate(todayKey());
-  const keys = Object.keys(state.entries).sort().reverse();
-  const recent = keys.slice(0,14).reverse(); // oldest->newest for trend
-
-  const app = document.getElementById('app');
-  app.innerHTML = `
+  document.getElementById('today').textContent=fmtDate(todayKey());
+  const keys=Object.keys(state.entries).sort().reverse();
+  const recent=keys.slice(0,14).reverse();
+  const app=document.getElementById('app');
+  app.innerHTML=`
     <div class="testing">
       <label>Currently testing</label>
-      <input id="testing" placeholder="e.g. Baseline week · Magnesium · Split protein"
-        value="${escapeHtml(state.testing)}">
+      <input id="testing" placeholder="e.g. Baseline week · Magnesium · Split protein" value="${escapeHtml(state.testing)}">
     </div>
 
     <div class="card">
-      <div class="lbl">Bloat <span class="hint">0 none · 10 worst</span></div>
+      <div class="lbl">Waist <span class="hint">measure same spot, same time</span></div>
       <div class="gauge">
-        <div class="step" onclick="step('bloat',-1)">−</div>
-        <div class="readout"><div class="num">${cur.bloat}</div><div class="scale">level</div></div>
-        <div class="step" onclick="step('bloat',1)">+</div>
+        <div class="step" onclick="stepWaist(-0.25)">&minus;</div>
+        <div class="readout"><div class="num">${fmtIn(cur.waist)}<small>in</small></div>
+          <div class="scale">${cur.waist<=BASELINE?'baseline':'+'+fmtIn(cur.waist-BASELINE)+'" over baseline'}</div></div>
+        <div class="step" onclick="stepWaist(0.25)">+</div>
       </div>
     </div>
 
     <div class="card">
       <div class="lbl">Nausea <span class="hint">0 none · 10 worst</span></div>
       <div class="gauge">
-        <div class="step" onclick="step('nausea',-1)">−</div>
+        <div class="step" onclick="stepN(-1)">&minus;</div>
         <div class="readout"><div class="num">${cur.nausea}</div><div class="scale">level</div></div>
-        <div class="step" onclick="step('nausea',1)">+</div>
+        <div class="step" onclick="stepN(1)">+</div>
       </div>
     </div>
 
@@ -173,50 +186,45 @@ function render(){
 
     <div class="card">
       <div class="lbl">Note <span class="hint">optional</span></div>
-      <textarea class="noteinput" id="note" rows="2"
-        placeholder="Anything unusual you ate, drank, or did">${escapeHtml(cur.note)}</textarea>
+      <textarea class="noteinput" id="note" rows="2" placeholder="Anything unusual you ate, drank, or did">${escapeHtml(cur.note)}</textarea>
     </div>
 
-    <button class="save ${flash?'saved-flash':''}" onclick="save()">
-      ${flash?'Saved ✓':'Save today'}
-    </button>
+    <button class="save ${flash?'saved-flash':''}" onclick="save()">${flash?'Saved ✓':'Save today'}</button>
 
-    <div class="section-title">Last ${recent.length||0} days</div>
+    <div class="section-title">Waist · last ${recent.length||0} days</div>
     ${trendHtml(recent)}
-
-    ${keys.length? `<div class="log">${keys.slice(0,30).map(entryHtml).join('')}</div>`
-      : `<div class="empty">No entries yet. Log today to start your baseline.</div>`}
+    ${keys.length?`<div class="log">${keys.slice(0,30).map(entryHtml).join('')}</div>`:`<div class="empty">No entries yet. Log today to start your baseline.</div>`}
   `;
-
   const ti=document.getElementById('testing');
-  if(ti){ ti.oninput=e=>{ state.testing=e.target.value; }; ti.onblur=e=>saveTesting(e.target.value); }
+  if(ti){ ti.oninput=e=>{state.testing=e.target.value;}; ti.onblur=e=>saveTesting(e.target.value); }
   const nt=document.getElementById('note');
   if(nt){ nt.oninput=e=>setNote(e.target.value); }
 }
 
 function trendHtml(recent){
-  if(!recent.length) return `<div class="empty" style="padding:10px">Your bloat trend shows here once you log a few days.</div>`;
-  const bars = recent.map(k=>{
-    const e=state.entries[k];
-    const h=Math.max(2,(e.bloat/10)*84);
+  if(!recent.length) return `<div class="empty" style="padding:10px">Your waist trend shows here once you log a few days.</div>`;
+  const vals=recent.map(k=>state.entries[k].waist).filter(v=>v!=null);
+  const lo=Math.min(...vals), hi=Math.max(...vals);
+  const span=(hi-lo)||1;
+  const bars=recent.map(k=>{
+    const e=state.entries[k]; const w=(e.waist!=null?e.waist:lo);
+    const h=hi===lo?30:8+((w-lo)/span)*76;
     const day=fmtDate(k).split(' ')[0][0];
-    return `<div class="bar-wrap">
-      <div class="bar ${e.bm?'bm':''}" style="height:${h}px" title="${fmtDate(k)} · bloat ${e.bloat}"></div>
-      <div class="bar-day">${day}</div></div>`;
+    return `<div class="bar-wrap"><div class="bar ${e.bm?'bm':''}" style="height:${h}px" title="${fmtDate(k)} · ${fmtIn(w)} in"></div><div class="bar-day">${day}</div></div>`;
   }).join('');
   return `<div class="trend">${bars}</div>
     <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">
-    Bar height = bloat · green underline = had a BM</div>`;
+    Range ${fmtIn(lo)}&ndash;${fmtIn(hi)} in · taller = more bloated · green underline = had a BM</div>`;
 }
 
 function entryHtml(k){
   const e=state.entries[k];
-  const appCls = e.appetite==='low'?'red':e.appetite==='good'?'green':'amber';
+  const appCls=e.appetite==='low'?'red':e.appetite==='good'?'green':'amber';
+  const over=e.waist!=null&&e.waist>BASELINE;
   return `<div class="entry">
-    <div class="top">
-      <span class="d">${fmtDate(k)}</span>
+    <div class="top"><span class="d">${fmtDate(k)}</span>
       <div class="pills">
-        <span class="pill amber">Bloat ${e.bloat}</span>
+        ${e.waist!=null?`<span class="pill ${over?'amber':'green'}">${fmtIn(e.waist)} in</span>`:''}
         ${e.nausea>0?`<span class="pill red">Nausea ${e.nausea}</span>`:''}
         <span class="pill ${e.bm?'green':'red'}">${e.bm?'BM ✓':'No BM'}</span>
         ${e.appetite?`<span class="pill ${appCls}">${e.appetite}</span>`:''}
@@ -226,9 +234,7 @@ function entryHtml(k){
     ${e.note?`<div class="nt">${escapeHtml(e.note)}</div>`:''}
   </div>`;
 }
-
 function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-
 load();
 </script>
 </body>
