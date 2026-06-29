@@ -21,11 +21,11 @@
   .back:hover{color:var(--amber);}
 
   /* segmented nav */
-  .nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:var(--panel);
+  .nav{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;background:var(--panel);
     border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:18px;}
   .nav button{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:600;
-    text-transform:uppercase;letter-spacing:.05em;font-size:13px;border:none;border-radius:8px;
-    padding:11px 6px;background:transparent;color:var(--muted);cursor:pointer;}
+    text-transform:uppercase;letter-spacing:.03em;font-size:12px;border:none;border-radius:8px;
+    padding:11px 4px;background:transparent;color:var(--muted);cursor:pointer;}
   .nav button.on{background:var(--amber);color:#1a1300;}
 
   /* filter chips */
@@ -85,6 +85,21 @@
   .swatch{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:64px;
     text-align:center;color:var(--amber);font-variant-numeric:tabular-nums;margin:8px 0;}
 
+  /* plan tab */
+  .planrow{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;}
+  .planrow .pd{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;color:var(--amber);margin-right:6px;}
+  .planrow .pf{font-size:14px;}
+  .planrow .psub{color:var(--muted);font-size:13px;}
+  .cheat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+  .cheat h3{font-family:'Barlow Semi Condensed','Inter',sans-serif;text-transform:uppercase;
+    letter-spacing:.05em;font-size:13px;color:var(--text);margin:0 0 8px;}
+  .cheat p{font-size:13px;line-height:1.55;margin:0 0 8px;color:var(--text);}
+  .cheat ul{margin:0 0 4px;padding-left:18px;}
+  .cheat li{font-size:13px;line-height:1.5;margin-bottom:3px;}
+  .cheat .lbl2{color:var(--amber);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;}
+  .disc{font-size:11px;color:var(--muted);line-height:1.5;margin:4px 2px 0;font-style:italic;}
+
   /* full-screen runner */
   .runner{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;
     max-width:520px;margin:0 auto;padding:22px 18px calc(20px + env(safe-area-inset-bottom));}
@@ -132,6 +147,7 @@
     <button data-tab="routines" class="on">Routines</button>
     <button data-tab="exercises">Exercises</button>
     <button data-tab="timers">Timers</button>
+    <button data-tab="plan">Plan</button>
   </div>
 
   <div id="view"></div>
@@ -239,12 +255,13 @@ function s(id, work, rest){ return {ex:id, work:(work!=null?work:EX[id].sec), re
 
 const ROUTINES = [
   {
-    id:'strength-a', name:'Strength A — Full Body', icon:'🏋️',
-    tags:['strength','full body','2–4×/week','progressive'],
-    desc:'Squat, hinge, row, press, carry — the foundation. Pick a band tension/weight where the last 2 reps of each move are hard. Alternate A and B across the week, and make it harder over time: add reps, slow the lowering, or shorten the band. Strength protects metabolism and bone density and pushes back on abdominal-fat gain.',
+    id:'strength-a', name:'Band Strength — Full Body', icon:'🏋️',
+    tags:['strength','full body','Mon/Wed/Fri','progressive'],
+    desc:'The core session — do it ~3×/week on non-consecutive days. 2–3 sets of 10–15 reps; the last 2 reps should feel hard. When you can hit the top of the range with good form on every set, make it harder (single-limb, 3-second lower, pause, more reps, or less slack). Strength protects metabolism and bone density and pushes back on the abdominal-fat shift. See the Plan tab for how to scale one band.',
     steps:[
-      s('band-squat',50,35), s('band-deadlift',50,35), s('band-row',50,35),
-      s('band-ohp',50,35), s('farmer-march',50,35), s('band-pallof',40,30), s('plank',40,0)
+      s('band-squat',50,30), s('band-rdl',50,30), s('band-row',50,30),
+      s('band-chest-press',50,30), s('band-ohp',50,30), s('band-glute-bridge',45,30),
+      s('pull-apart',40,30), s('band-pallof',40,0)
     ]
   },
   {
@@ -263,6 +280,15 @@ const ROUTINES = [
     steps:[
       s('band-thruster',50,30), s('band-rdl',50,30), s('band-row',50,30),
       s('band-ohp',45,30), s('farmer-march',45,0)
+    ]
+  },
+  {
+    id:'rope-intervals', name:'Rope Intervals', icon:'🪢',
+    tags:['cardio','Tue/Thu','build up'],
+    desc:'Conditioning + calorie burn. Start where you can and build rounds over weeks. High-impact: if knees, ankles, or pelvic floor complain, swap in fast marching in place or step-ups — same burn, no pounding. Then walk at the stop.',
+    steps:[
+      s('jump-rope',30,45), s('jump-rope',30,45), s('jump-rope',30,45), s('jump-rope',30,45),
+      s('jump-rope',30,45), s('jump-rope',30,45), s('jump-rope',30,45), s('jump-rope',30,0)
     ]
   },
   {
@@ -397,7 +423,56 @@ function setTab(t){ tab=t; document.querySelectorAll('.nav button').forEach(b=>b
 function render(){
   if(tab==='routines') renderRoutines();
   else if(tab==='exercises') renderExercises();
+  else if(tab==='plan') renderPlan();
   else renderTimers();
+}
+
+function renderPlan(){
+  const sched = [
+    ['Mon','Band strength','strength-a'],
+    ['Tue','Rope intervals + walk','rope-intervals'],
+    ['Wed','Band strength','strength-a'],
+    ['Thu','Rope intervals + walk','rope-intervals'],
+    ['Fri','Band strength','strength-a'],
+    ['Sat','Rope or rest','rope-intervals'],
+    ['Sun','Rest / easy walk',null]
+  ];
+  const rows = sched.map(([d,f,id])=>`<div class="planrow">
+      <div><span class="pd">${d}</span><span class="pf">${esc(f)}</span></div>
+      ${id?`<button class="go" onclick="startRoutine('${id}')">Start</button>`:`<span class="psub">—</span>`}
+    </div>`).join('');
+  view().innerHTML = `
+    <div class="sub" style="margin:-4px 0 14px">A trucker framework: lift 3×/week and progress it, rope + walk on the other days, gentle deficit, hit protein. Keep a gap between hard strength days. Swap days around your route freely.</div>
+    <div class="section-title" style="margin-top:0;border-top:none;padding-top:0">Weekly structure</div>
+    ${rows}
+    <div class="cheat" style="margin-top:10px"><p><span class="lbl2">Every day:</span> walk at every stop — fuel, weigh stations, loading, breaks. Hours of sitting are what kill the daily burn, so this matters most.</p></div>
+
+    <div class="section-title">Scaling one band (your "adding weight")</div>
+    <div class="cheat">
+      <h3>Make a move harder</h3>
+      <ul>
+        <li>Single arm or single leg — instantly ~doubles the load</li>
+        <li>Slow 3-second lower (negatives)</li>
+        <li>Pause 1–2 seconds at the hardest point</li>
+        <li>Add reps</li>
+        <li>Stand farther from the anchor / take out slack</li>
+      </ul>
+      <h3 style="margin-top:10px">Make a move easier</h3>
+      <ul>
+        <li>More slack, or stand closer to the anchor</li>
+        <li>Shorten the range of motion</li>
+        <li>More reps with less tension</li>
+      </ul>
+      <p style="margin-top:8px"><span class="lbl2">Rule:</span> when you hit the top of the rep range with good form on every set, make it harder. Log your sets in the Exercises tab so you know what to beat.</p>
+    </div>
+
+    <div class="section-title">Targets &amp; progress</div>
+    <div class="cheat">
+      <p><span class="lbl2">Protein ~130g/day</span> (food + powder). Pull most from real food — eggs, chicken, tuna, Greek yogurt, jerky — and trim the shake.</p>
+      <p><span class="lbl2">Gentle deficit</span> ~300–500 cal under maintenance (~0.5–1 lb/week). The real risk is under-eating: on low-appetite days, too little costs muscle. Hit protein, eat enough, cut the excess — don't drop below ~1,500 cal.</p>
+      <p><span class="lbl2">Read it weekly</span> — weigh weekly, not daily (water/bloat swing the scale 3–5 lb). Your Gut Check waist baseline (32") drifts down as you lose fat — that's not bloat; re-check your true morning waist about monthly. Early on the mirror moves faster than the scale.</p>
+      <div class="disc">Not medical or dietitian advice — a starting framework. Ease in, and check with your doctor given digestive symptoms and any medications.</div>
+    </div>`;
 }
 
 function renderRoutines(){
