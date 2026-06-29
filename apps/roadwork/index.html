@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Roadwork</title>
+
+<!-- PWA / iOS home-screen -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Roadwork">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back:hover{color:var(--amber);}
+
+  /* segmented nav */
+  .nav{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:18px;}
+  .nav button{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:600;
+    text-transform:uppercase;letter-spacing:.05em;font-size:13px;border:none;border-radius:8px;
+    padding:11px 6px;background:transparent;color:var(--muted);cursor:pointer;}
+  .nav button.on{background:var(--amber);color:#1a1300;}
+
+  /* filter chips */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .chip{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-size:12px;font-weight:600;
+    text-transform:uppercase;letter-spacing:.04em;padding:7px 12px;border-radius:20px;
+    background:var(--panel-2);border:1px solid var(--line);color:var(--muted);cursor:pointer;user-select:none;}
+  .chip.on{background:var(--amber);border-color:var(--amber);color:#1a1300;}
+
+  /* exercise + routine items */
+  .item{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:14px;margin-bottom:10px;}
+  .item .ihead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .item .iname{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:600;
+    letter-spacing:.02em;font-size:17px;}
+  .item .imeta{color:var(--muted);font-size:12px;margin-top:3px;}
+  .item .icues{color:var(--text);font-size:13px;margin-top:9px;line-height:1.5;
+    border-top:1px solid var(--line);padding-top:9px;display:none;}
+  .item.open .icues{display:block;}
+  .tagrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .go{flex:none;border:none;border-radius:10px;background:var(--amber);color:#1a1300;
+    font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;text-transform:uppercase;
+    letter-spacing:.04em;font-size:13px;padding:10px 14px;cursor:pointer;}
+  .go.ghost{background:var(--panel-2);color:var(--text);border:1px solid var(--line);}
+  .steps{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;display:none;}
+  .item.open .steps{display:block;}
+  .steprow{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:var(--text);}
+  .steprow .sd{color:var(--muted);font-variant-numeric:tabular-nums;}
+
+  /* number steppers for timers */
+  .field{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+  .field .flbl{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:600;
+    text-transform:uppercase;letter-spacing:.05em;font-size:14px;}
+  .stepper{display:flex;align-items:center;gap:12px;}
+  .tstep{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);
+    color:var(--text);font-size:22px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;}
+  .tstep:active{transform:scale(.92);}
+  .tval{min-width:64px;text-align:center;font-family:'Barlow Semi Condensed','Inter',sans-serif;
+    font-weight:700;font-size:26px;color:var(--amber);font-variant-numeric:tabular-nums;}
+  .seg{display:flex;gap:6px;margin-bottom:16px;}
+  .seg button{flex:1;font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:600;
+    text-transform:uppercase;letter-spacing:.04em;font-size:12px;border:1px solid var(--line);border-radius:9px;
+    padding:10px 6px;background:var(--panel-2);color:var(--muted);cursor:pointer;}
+  .seg button.on{background:var(--amber);border-color:var(--amber);color:#1a1300;}
+  .preset{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+  .preset .pn{font-weight:600;font-size:14px;}
+  .preset .psub{color:var(--muted);font-size:12px;}
+  .preset .del{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 8px;}
+  .swatch{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:64px;
+    text-align:center;color:var(--amber);font-variant-numeric:tabular-nums;margin:8px 0;}
+
+  /* full-screen runner */
+  .runner{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;
+    max-width:520px;margin:0 auto;padding:22px 18px calc(20px + env(safe-area-inset-bottom));}
+  .runner.hidden{display:none;}
+  .rtop{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;
+    font-family:'Barlow Semi Condensed','Inter',sans-serif;letter-spacing:.04em;}
+  .rmute{background:none;border:none;font-size:20px;cursor:pointer;}
+  .rphase{text-align:center;margin-top:18px;font-family:'Barlow Semi Condensed','Inter',sans-serif;
+    text-transform:uppercase;letter-spacing:.12em;font-size:18px;color:var(--muted);}
+  .runner.work .rphase{color:var(--green);}
+  .runner.rest .rphase{color:var(--amber);}
+  .runner.prep .rphase{color:var(--muted);}
+  .rbig{text-align:center;font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;
+    font-size:120px;line-height:1;margin:6px 0;color:var(--text);font-variant-numeric:tabular-nums;}
+  .runner.work .rbig{color:var(--green);}
+  .runner.rest .rbig{color:var(--amber);}
+  .rname{text-align:center;font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:600;font-size:24px;}
+  .rcues{text-align:center;color:var(--muted);font-size:14px;margin-top:10px;line-height:1.5;padding:0 6px;}
+  .rprogwrap{height:6px;background:var(--panel-2);border-radius:4px;overflow:hidden;margin-top:18px;}
+  .rprog{height:100%;width:0;background:var(--amber);transition:width .25s linear;}
+  .rnext{text-align:center;color:var(--muted);font-size:13px;margin-top:auto;padding-top:14px;}
+  .rctrls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;}
+  .rbtn{padding:16px 6px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);
+    color:var(--text);font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;font-size:15px;cursor:pointer;}
+  .rbtn:active{transform:scale(.97);}
+  .rbtn.amber{background:var(--amber);border-color:var(--amber);color:#1a1300;}
+  .rend{width:100%;margin-top:10px;padding:14px;border-radius:12px;border:1px solid var(--line);
+    background:transparent;color:var(--muted);font-family:'Barlow Semi Condensed','Inter',sans-serif;
+    font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:14px;cursor:pointer;}
+  .rdone{text-align:center;font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;
+    font-size:40px;color:var(--green);text-transform:uppercase;letter-spacing:.04em;margin-top:30px;}
+</style>
+</head>
+<body>
+  <div>
+    <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+    <div class="header" style="margin-top:2px">
+      <div><h1>Roadwork</h1><p class="sub">No gym. Band, rope, light weights, you.</p></div>
+      <div class="date" id="clock">&mdash;</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button data-tab="routines" class="on">Routines</button>
+    <button data-tab="exercises">Exercises</button>
+    <button data-tab="timers">Timers</button>
+  </div>
+
+  <div id="view"></div>
+
+  <div id="runner" class="runner hidden"></div>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+registerPWA('sw.js');
+(function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
+
+/* ============================ DATA ============================ */
+const PREP = 5; // get-ready seconds before a routine/interval
+
+// Exercise library. type: 'time' default seconds. equip tags drive filtering hints.
+const EXLIST = [
+  // ---- Upper ----
+  {id:'pull-apart', name:'Band Pull-Apart', cat:'upper', equip:['band'], sec:40, cues:'Arms straight at chest height, pull the band apart until it touches your chest, squeeze the shoulder blades, return slow.'},
+  {id:'band-row', name:'Band Row', cat:'upper', equip:['band'], sec:40, cues:'Anchor the band (or step on it). Pull elbows straight back past your ribs, squeeze, control the return.'},
+  {id:'band-chest-press', name:'Band Chest Press', cat:'upper', equip:['band'], sec:40, cues:'Band behind your back across the shoulder blades. Press both hands forward to full extension.'},
+  {id:'band-ohp', name:'Band Overhead Press', cat:'upper', equip:['band'], sec:40, cues:'Stand on the band, handles at shoulders, press straight overhead without arching the low back.'},
+  {id:'band-front-raise', name:'Band Front Raise', cat:'upper', equip:['band'], sec:30, cues:'Stand on the band, arms straight, raise to shoulder height, lower slow.'},
+  {id:'band-lat-raise', name:'Band Lateral Raise', cat:'upper', equip:['band'], sec:30, cues:'Stand on the band, raise arms out to the sides to shoulder height, lead with the elbows.'},
+  {id:'band-curl', name:'Band Biceps Curl', cat:'upper', equip:['band'], sec:40, cues:'Stand on the band, elbows pinned to sides, curl up, squeeze, lower with control.'},
+  {id:'band-pushdown', name:'Band Triceps Press-down', cat:'upper', equip:['band'], sec:40, cues:'Anchor high (or hold overhead). Keep elbows in, extend down until arms are straight.'},
+  {id:'band-face-pull', name:'Band Face Pull', cat:'upper', equip:['band'], sec:40, cues:'Anchor at face height. Pull toward your forehead, elbows high. Resets posture after driving.'},
+  {id:'band-rev-fly', name:'Band Reverse Fly', cat:'upper', equip:['band'], sec:40, cues:'Hold band in front, arms straight, open out to a T, squeeze upper back.'},
+  {id:'shadow-jab', name:'Weighted Shadow Boxing', cat:'upper', equip:['weights'], sec:40, cues:'Light weights in hand. Alternating jabs, stay loose and fast, keep the core braced.'},
+  {id:'wt-front-raise', name:'Light Front Raise (high rep)', cat:'upper', equip:['weights'], sec:30, cues:'Quarter/half-pound weights. Controlled front raises for the burn, not the load.'},
+  {id:'wt-lat-raise', name:'Light Lateral Raise (high rep)', cat:'upper', equip:['weights'], sec:30, cues:'Light weights out to the sides, slow tempo, high reps.'},
+  {id:'arm-circles', name:'Arm Circles', cat:'upper', equip:['weights','bodyweight'], sec:30, cues:'Arms out to a T, small fast circles forward then reverse. Add light weights for more.'},
+
+  // ---- Lower ----
+  {id:'squat', name:'Bodyweight Squat', cat:'lower', equip:['bodyweight'], sec:45, cues:'Feet shoulder width, sit back and down, chest up, drive through the heels.'},
+  {id:'band-squat', name:'Banded Squat', cat:'lower', equip:['band'], sec:45, cues:'Band under feet, handles at shoulders. Squat against the resistance, stand tall.'},
+  {id:'rev-lunge', name:'Reverse Lunge (alternating)', cat:'lower', equip:['bodyweight'], sec:45, cues:'Step back, drop the back knee toward the floor, drive up. Alternate legs.'},
+  {id:'glute-bridge', name:'Glute Bridge', cat:'lower', equip:['bodyweight'], sec:40, cues:'On your back, drive hips up, squeeze the glutes at the top, lower slow.'},
+  {id:'band-glute-bridge', name:'Banded Glute Bridge', cat:'lower', equip:['band'], sec:40, cues:'Band above the knees, push knees out as you bridge up.'},
+  {id:'calf-raise', name:'Calf Raise', cat:'lower', equip:['bodyweight'], sec:40, cues:'Rise onto the balls of the feet, pause at the top, lower slow. Hold something for balance.'},
+  {id:'wall-sit', name:'Wall Sit', cat:'lower', equip:['bodyweight'], sec:45, cues:'Back flat against a wall, thighs parallel to the floor, hold and breathe.'},
+  {id:'lat-band-walk', name:'Lateral Band Walk', cat:'lower', equip:['band'], sec:40, cues:'Band above the knees, half-squat, step side to side keeping tension.'},
+
+  // ---- Core ----
+  {id:'plank', name:'Plank', cat:'core', equip:['bodyweight'], sec:40, cues:'Forearms down, body in a straight line, brace the abs and glutes, don’t sag.'},
+  {id:'side-plank', name:'Side Plank (switch halfway)', cat:'core', equip:['bodyweight'], sec:40, cues:'On one forearm, hips stacked and lifted. Switch sides at the halfway beep.'},
+  {id:'dead-bug', name:'Dead Bug', cat:'core', equip:['bodyweight'], sec:40, cues:'On your back, opposite arm and leg extend while the low back stays pressed down.'},
+  {id:'bird-dog', name:'Bird Dog', cat:'core', equip:['bodyweight'], sec:40, cues:'On hands and knees, extend opposite arm and leg, pause, switch.'},
+  {id:'standing-oblique', name:'Standing Oblique Crunch', cat:'core', equip:['bodyweight'], sec:40, cues:'Hands behind head, drive elbow to same-side knee, alternate. Easy on the spine.'},
+  {id:'mtn-climber', name:'Mountain Climbers', cat:'core', equip:['bodyweight'], sec:30, cues:'Plank position, drive knees to chest quickly, hips low.'},
+
+  // ---- Cardio ----
+  {id:'jump-rope', name:'Jump Rope', cat:'cardio', equip:['rope'], sec:60, cues:'Basic bounce, light on the feet, wrists do the work. No rope? Mime it.'},
+  {id:'rope-high-knees', name:'Jump Rope High Knees', cat:'cardio', equip:['rope'], sec:40, cues:'Drive the knees up with each turn of the rope.'},
+  {id:'boxer-skip', name:'Boxer Skip', cat:'cardio', equip:['rope'], sec:60, cues:'Shift weight side to side over each foot, steady rhythm, conserve energy.'},
+  {id:'jumping-jacks', name:'Jumping Jacks', cat:'cardio', equip:['bodyweight'], sec:40, cues:'Full range, arms all the way overhead. The no-rope cardio option.'},
+  {id:'high-knees', name:'High Knees (no rope)', cat:'cardio', equip:['bodyweight'], sec:30, cues:'Run in place driving knees to hip height, pump the arms.'},
+
+  // ---- Stretch / mobility ----
+  {id:'neck-rolls', name:'Neck Rolls', cat:'stretch', equip:['bodyweight'], sec:30, cues:'Slow half-circles ear to ear. Never crank the neck backward.'},
+  {id:'shoulder-rolls', name:'Shoulder Rolls', cat:'stretch', equip:['bodyweight'], sec:30, cues:'Big slow rolls back, then forward. Melt the driving tension.'},
+  {id:'chest-opener', name:'Band Chest Opener', cat:'stretch', equip:['band'], sec:30, cues:'Hold band wide overhead, open the chest and reach back. Undoes the steering-wheel hunch.'},
+  {id:'thoracic-rot', name:'Thoracic Rotation', cat:'stretch', equip:['bodyweight'], sec:30, cues:'Hands at chest, rotate the upper back left and right, let the eyes follow.'},
+  {id:'cat-cow', name:'Cat-Cow', cat:'stretch', equip:['bodyweight'], sec:30, cues:'On hands and knees (or standing), alternate arching and rounding the spine with the breath.'},
+  {id:'forward-fold', name:'Standing Forward Fold', cat:'stretch', equip:['bodyweight'], sec:30, cues:'Hinge at the hips, soft knees, let the head and arms hang. Decompress the spine.'},
+  {id:'hip-flexor', name:'Hip Flexor Stretch (switch halfway)', cat:'stretch', equip:['bodyweight'], sec:40, cues:'Half-kneel or staggered stance, tuck the pelvis, feel the front of the back hip. Switch at halfway.'},
+  {id:'hamstring', name:'Hamstring Stretch (switch halfway)', cat:'stretch', equip:['bodyweight'], sec:40, cues:'One heel forward, hinge at the hips over that leg. Switch at the halfway beep.'},
+  {id:'figure4', name:'Figure-4 Glute Stretch (switch halfway)', cat:'stretch', equip:['bodyweight'], sec:40, cues:'Ankle over opposite knee, sit back into it. Standing or seated. Switch halfway.'},
+  {id:'spinal-twist', name:'Standing Spinal Twist (switch halfway)', cat:'stretch', equip:['bodyweight'], sec:30, cues:'Gentle rotation holding each side, breathe into it. Switch halfway.'},
+  {id:'wrist-stretch', name:'Wrist & Forearm Stretch', cat:'stretch', equip:['bodyweight'], sec:30, cues:'Extend an arm, gently pull the fingers back, then down. Relieves grip fatigue from the wheel.'},
+  {id:'side-bend', name:'Standing Side Bend', cat:'stretch', equip:['bodyweight'], sec:30, cues:'Reach one arm overhead and lean away, open the ribs. Switch halfway.'},
+];
+const EX = {};
+EXLIST.forEach(e => EX[e.id] = e);
+
+const CATS = [
+  {k:'all', label:'All'}, {k:'upper', label:'Upper'}, {k:'lower', label:'Lower'},
+  {k:'core', label:'Core'}, {k:'cardio', label:'Cardio'}, {k:'stretch', label:'Stretch'}
+];
+const CATLABEL = {upper:'Upper', lower:'Lower', core:'Core', cardio:'Cardio', stretch:'Stretch'};
+
+// step helper: s(id, work, rest)
+function s(id, work, rest){ return {ex:id, work:(work!=null?work:EX[id].sec), rest:(rest!=null?rest:15)}; }
+
+const ROUTINES = [
+  {
+    id:'rest-stop', name:'Rest Stop Reset', icon:'🛻',
+    tags:['~10 min','after sitting','upper + stretch','quiet'],
+    desc:'Built for a 10-minute rest-stop break after a couple hours behind the wheel: open up the chest and hips, then band work for the upper body. No jumping.',
+    steps:[
+      s('shoulder-rolls',30,5), s('chest-opener',30,5), s('thoracic-rot',30,10),
+      s('band-face-pull',40,15), s('pull-apart',40,15), s('band-row',40,15),
+      s('band-ohp',40,15), s('band-curl',35,12), s('band-pushdown',35,12),
+      s('band-lat-raise',30,10), s('hip-flexor',40,5), s('forward-fold',30,0)
+    ]
+  },
+  {
+    id:'spine-decompress', name:'Spine Decompress', icon:'🧘',
+    tags:['~5 min','after sitting','stretch','quiet'],
+    desc:'Pure decompression for the back and hips after long sitting. Do it beside the truck.',
+    steps:[
+      s('cat-cow',35,5), s('chest-opener',30,5), s('thoracic-rot',35,5),
+      s('spinal-twist',35,5), s('hip-flexor',40,5), s('hamstring',40,5),
+      s('forward-fold',35,5), s('neck-rolls',30,0)
+    ]
+  },
+  {
+    id:'upper-band', name:'Upper Body Band Blast', icon:'💪',
+    tags:['~15 min','upper','band','quiet'],
+    desc:'A full upper-body session with just the resistance band. Push, pull, shoulders, arms.',
+    steps:[
+      s('pull-apart',40,12), s('band-row',45,15), s('band-chest-press',45,15),
+      s('band-ohp',45,15), s('band-face-pull',40,12), s('band-rev-fly',40,12),
+      s('band-curl',40,12), s('band-pushdown',40,12), s('band-lat-raise',35,12),
+      s('band-front-raise',35,12), s('band-row',40,12), s('band-chest-press',40,0)
+    ]
+  },
+  {
+    id:'full-express', name:'Full Body Express', icon:'⚡',
+    tags:['~20 min','full body'],
+    desc:'Everything in one go — cardio bursts, band strength, lower body, and core.',
+    steps:[
+      s('jumping-jacks',40,10), s('band-squat',45,15), s('band-chest-press',40,12),
+      s('rev-lunge',45,15), s('band-row',40,12), s('high-knees',30,10),
+      s('band-ohp',40,12), s('glute-bridge',40,12), s('band-curl',35,10),
+      s('plank',40,12), s('mtn-climber',30,12), s('band-pushdown',35,10),
+      s('side-plank',40,10), s('forward-fold',35,0)
+    ]
+  },
+  {
+    id:'cardio-core', name:'Cardio + Core', icon:'🔥',
+    tags:['~12 min','cardio','core','rope'],
+    desc:'Alternating jump-rope intervals and core work. No rope? Swap in jumping jacks / high knees.',
+    steps:[
+      s('jump-rope',60,15), s('plank',40,15), s('boxer-skip',60,15),
+      s('standing-oblique',40,15), s('rope-high-knees',40,15), s('dead-bug',40,15),
+      s('jump-rope',60,15), s('mtn-climber',30,15), s('boxer-skip',60,15),
+      s('bird-dog',40,0)
+    ]
+  },
+  {
+    id:'lower', name:'Lower Body', icon:'🦵',
+    tags:['~12 min','lower','quiet'],
+    desc:'Legs and glutes with bodyweight and the band. Mostly quiet — good for a hotel room.',
+    steps:[
+      s('squat',45,12), s('rev-lunge',45,15), s('band-squat',45,15),
+      s('glute-bridge',40,12), s('lat-band-walk',40,12), s('band-glute-bridge',40,12),
+      s('calf-raise',40,12), s('wall-sit',45,12), s('squat',40,0)
+    ]
+  },
+  {
+    id:'morning-mobility', name:'Morning Mobility', icon:'🌅',
+    tags:['~8 min','mobility','wake up'],
+    desc:'A gentle full-body flow to loosen up before a long day in the seat.',
+    steps:[
+      s('neck-rolls',30,5), s('shoulder-rolls',30,5), s('arm-circles',30,5),
+      s('cat-cow',35,5), s('thoracic-rot',30,5), s('side-bend',30,5),
+      s('hip-flexor',40,5), s('hamstring',40,5), s('figure4',40,5),
+      s('forward-fold',35,0)
+    ]
+  },
+  {
+    id:'neck-shoulders', name:'Neck & Shoulders Unlock', icon:'🔓',
+    tags:['~5 min','after sitting','stretch','quiet'],
+    desc:'Targets the exact spots driving wrecks: neck, shoulders, upper back, wrists.',
+    steps:[
+      s('neck-rolls',30,5), s('shoulder-rolls',30,5), s('band-face-pull',40,10),
+      s('chest-opener',30,5), s('thoracic-rot',30,5), s('side-bend',30,5),
+      s('wrist-stretch',30,0)
+    ]
+  }
+];
+
+function routineSeconds(r){
+  let t = PREP;
+  r.steps.forEach(st => { t += st.work + (st.rest||0); });
+  return t;
+}
+function mmss(total){
+  const m=Math.floor(total/60), s=total%60;
+  return m+':'+String(s).padStart(2,'0');
+}
+function minsLabel(total){
+  return Math.round(total/60)+' min';
+}
+function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ============================ STATE ============================ */
+const SKEY = 'roadwork';
+let store = { presets:[], lastInterval:{prep:10,work:30,rest:15,rounds:8}, mute:false };
+let tab = 'routines';
+let exFilter = 'all';
+let timerSeg = 'interval';
+// transient countdown inputs
+let cd = { min:5, sec:0 };
+
+async function loadStore(){
+  try{ const r=await window.storage.get(SKEY); if(r&&r.value) store=Object.assign(store,JSON.parse(r.value)); }catch(e){}
+  if(!Array.isArray(store.presets)) store.presets=[];
+  if(!store.lastInterval) store.lastInterval={prep:10,work:30,rest:15,rounds:8};
+}
+async function saveStore(){ try{ await window.storage.set(SKEY, JSON.stringify(store)); }catch(e){} }
+
+/* ============================ RENDER ============================ */
+const view = () => document.getElementById('view');
+
+function setTab(t){ tab=t; document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t)); render(); }
+
+function render(){
+  if(tab==='routines') renderRoutines();
+  else if(tab==='exercises') renderExercises();
+  else renderTimers();
+}
+
+function renderRoutines(){
+  view().innerHTML = `<div class="sub" style="margin:-4px 0 14px">Tap a workout to see the moves, or hit Start — timers and rests are baked in.</div>` +
+    ROUTINES.map(r=>{
+      const total = routineSeconds(r);
+      const work = r.steps.length;
+      return `<div class="item" id="rt-${r.id}">
+        <div class="ihead">
+          <div>
+            <div class="iname">${r.icon} ${esc(r.name)}</div>
+            <div class="imeta">${minsLabel(total)} · ${work} moves</div>
+          </div>
+          <button class="go" onclick="event.stopPropagation();startRoutine('${r.id}')">Start</button>
+        </div>
+        <div class="tagrow">${r.tags.map(t=>`<span class="pill amber">${esc(t)}</span>`).join('')}</div>
+        <div class="steps">
+          <div class="imeta" style="margin-bottom:8px">${esc(r.desc)}</div>
+          ${r.steps.map(st=>`<div class="steprow"><span>${esc(EX[st.ex].name)}</span><span class="sd">${st.work}s${st.rest?` · ${st.rest}s rest`:''}</span></div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  ROUTINES.forEach(r=>{
+    const el=document.getElementById('rt-'+r.id);
+    el.addEventListener('click',()=>el.classList.toggle('open'));
+  });
+}
+
+function renderExercises(){
+  const chips = CATS.map(c=>`<span class="chip ${exFilter===c.k?'on':''}" onclick="setFilter('${c.k}')">${c.label}</span>`).join('');
+  const list = EXLIST.filter(e=>exFilter==='all'||e.cat===exFilter);
+  view().innerHTML = `<div class="filters">${chips}</div>` +
+    list.map(e=>`<div class="item" id="ex-${e.id}">
+        <div class="ihead">
+          <div>
+            <div class="iname">${esc(e.name)}</div>
+            <div class="imeta">${CATLABEL[e.cat]} · ${e.equip.join(', ')} · ${e.sec}s</div>
+          </div>
+          <button class="go" onclick="event.stopPropagation();startExercise('${e.id}')">Start</button>
+        </div>
+        <div class="icues">${esc(e.cues)}</div>
+      </div>`).join('') +
+    (list.length?'':`<div class="empty">Nothing in this category.</div>`);
+  list.forEach(e=>{
+    const el=document.getElementById('ex-'+e.id);
+    el.addEventListener('click',()=>el.classList.toggle('open'));
+  });
+}
+function setFilter(k){ exFilter=k; renderExercises(); }
+
+function renderTimers(){
+  const seg = `<div class="seg">
+    <button class="${timerSeg==='interval'?'on':''}" onclick="setSeg('interval')">Interval</button>
+    <button class="${timerSeg==='countdown'?'on':''}" onclick="setSeg('countdown')">Countdown</button>
+    <button class="${timerSeg==='stopwatch'?'on':''}" onclick="setSeg('stopwatch')">Stopwatch</button>
+  </div>`;
+  let body='';
+  if(timerSeg==='interval') body = intervalUI();
+  else if(timerSeg==='countdown') body = countdownUI();
+  else body = stopwatchUI();
+  view().innerHTML = seg + body;
+  if(timerSeg==='stopwatch') initStopwatch();
+}
+function setSeg(s){ timerSeg=s; renderTimers(); }
+
+function intervalUI(){
+  const iv = store.lastInterval;
+  const f = (lbl,key,unit,min,max,stepv)=>`<div class="field">
+      <span class="flbl">${lbl}</span>
+      <div class="stepper">
+        <div class="tstep" onclick="bumpIv('${key}',-${stepv},${min},${max})">&minus;</div>
+        <div class="tval">${iv[key]}<span style="font-size:13px;color:var(--muted)">${unit}</span></div>
+        <div class="tstep" onclick="bumpIv('${key}',${stepv},${min},${max})">+</div>
+      </div></div>`;
+  const presets = store.presets.length
+    ? store.presets.map((p,i)=>`<div class="preset">
+        <div><div class="pn">${esc(p.name)}</div><div class="psub">${p.prep}s prep · ${p.work}s on / ${p.rest}s off · ${p.rounds} rounds</div></div>
+        <div style="display:flex;gap:4px;align-items:center">
+          <button class="go" onclick="runPreset(${i})">Start</button>
+          <button class="del" onclick="delPreset(${i})">&times;</button>
+        </div></div>`).join('')
+    : `<div class="empty" style="padding:10px">No saved presets yet.</div>`;
+  return f('Prep','prep','s',0,60,5)
+    + f('Work','work','s',5,600,5)
+    + f('Rest','rest','s',0,300,5)
+    + f('Rounds','rounds','',1,50,1)
+    + `<button class="btn" onclick="startInterval()">Start interval</button>
+       <button class="btn ghost" style="margin-top:8px" onclick="savePreset()">Save as preset</button>
+       <div class="section-title">Saved presets</div>${presets}`;
+}
+function bumpIv(key,d,min,max){
+  let v=store.lastInterval[key]+d;
+  v=Math.max(min,Math.min(max,v));
+  store.lastInterval[key]=v; saveStore(); renderTimers();
+}
+function savePreset(){
+  const iv=store.lastInterval;
+  const name=prompt('Name this preset:', `${iv.work}/${iv.rest} × ${iv.rounds}`);
+  if(!name) return;
+  store.presets.push({name:name.trim(), prep:iv.prep, work:iv.work, rest:iv.rest, rounds:iv.rounds});
+  saveStore(); renderTimers();
+}
+function delPreset(i){ store.presets.splice(i,1); saveStore(); renderTimers(); }
+function runPreset(i){ const p=store.presets[i]; runInterval(p.prep,p.work,p.rest,p.rounds, p.name); }
+function startInterval(){ const iv=store.lastInterval; saveStore(); runInterval(iv.prep,iv.work,iv.rest,iv.rounds,'Interval'); }
+
+function countdownUI(){
+  return `<div class="field"><span class="flbl">Minutes</span>
+      <div class="stepper"><div class="tstep" onclick="bumpCd('min',-1)">&minus;</div>
+        <div class="tval">${cd.min}</div><div class="tstep" onclick="bumpCd('min',1)">+</div></div></div>
+    <div class="field"><span class="flbl">Seconds</span>
+      <div class="stepper"><div class="tstep" onclick="bumpCd('sec',-5)">&minus;</div>
+        <div class="tval">${String(cd.sec).padStart(2,'0')}</div><div class="tstep" onclick="bumpCd('sec',5)">+</div></div></div>
+    <button class="btn" onclick="startCountdown()">Start countdown</button>`;
+}
+function bumpCd(key,d){
+  if(key==='min'){ cd.min=Math.max(0,Math.min(120,cd.min+d)); }
+  else { cd.sec+=d; if(cd.sec>=60){cd.sec-=60;cd.min=Math.min(120,cd.min+1);} if(cd.sec<0){ if(cd.min>0){cd.min--;cd.sec+=60;} else cd.sec=0; } }
+  renderTimers();
+}
+function startCountdown(){
+  const total=cd.min*60+cd.sec;
+  if(total<=0){ return; }
+  ensureAudio();
+  Runner.start([{kind:'work',label:'Countdown',name:'',dur:total}], {title:'Countdown'});
+}
+
+/* -------- stopwatch (lives inline, not in the runner) -------- */
+let swTimer=null, swStart=0, swElapsed=0, swLaps=[];
+function stopwatchUI(){
+  return `<div class="swatch" id="swDisplay">0:00.0</div>
+    <div class="row2"><button class="btn" id="swToggle" onclick="swToggle()">Start</button>
+      <button class="btn ghost" onclick="swLap()">Lap</button></div>
+    <button class="btn ghost" style="margin-top:8px" onclick="swReset()">Reset</button>
+    <div id="swLaps" style="margin-top:14px"></div>`;
+}
+function fmtSw(ms){
+  const t=Math.floor(ms/100); const tenths=t%10; const s=Math.floor(t/10); const m=Math.floor(s/60);
+  return m+':'+String(s%60).padStart(2,'0')+'.'+tenths;
+}
+function initStopwatch(){ swRenderDisplay(); swRenderLaps(); document.getElementById('swToggle').textContent = swTimer? 'Stop':'Start'; }
+function swRenderDisplay(){ const el=document.getElementById('swDisplay'); if(el) el.textContent=fmtSw(swElapsed+(swTimer?(Date.now()-swStart):0)); }
+function swRenderLaps(){ const el=document.getElementById('swLaps'); if(!el) return;
+  el.innerHTML = swLaps.map((l,i)=>`<div class="preset"><span class="pn">Lap ${i+1}</span><span class="psub">${fmtSw(l)}</span></div>`).reverse().join(''); }
+function swToggle(){
+  if(swTimer){ swElapsed+=Date.now()-swStart; clearInterval(swTimer); swTimer=null; }
+  else { swStart=Date.now(); swTimer=setInterval(swRenderDisplay,100); }
+  const b=document.getElementById('swToggle'); if(b) b.textContent=swTimer?'Stop':'Start';
+}
+function swLap(){ const cur=swElapsed+(swTimer?(Date.now()-swStart):0); if(cur>0){ swLaps.push(cur); swRenderLaps(); } }
+function swReset(){ if(swTimer){clearInterval(swTimer);swTimer=null;} swElapsed=0; swLaps=[]; swRenderDisplay(); swRenderLaps(); const b=document.getElementById('swToggle'); if(b) b.textContent='Start'; }
+
+/* ============================ RUNNER ============================ */
+let audioCtx=null;
+function ensureAudio(){ try{ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }catch(e){} }
+function beep(freq, dur, vol){
+  if(store.mute) return;
+  try{
+    if(!audioCtx) return;
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.frequency.value=freq; o.type='sine'; o.connect(g); g.connect(audioCtx.destination);
+    g.gain.setValueAtTime(vol||0.25, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+(dur||0.15));
+    o.start(); o.stop(audioCtx.currentTime+(dur||0.15));
+  }catch(e){}
+}
+function buzz(ms){ if(!store.mute && navigator.vibrate) try{ navigator.vibrate(ms); }catch(e){} }
+
+const Runner = {
+  phases:[], i:0, remaining:0, endAt:0, tick:null, paused:false, title:'', wake:null, workTotal:0, workIdx:0,
+  start(phases, opts){
+    opts=opts||{};
+    this.phases=phases; this.i=-1; this.paused=false; this.title=opts.title||'';
+    this.workTotal=phases.filter(p=>p.kind==='work').length; this.workIdx=0;
+    ensureAudio();
+    this.requestWake();
+    document.getElementById('runner').classList.remove('hidden');
+    this.next();
+  },
+  async requestWake(){ try{ if('wakeLock' in navigator){ this.wake=await navigator.wakeLock.request('screen'); } }catch(e){} },
+  releaseWake(){ try{ if(this.wake){ this.wake.release(); this.wake=null; } }catch(e){} },
+  next(){
+    this.i++;
+    if(this.i>=this.phases.length){ this.finish(); return; }
+    const p=this.phases[this.i];
+    if(p.kind==='work') this.workIdx++;
+    this.remaining=p.dur;
+    this.endAt=Date.now()+p.dur*1000;
+    if(p.kind==='work'){ beep(880,0.18,0.3); buzz(120); }
+    else if(p.kind==='rest'){ beep(440,0.18,0.25); buzz(60); }
+    this.paint(true);
+    if(!this.tick) this.tick=setInterval(()=>this.update(),200);
+  },
+  update(){
+    if(this.paused) return;
+    const rem=Math.max(0, Math.round((this.endAt-Date.now())/1000));
+    if(rem!==this.remaining){
+      this.remaining=rem;
+      if(rem<=3 && rem>0) beep(660,0.1,0.2);
+      this.paint(false);
+    }
+    if(Date.now()>=this.endAt){ this.next(); }
+  },
+  paint(full){
+    const p=this.phases[this.i]; if(!p) return;
+    const r=document.getElementById('runner');
+    r.className='runner '+(p.kind);
+    let next='';
+    if(p.kind!=='done'){
+      for(let j=this.i+1;j<this.phases.length;j++){ if(this.phases[j].kind==='work'){ next='Next: '+this.phases[j].name; break; } }
+    }
+    const phaseLabel = p.kind==='prep'?'Get ready':p.kind==='rest'?'Rest':p.kind==='work'?(p.label||'Work'):'';
+    const counter = this.workTotal>1 && p.kind!=='done' ? `${Math.max(1,this.workIdx)} / ${this.workTotal}` : '';
+    const elapsedFrac = p.dur? (1-(this.remaining/p.dur)) : 0;
+    if(full){
+      r.innerHTML = `
+        <div class="rtop"><span>${esc(this.title)}</span>
+          <span>${counter}</span>
+          <button class="rmute" onclick="Runner.toggleMute()">${store.mute?'🔇':'🔊'}</button></div>
+        <div class="rphase" id="rPhase">${esc(phaseLabel)}</div>
+        <div class="rbig" id="rBig">${this.remaining}</div>
+        <div class="rname" id="rName">${esc(p.kind==='work'?(p.name||''):'')}</div>
+        <div class="rcues" id="rCues">${esc(p.kind==='work'?(p.cues||''):'')}</div>
+        <div class="rprogwrap"><div class="rprog" id="rProg" style="width:${(elapsedFrac*100).toFixed(1)}%"></div></div>
+        <div class="rnext" id="rNext">${esc(next)}</div>
+        <div class="rctrls">
+          <button class="rbtn" onclick="Runner.prev()">Prev</button>
+          <button class="rbtn amber" id="rPause" onclick="Runner.togglePause()">${this.paused?'Resume':'Pause'}</button>
+          <button class="rbtn" onclick="Runner.skip()">Skip</button>
+        </div>
+        <button class="rend" onclick="Runner.end()">End</button>`;
+    } else {
+      const big=document.getElementById('rBig'); if(big) big.textContent=this.remaining;
+      const prog=document.getElementById('rProg'); if(prog) prog.style.width=(elapsedFrac*100).toFixed(1)+'%';
+    }
+  },
+  togglePause(){
+    this.paused=!this.paused;
+    if(!this.paused){ this.endAt=Date.now()+this.remaining*1000; }
+    const b=document.getElementById('rPause'); if(b) b.textContent=this.paused?'Resume':'Pause';
+  },
+  toggleMute(){ store.mute=!store.mute; saveStore(); this.paint(true); },
+  skip(){ this.paused=false; this.next(); },
+  prev(){
+    this.paused=false;
+    // recompute workIdx if stepping back over a work phase
+    let target=Math.max(0,this.i-1);
+    if(this.phases[this.i] && this.phases[this.i].kind==='work') this.workIdx=Math.max(0,this.workIdx-1);
+    if(this.phases[target] && this.phases[target].kind==='work') this.workIdx=Math.max(0,this.workIdx-1);
+    this.i=target-1; this.next();
+  },
+  finish(){
+    if(this.tick){ clearInterval(this.tick); this.tick=null; }
+    this.releaseWake();
+    beep(880,0.18,0.3); setTimeout(()=>beep(1100,0.25,0.3),200); buzz([120,80,200]);
+    const r=document.getElementById('runner'); r.className='runner';
+    r.innerHTML=`<div class="rtop"><span>${esc(this.title)}</span><span></span><span></span></div>
+      <div class="rdone">Done ✓</div>
+      <div class="rcues" style="margin-top:14px">Nice work. That's logged in your body, not an app.</div>
+      <div class="rnext"></div>
+      <button class="rend" style="border-color:var(--amber);color:var(--amber)" onclick="Runner.end()">Close</button>`;
+  },
+  end(){
+    if(this.tick){ clearInterval(this.tick); this.tick=null; }
+    this.releaseWake();
+    this.paused=false;
+    document.getElementById('runner').classList.add('hidden');
+    document.getElementById('runner').innerHTML='';
+  }
+};
+
+/* ---- phase builders ---- */
+function startRoutine(id){
+  const r=ROUTINES.find(x=>x.id===id); if(!r) return;
+  ensureAudio();
+  const phases=[{kind:'prep',label:'Get ready',name:'',dur:PREP}];
+  r.steps.forEach(st=>{
+    const e=EX[st.ex];
+    phases.push({kind:'work',label:e.name,name:e.name,cues:e.cues,dur:st.work});
+    if(st.rest>0) phases.push({kind:'rest',label:'Rest',name:'',dur:st.rest});
+  });
+  Runner.start(phases,{title:r.name});
+}
+function startExercise(id){
+  const e=EX[id]; if(!e) return;
+  ensureAudio();
+  Runner.start([
+    {kind:'prep',label:'Get ready',name:'',dur:PREP},
+    {kind:'work',label:e.name,name:e.name,cues:e.cues,dur:e.sec}
+  ],{title:e.name});
+}
+function runInterval(prep,work,rest,rounds,title){
+  ensureAudio();
+  const phases=[];
+  if(prep>0) phases.push({kind:'prep',label:'Get ready',name:'',dur:prep});
+  for(let r=1;r<=rounds;r++){
+    phases.push({kind:'work',label:'Work',name:`Round ${r} of ${rounds}`,cues:'',dur:work});
+    if(rest>0 && r<rounds) phases.push({kind:'rest',label:'Rest',name:'',dur:rest});
+  }
+  Runner.start(phases,{title:title||'Interval'});
+}
+
+/* ============================ INIT ============================ */
+function tickClock(){ const d=new Date(); document.getElementById('clock').textContent=d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+(async function(){ await loadStore(); tickClock(); setInterval(tickClock,30000); render(); })();
+</script>
+</body>
+</html>
