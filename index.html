@@ -105,13 +105,33 @@ document.getElementById('export').onclick=async function(){
   // record the export time, then include it in the dump too
   await window.storage.set(META_KEY, JSON.stringify({lastExport:payload.exportedAt}));
   payload.data=window.storage.exportAll();
-  var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  var json=JSON.stringify(payload,null,2);
   var d=new Date();
   var fn='offline-os-backup-'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json';
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download=fn;
-  document.body.appendChild(a); a.click();
-  setTimeout(function(){URL.revokeObjectURL(a.href); a.remove();},1500);
+
+  // iOS/Safari ignore <a download> and just open the JSON. Prefer the share
+  // sheet with a file (→ "Save to Files" / iCloud Drive) when available.
+  var shared=false;
+  try{
+    if(navigator.canShare){
+      var file=new File([json],fn,{type:'application/json'});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:'Offline OS backup'});
+        shared=true;
+      }
+    }
+  }catch(e){
+    if(e && e.name==='AbortError'){ refreshMeta(); return; } // user cancelled
+    shared=false; // fall through to download
+  }
+
+  if(!shared){
+    var blob=new Blob([json],{type:'application/json'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download=fn;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href); a.remove();},1500);
+  }
   refreshMeta();
 };
 
