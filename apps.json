@@ -44,9 +44,9 @@
     },
     {
       "name": "Cascade",
-      "blurb": "Cascading puzzle game",
+      "blurb": "Falling-blocks puzzle (Tetris-style)",
       "url": "https://chargingthefuture.github.io/cascade/",
-      "icon": "💧",
+      "icon": "🧱",
       "status": "external"
     }
   ]
