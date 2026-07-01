@@ -29,6 +29,13 @@
       "status": "external"
     },
     {
+      "name": "Glowline 2",
+      "blurb": "Glowing-line arcade game — sequel",
+      "url": "https://chargingthefuture.github.io/glowline2/",
+      "icon": "🌟",
+      "status": "external"
+    },
+    {
       "name": "SpecterRealm",
       "blurb": "Spooky realm adventure",
       "url": "https://chargingthefuture.github.io/specterrealm/",
