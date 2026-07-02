@@ -55,6 +55,13 @@
       "url": "https://chargingthefuture.github.io/cascade/",
       "icon": "🧱",
       "status": "external"
+    },
+    {
+      "name": "Redline",
+      "blurb": "Offline arcade game",
+      "url": "https://chargingthefuture.github.io/redline/",
+      "icon": "🏁",
+      "status": "external"
     }
   ]
 }
