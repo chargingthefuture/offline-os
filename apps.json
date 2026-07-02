@@ -65,9 +65,9 @@
     },
     {
       "name": "Vox",
-      "blurb": "Offline game",
+      "blurb": "Side-scrolling action platformer",
       "url": "https://chargingthefuture.github.io/vox/",
-      "icon": "🔊",
+      "icon": "🎙️",
       "status": "external"
     }
   ]
