@@ -62,6 +62,13 @@
       "url": "https://chargingthefuture.github.io/redline/",
       "icon": "🦔",
       "status": "external"
+    },
+    {
+      "name": "Vox",
+      "blurb": "Offline game",
+      "url": "https://chargingthefuture.github.io/vox/",
+      "icon": "🔊",
+      "status": "external"
     }
   ]
 }
