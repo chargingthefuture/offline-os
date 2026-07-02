@@ -58,9 +58,9 @@
     },
     {
       "name": "Redline",
-      "blurb": "Offline arcade game",
+      "blurb": "Fast-running platformer (Sonic-style)",
       "url": "https://chargingthefuture.github.io/redline/",
-      "icon": "🏁",
+      "icon": "🦔",
       "status": "external"
     }
   ]
