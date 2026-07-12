@@ -123,11 +123,12 @@ function renderList(){
         +'<div class="dm">'+words(d.body)+' words · '+fmtWhen(d.updated)+'</div>'
         +'</button>';
     }).join('')
-    : '<div class="empty">'+(ql?'No matches.':'No documents yet. Tap New to start writing.<br>Plain text only — nothing gets auto-formatted.')+'</div>';
+    : '<div class="empty">'+(ql?'No matches.':'No documents yet. Tap <b>New</b> to write, or <b>Paste</b> to drop in a note copied from Apple Notes.<br>Plain text only — nothing gets auto-formatted.')+'</div>';
   document.getElementById('view').innerHTML =
     '<div class="header" style="margin-top:2px"><div><h1>Plaintext</h1>'
     +'<p class="sub">'+store.docs.length+' document'+(store.docs.length===1?'':'s')+'</p></div></div>'
     +'<div class="toolbar"><button class="tbtn amber grow" onclick="newDoc()">+ New</button>'
+    +'<button class="tbtn" onclick="pasteNew()">Paste</button>'
     +'<button class="tbtn" onclick="document.getElementById(\'importFile\').click()">Import</button></div>'
     +'<input class="search" id="search" placeholder="Search documents" value="'+esc(q)+'">'
     +list;
@@ -140,6 +141,18 @@ function newDoc(){
   store.docs.push(d); activeId=d.id; vw='editor'; persist(); renderEditor(true);
 }
 function openDoc(id){ activeId=id; vw='editor'; menuOpen=false; renderEditor(true); }
+async function pasteNew(){
+  var text='';
+  try{ if(navigator.clipboard && navigator.clipboard.readText) text=await navigator.clipboard.readText(); }catch(e){ text=''; }
+  if(text && text.trim()){
+    var first=(text.split(/\r?\n/).find(function(l){return l.trim();})||'').trim().slice(0,60);
+    var d={id:uid(), title:first, body:text, created:Date.now(), updated:Date.now()};
+    store.docs.push(d); activeId=d.id; vw='editor'; persist(); renderEditor(false);
+  } else {
+    alert('Nothing to paste. Copy a note first — in Apple Notes: select the text, tap Copy — then tap Paste. Opening a blank note so you can paste here.');
+    newDoc();
+  }
+}
 function backToList(){ clearTimeout(saveT); persist(); vw='list'; activeId=null; menuOpen=false; renderList(); }
 
 /* ---------- editor ---------- */
