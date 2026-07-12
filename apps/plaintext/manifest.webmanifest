@@ -1,0 +1,16 @@
+{
+  "name": "Plaintext",
+  "short_name": "Plaintext",
+  "description": "Plain-text notes and writing — no auto-formatting, export/import as .txt",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#16171b",
+  "theme_color": "#16171b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
