@@ -1,6 +1,6 @@
 /* Gamepad Signal Path — service worker. Self-contained: precaches its own
  * shell (HTML, fonts, icons) so it runs fully offline. Bump VERSION to update. */
-var VERSION = 'signal-path-v2';
+var VERSION = 'signal-path-v3';
 var SHELL = [
   './',
   './index.html',
@@ -33,6 +33,23 @@ self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET') return;
   var url = new URL(req.url);
+
+  // Navigations: network-first (fresh when online, cache offline). Avoids an
+  // iOS Safari bug where a service-worker update makes the page download
+  // instead of render.
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      fetch(req).then(function (res) {
+        var copy = res.clone();
+        caches.open(VERSION).then(function (c) { c.put(req, copy); });
+        return res;
+      }).catch(function () {
+        return caches.match(req).then(function (h) { return h || caches.match('./index.html'); });
+      })
+    );
+    return;
+  }
+
   if (url.origin === self.location.origin) {
     e.respondWith(
       caches.match(req).then(function (hit) {

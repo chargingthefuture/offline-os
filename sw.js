@@ -1,7 +1,7 @@
 /* Offline OS — dashboard service worker.
  * Precaches the launcher shell and runtime-caches fonts so the dashboard
  * opens with zero network once it has been visited once. */
-var VERSION = 'oos-dash-v4';
+var VERSION = 'oos-dash-v5';
 var SHELL = [
   './',
   './index.html',
@@ -40,6 +40,23 @@ self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET') return;
   var url = new URL(req.url);
+
+  // Page navigations: network-first. Serves fresh HTML with the correct
+  // content-type when online (so the dashboard updates), and — importantly —
+  // avoids an iOS Safari bug where a service-worker update makes a cached
+  // navigation get downloaded instead of rendered. Falls back to cache offline.
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      fetch(req).then(function (res) {
+        var copy = res.clone();
+        caches.open(VERSION).then(function (c) { c.put(req, copy); });
+        return res;
+      }).catch(function () {
+        return caches.match(req).then(function (h) { return h || caches.match('./index.html'); });
+      })
+    );
+    return;
+  }
 
   // The app registry: network-first so newly added apps show up on reload
   // when online; fall back to the cached copy offline.
