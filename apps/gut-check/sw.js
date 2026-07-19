@@ -1,6 +1,6 @@
 /* Gut Check — service worker. Precaches the app shell (including the shared
  * theme + storage) so it opens fully offline. Bump VERSION to push updates. */
-var VERSION = 'gut-check-v5';
+var VERSION = 'gut-check-v6';
 var SHELL = [
   './',
   './index.html',
@@ -37,6 +37,22 @@ self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET') return;
   var url = new URL(req.url);
+
+  // Navigations: network-first (fresh when online, cache offline). Avoids an
+  // iOS Safari bug where a service-worker update makes the page download
+  // instead of render.
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      fetch(req).then(function (res) {
+        var copy = res.clone();
+        caches.open(VERSION).then(function (c) { c.put(req, copy); });
+        return res;
+      }).catch(function () {
+        return caches.match(req).then(function (h) { return h || caches.match('./index.html'); });
+      })
+    );
+    return;
+  }
 
   if (url.origin === self.location.origin) {
     e.respondWith(
