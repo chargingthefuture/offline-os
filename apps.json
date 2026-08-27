@@ -29,6 +29,55 @@
       "status": "active"
     },
     {
+      "name": "2048",
+      "blurb": "Slide tiles, combine to 2048",
+      "url": "apps/2048/",
+      "icon": "🔢",
+      "status": "active"
+    },
+    {
+      "name": "Snake",
+      "blurb": "Grow the snake, don't crash",
+      "url": "apps/snake/",
+      "icon": "🐍",
+      "status": "active"
+    },
+    {
+      "name": "Breakout",
+      "blurb": "Bounce the ball, break the bricks",
+      "url": "apps/breakout/",
+      "icon": "🟧",
+      "status": "active"
+    },
+    {
+      "name": "Space Invaders",
+      "blurb": "Shoot the descending aliens",
+      "url": "apps/invaders/",
+      "icon": "👾",
+      "status": "active"
+    },
+    {
+      "name": "Pong",
+      "blurb": "Classic paddle vs CPU",
+      "url": "apps/pong/",
+      "icon": "🏓",
+      "status": "active"
+    },
+    {
+      "name": "Gem Match",
+      "blurb": "Swap gems, match three",
+      "url": "apps/gem-match/",
+      "icon": "💎",
+      "status": "active"
+    },
+    {
+      "name": "Word Wheel",
+      "blurb": "Spin, guess letters, solve the phrase",
+      "url": "apps/word-wheel/",
+      "icon": "🎡",
+      "status": "active"
+    },
+    {
       "name": "Parity",
       "blurb": "Offline restroom & rest stop finder for long-haul drivers — what drivers found, not just what the map lists. Nothing leaves the phone.",
       "url": "https://chargingthefuture.github.io/parity/",

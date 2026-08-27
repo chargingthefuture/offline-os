@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Breakout</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Breakout">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back:hover{color:var(--amber);}
+  .scores{display:flex;gap:10px;}
+  .score{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 12px;text-align:center;min-width:60px;}
+  .score .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .score .v{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:20px;color:var(--amber);font-variant-numeric:tabular-nums;}
+  .wrap{position:relative;margin:16px 0;}
+  canvas{width:100%;height:auto;display:block;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;touch-action:none;}
+  .overlay{position:absolute;inset:0;background:rgba(22,23,27,.86);border-radius:12px;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;}
+  .overlay.hide{display:none;}
+  .overlay .big{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:28px;text-transform:uppercase;letter-spacing:.04em;color:var(--amber);}
+  .hint{color:var(--muted);font-size:12px;text-align:center;margin-top:2px;}
+</style>
+</head>
+<body>
+  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+  <div class="header" style="margin-top:2px">
+    <div><h1>Breakout</h1><p class="sub">Slide to move the paddle</p></div>
+    <div class="scores">
+      <div class="score"><div class="k">Score</div><div class="v" id="score">0</div></div>
+      <div class="score"><div class="k">Lives</div><div class="v" id="lives">3</div></div>
+      <div class="score"><div class="k">Best</div><div class="v" id="best">0</div></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <canvas id="cv" width="360" height="480"></canvas>
+    <div class="overlay" id="overlay"><div class="big" id="ovtext">Breakout</div>
+      <button class="btn" style="width:auto;padding:14px 24px" onclick="start()">Play</button></div>
+  </div>
+  <div class="hint">Drag anywhere to move the paddle. Clear the bricks; don't drop the ball.</div>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+registerPWA('sw.js');
+(function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
+
+var SKEY='game-breakout';
+var cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+var W=cv.width, H=cv.height;
+var paddle, ball, bricks, score=0, lives=3, best=0, running=false, level=1;
+var COLORS=['#d9534f','#dd6f4a','#e08a3c','#e0a04a','#4caf7d'];
+var COLS=7, ROWS=5, BW, BH=18, BTOP=44, BGAP=6;
+
+async function loadBest(){ try{var r=await window.storage.get(SKEY); if(r&&r.value) best=JSON.parse(r.value).best||0;}catch(e){} document.getElementById('best').textContent=best; }
+async function saveBest(){ if(score>best){ best=score; document.getElementById('best').textContent=best; try{await window.storage.set(SKEY,JSON.stringify({best:best}));}catch(e){} } }
+
+function buildBricks(){ bricks=[]; BW=(W-BGAP*(COLS+1))/COLS;
+  for(var r=0;r<ROWS;r++)for(var c=0;c<COLS;c++){ bricks.push({x:BGAP+c*(BW+BGAP), y:BTOP+r*(BH+BGAP), alive:true, color:COLORS[r%COLORS.length]}); } }
+function resetBall(){ paddle={w:74,h:12,x:W/2-37}; ball={x:W/2,y:H-60,r:6,vx:(Math.random()<.5?-1:1)*(2.6+level*.3),vy:-(3+level*.3)}; }
+function start(){ score=0; lives=3; level=1; document.getElementById('score').textContent=0; document.getElementById('lives').textContent=3;
+  buildBricks(); resetBall(); document.getElementById('overlay').classList.add('hide'); running=true; requestAnimationFrame(frame); }
+
+function frame(){ if(!running) return; update(); render(); requestAnimationFrame(frame); }
+function update(){
+  ball.x+=ball.vx; ball.y+=ball.vy;
+  if(ball.x<ball.r){ball.x=ball.r;ball.vx*=-1;} if(ball.x>W-ball.r){ball.x=W-ball.r;ball.vx*=-1;}
+  if(ball.y<ball.r){ball.y=ball.r;ball.vy*=-1;}
+  // paddle
+  var py=H-24;
+  if(ball.y+ball.r>=py && ball.y+ball.r<=py+paddle.h+8 && ball.x>=paddle.x && ball.x<=paddle.x+paddle.w && ball.vy>0){
+    ball.vy*=-1; var hit=(ball.x-(paddle.x+paddle.w/2))/(paddle.w/2); ball.vx=hit*4.2; ball.y=py-ball.r;
+  }
+  // bricks
+  for(var i=0;i<bricks.length;i++){ var b=bricks[i]; if(!b.alive) continue;
+    if(ball.x>b.x-ball.r && ball.x<b.x+BW+ball.r && ball.y>b.y-ball.r && ball.y<b.y+BH+ball.r){
+      b.alive=false; score+=10; document.getElementById('score').textContent=score;
+      var ox=Math.min(ball.x-(b.x-ball.r), (b.x+BW+ball.r)-ball.x);
+      var oy=Math.min(ball.y-(b.y-ball.r), (b.y+BH+ball.r)-ball.y);
+      if(ox<oy) ball.vx*=-1; else ball.vy*=-1; break; }
+  }
+  if(!bricks.some(function(b){return b.alive;})){ level++; buildBricks(); resetBall(); }
+  if(ball.y-ball.r>H){ lives--; document.getElementById('lives').textContent=lives; saveBest();
+    if(lives<=0){ running=false; document.getElementById('ovtext').textContent='Game over · '+score; document.getElementById('overlay').classList.remove('hide'); }
+    else resetBall(); }
+}
+function render(){
+  ctx.fillStyle='#20222a'; ctx.fillRect(0,0,W,H);
+  for(var i=0;i<bricks.length;i++){ var b=bricks[i]; if(!b.alive)continue; ctx.fillStyle=b.color; rr(b.x,b.y,BW,BH,4); }
+  ctx.fillStyle='#e9e6df'; rr(paddle.x,H-24,paddle.w,paddle.h,6);
+  ctx.fillStyle='#ffb000'; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,7); ctx.fill();
+}
+function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.fill(); }
+
+function movePaddle(clientX){ if(!paddle) return; var rect=cv.getBoundingClientRect(); var x=(clientX-rect.left)/rect.width*W; paddle.x=Math.max(0,Math.min(W-paddle.w,x-paddle.w/2)); }
+cv.addEventListener('touchmove',function(e){ e.preventDefault(); movePaddle(e.touches[0].clientX); },{passive:false});
+cv.addEventListener('touchstart',function(e){ movePaddle(e.touches[0].clientX); },{passive:true});
+cv.addEventListener('mousemove',function(e){ if(e.buttons) movePaddle(e.clientX); });
+
+(async function(){ await loadBest(); ctx.fillStyle='#20222a'; ctx.fillRect(0,0,W,H); })();
+</script>
+</body>
+</html>

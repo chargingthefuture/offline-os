@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pong</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pong">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back:hover{color:var(--amber);}
+  .scores{display:flex;gap:10px;}
+  .score{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 12px;text-align:center;min-width:60px;}
+  .score .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .score .v{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:20px;color:var(--amber);font-variant-numeric:tabular-nums;}
+  .wrap{position:relative;margin:16px 0;}
+  canvas{width:100%;height:auto;display:block;background:#101116;border:1px solid var(--line);border-radius:12px;touch-action:none;}
+  .overlay{position:absolute;inset:0;background:rgba(16,17,22,.86);border-radius:12px;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;}
+  .overlay.hide{display:none;}
+  .overlay .big{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:28px;text-transform:uppercase;letter-spacing:.04em;color:var(--amber);}
+  .hint{color:var(--muted);font-size:12px;text-align:center;margin-top:2px;}
+</style>
+</head>
+<body>
+  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+  <div class="header" style="margin-top:2px">
+    <div><h1>Pong</h1><p class="sub">First to 7</p></div>
+    <div class="scores">
+      <div class="score"><div class="k">You</div><div class="v" id="you">0</div></div>
+      <div class="score"><div class="k">CPU</div><div class="v" id="cpu">0</div></div>
+      <div class="score"><div class="k">Wins</div><div class="v" id="best">0</div></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <canvas id="cv" width="360" height="480"></canvas>
+    <div class="overlay" id="overlay"><div class="big" id="ovtext">Pong</div>
+      <button class="btn" style="width:auto;padding:14px 24px" onclick="start()">Play</button></div>
+  </div>
+  <div class="hint">Drag left/right to move your paddle (bottom). First to 7 points wins.</div>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+registerPWA('sw.js');
+(function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
+
+var SKEY='game-pong';
+var cv=document.getElementById('cv'), ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+var PW=70, PH=12, ball, you, cpu, ys=0, cs=0, wins=0, running=false, serve=1;
+
+async function loadBest(){ try{var r=await window.storage.get(SKEY); if(r&&r.value) wins=JSON.parse(r.value).best||0;}catch(e){} document.getElementById('best').textContent=wins; }
+async function saveBest(){ document.getElementById('best').textContent=wins; try{await window.storage.set(SKEY,JSON.stringify({best:wins}));}catch(e){} }
+
+function serveBall(d){ ball={x:W/2,y:H/2,r:6,vx:(Math.random()<.5?-1:1)*2.4,vy:d*3.4}; }
+function start(){ you={x:W/2-PW/2}; cpu={x:W/2-PW/2}; ys=0; cs=0; document.getElementById('you').textContent=0; document.getElementById('cpu').textContent=0;
+  serve=1; serveBall(1); document.getElementById('overlay').classList.add('hide'); running=true; requestAnimationFrame(frame); }
+
+function frame(){ if(!running)return; update(); render(); requestAnimationFrame(frame); }
+function update(){
+  ball.x+=ball.vx; ball.y+=ball.vy;
+  if(ball.x<ball.r){ball.x=ball.r;ball.vx*=-1;} if(ball.x>W-ball.r){ball.x=W-ball.r;ball.vx*=-1;}
+  // cpu ai (top)
+  var target=ball.x-PW/2; cpu.x+=Math.max(-3.4,Math.min(3.4,target-cpu.x)); cpu.x=Math.max(0,Math.min(W-PW,cpu.x));
+  // top paddle collision
+  if(ball.y-ball.r<=24 && ball.x>=cpu.x && ball.x<=cpu.x+PW && ball.vy<0){ ball.vy*=-1; ball.vx+=(ball.x-(cpu.x+PW/2))/PW*3; ball.y=24+ball.r; }
+  // bottom paddle collision
+  if(ball.y+ball.r>=H-24 && ball.x>=you.x && ball.x<=you.x+PW && ball.vy>0){ ball.vy*=-1; ball.vx+=(ball.x-(you.x+PW/2))/PW*3; ball.y=H-24-ball.r; }
+  ball.vx=Math.max(-6,Math.min(6,ball.vx));
+  if(ball.y<0){ ys++; document.getElementById('you').textContent=ys; point(); }
+  else if(ball.y>H){ cs++; document.getElementById('cpu').textContent=cs; point(); }
+}
+function point(){ if(ys>=7||cs>=7){ running=false; var win=ys>=7; if(win){ wins++; saveBest(); } document.getElementById('ovtext').textContent=win?'You win!':'CPU wins'; document.getElementById('overlay').classList.remove('hide'); }
+  else { serve*=-1; serveBall(serve); } }
+function render(){
+  ctx.fillStyle='#101116'; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#33373f'; ctx.setLineDash([6,8]); ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle='#8d909a'; rr(cpu.x,12,PW,PH,6);
+  ctx.fillStyle='#e9e6df'; rr(you.x,H-24,PW,PH,6);
+  ctx.fillStyle='#ffb000'; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,7); ctx.fill();
+}
+function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.fill(); }
+
+function moveYou(clientX){ if(!you)return; var rect=cv.getBoundingClientRect(); var x=(clientX-rect.left)/rect.width*W; you.x=Math.max(0,Math.min(W-PW,x-PW/2)); }
+cv.addEventListener('touchmove',function(e){ e.preventDefault(); moveYou(e.touches[0].clientX); },{passive:false});
+cv.addEventListener('touchstart',function(e){ moveYou(e.touches[0].clientX); },{passive:true});
+cv.addEventListener('mousemove',function(e){ if(e.buttons) moveYou(e.clientX); });
+
+(async function(){ await loadBest(); ctx.fillStyle='#101116'; ctx.fillRect(0,0,W,H); })();
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gem Match</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gem Match">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back:hover{color:var(--amber);}
+  .scores{display:flex;gap:10px;}
+  .score{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 14px;text-align:center;min-width:74px;}
+  .score .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .score .v{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:22px;color:var(--amber);font-variant-numeric:tabular-nums;}
+  .board{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:6px;margin:16px 0;
+    display:grid;gap:4px;aspect-ratio:1;touch-action:manipulation;user-select:none;}
+  .gem{border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .08s;}
+  .gem:active{transform:scale(.9);}
+  .gem.sel{outline:3px solid var(--text);outline-offset:-3px;}
+  .gem.clear{animation:pop .18s ease;}
+  @keyframes pop{0%{transform:scale(1)}60%{transform:scale(.4);opacity:.4}100%{transform:scale(1)}}
+  .hint{color:var(--muted);font-size:12px;text-align:center;margin-top:2px;}
+</style>
+</head>
+<body>
+  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+  <div class="header" style="margin-top:2px">
+    <div><h1>Gem Match</h1><p class="sub">Swap to match three</p></div>
+    <div class="scores">
+      <div class="score"><div class="k">Score</div><div class="v" id="score">0</div></div>
+      <div class="score"><div class="k">Best</div><div class="v" id="best">0</div></div>
+    </div>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="row" style="display:flex"><button class="btn" onclick="newGame()">New board</button></div>
+  <div class="hint">Tap a gem, then an adjacent gem to swap. Line up 3+ of a color.</div>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+registerPWA('sw.js');
+(function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
+
+var SKEY='game-gem-match', N=8, COLORS=['#ffb000','#4caf7d','#d96a5a','#5aa0e0','#b07de0','#3ec8c0'];
+var board=[], score=0, best=0, sel=null, busy=false;
+var boardEl=document.getElementById('board');
+boardEl.style.gridTemplateColumns='repeat('+N+',1fr)';
+
+async function loadBest(){ try{var r=await window.storage.get(SKEY); if(r&&r.value) best=JSON.parse(r.value).best||0;}catch(e){} document.getElementById('best').textContent=best; }
+async function saveBest(){ if(score>best){ best=score; document.getElementById('best').textContent=best; try{await window.storage.set(SKEY,JSON.stringify({best:best}));}catch(e){} } }
+
+function rc(r,c){ return r*N+c; }
+function makeBoard(){ board=[]; for(var r=0;r<N;r++){ board.push([]); for(var c=0;c<N;c++){ var col; do{ col=Math.floor(Math.random()*COLORS.length); }while((c>=2&&board[r][c-1]===col&&board[r][c-2]===col)||(r>=2&&board[r-1][c]===col&&board[r-2][c]===col)); board[r].push(col); } } }
+function newGame(){ score=0; document.getElementById('score').textContent=0; sel=null; makeBoard(); render(); }
+
+function getMatches(){ var m={};
+  for(var r=0;r<N;r++){ var run=1; for(var c=1;c<=N;c++){ if(c<N&&board[r][c]===board[r][c-1]&&board[r][c]>=0) run++; else { if(run>=3) for(var k=1;k<=run;k++) m[rc(r,c-k)]=1; run=1; } } }
+  for(var c2=0;c2<N;c2++){ var run2=1; for(var r2=1;r2<=N;r2++){ if(r2<N&&board[r2][c2]===board[r2-1][c2]&&board[r2][c2]>=0) run2++; else { if(run2>=3) for(var k2=1;k2<=run2;k2++) m[rc(r2-k2,c2)]=1; run2=1; } } }
+  return Object.keys(m).map(Number);
+}
+function collapse(){ for(var c=0;c<N;c++){ var col=[]; for(var r=N-1;r>=0;r--) if(board[r][c]>=0) col.push(board[r][c]);
+  for(var r2=N-1;r2>=0;r2--) board[r2][c]= (N-1-r2)<col.length ? col[N-1-r2] : Math.floor(Math.random()*COLORS.length); } }
+function resolve(){ var total=0, chain=0;
+  return new Promise(function(done){
+    function stepOnce(){ var m=getMatches(); if(!m.length){ if(total>0){ score+=total; document.getElementById('score').textContent=score; saveBest(); } done(total>0); return; }
+      chain++; total+= m.length*10*chain;
+      // mark cleared
+      m.forEach(function(i){ board[Math.floor(i/N)][i%N]=-1; });
+      render(m);
+      setTimeout(function(){ collapse(); render(); setTimeout(stepOnce,90); },150);
+    }
+    stepOnce();
+  });
+}
+function adjacent(a,b){ return (Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]))===1; }
+async function trySwap(a,b){ busy=true;
+  var t=board[a[0]][a[1]]; board[a[0]][a[1]]=board[b[0]][b[1]]; board[b[0]][b[1]]=t;
+  if(getMatches().length){ render(); await resolve(); }
+  else { render(); await new Promise(function(r){setTimeout(r,120);}); var t2=board[a[0]][a[1]]; board[a[0]][a[1]]=board[b[0]][b[1]]; board[b[0]][b[1]]=t2; render(); }
+  busy=false;
+}
+function onCell(r,c){ if(busy) return;
+  if(!sel){ sel=[r,c]; render(); return; }
+  if(sel[0]===r&&sel[1]===c){ sel=null; render(); return; }
+  if(adjacent(sel,[r,c])){ var a=sel; sel=null; trySwap(a,[r,c]); }
+  else { sel=[r,c]; render(); }
+}
+function render(cleared){
+  cleared=cleared||[];
+  boardEl.innerHTML='';
+  for(var r=0;r<N;r++)for(var c=0;c<N;c++){
+    var v=board[r][c]; var d=document.createElement('div');
+    d.className='gem'+((sel&&sel[0]===r&&sel[1]===c)?' sel':'')+(cleared.indexOf(rc(r,c))>=0?' clear':'');
+    d.style.background=v>=0?COLORS[v]:'transparent';
+    (function(rr,cc){ d.onclick=function(){ onCell(rr,cc); }; })(r,c);
+    boardEl.appendChild(d);
+  }
+}
+
+(async function(){ await loadBest(); newGame(); })();
+</script>
+</body>
+</html>
