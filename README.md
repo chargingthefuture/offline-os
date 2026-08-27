@@ -30,6 +30,11 @@ offline-os/
   apps/
     gut-check/            first app
       index.html  sw.js  manifest.webmanifest
+    chess/                BUILT output — do not edit by hand (see sources/chess)
+    cascade/              falling-blocks puzzle (hand-written, like the others)
+  sources/
+    chess/                Chess source (Vite + React); `npm run build` here
+                          writes the deployable app to apps/chess/
 ```
 
 ## Adding an app
@@ -47,6 +52,22 @@ offline-os/
 ```
 
 `status` is one of `active`, `experimental`, or `external`.
+
+### Apps built from source (Chess)
+
+Most apps are hand-written static files. Chess is the exception: it is a
+Vite + React + TypeScript app whose source lives in `sources/chess/` and whose
+**built output is committed** at `apps/chess/`, so GitHub Pages still serves the
+repo as-is with no build step. To change Chess:
+
+1. Edit the source in `sources/chess/`.
+2. From `sources/chess/`, run `npm install` once, then `npm run build` — it
+   type-checks and writes the app to `apps/chess/` (wiping it first).
+3. Commit both the source change and the regenerated `apps/chess/` files.
+
+Never edit `apps/chess/` by hand; the next build overwrites it. Engine rules
+(Stockfish worker + wasm naming, two-worker setup) are in
+`sources/chess/CLAUDE.md`.
 
 ### Linking external apps / your games
 
@@ -73,6 +94,11 @@ So back up. The dashboard's **Data & backup** card has:
 - **Export all** — downloads one JSON file containing every app's data. On
   iPhone, save it to **Files → iCloud Drive** (that copy *is* backed up).
 - **Import…** — reads a backup file and restores it (merges into current data).
+
+> Exception: the ported games Chess and Cascade keep their original storage
+> keys (`chesscoach:*`, `cascade.best`) rather than `window.storage`, so their
+> saved settings/best score are **not** in the export file. Both are trivially
+> re-creatable (a best score, an optional API key), so they were left untouched.
 
 **Recovery flow after a new/wiped phone:** open the dashboard, install it to the
 home screen, tap **Import…**, pick the JSON from iCloud Drive — every app is

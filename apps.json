@@ -108,16 +108,16 @@
     {
       "name": "Chess",
       "blurb": "Play chess offline",
-      "url": "https://chargingthefuture.github.io/chess/",
+      "url": "apps/chess/",
       "icon": "♟️",
-      "status": "external"
+      "status": "active"
     },
     {
       "name": "Cascade",
       "blurb": "Falling-blocks puzzle (Tetris-style)",
-      "url": "https://chargingthefuture.github.io/cascade/",
+      "url": "apps/cascade/",
       "icon": "🧱",
-      "status": "external"
+      "status": "active"
     },
     {
       "name": "Redline",
