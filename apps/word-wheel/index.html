@@ -86,17 +86,63 @@ var PUZZLES=[
   {c:'Saying',t:'SLOW AND STEADY WINS'},
   {c:'Place',t:'WEIGH STATION'},
   {c:'Thing',t:'DIESEL FUEL PUMP'},
-  {c:'Phrase',t:'TAKE A BREAK'}
+  {c:'Phrase',t:'TAKE A BREAK'},
+  {c:'Saying',t:'PIECE OF CAKE'},
+  {c:'Phrase',t:'BREAK THE ICE'},
+  {c:'Phrase',t:'UNDER THE WEATHER'},
+  {c:'Saying',t:'ONCE IN A BLUE MOON'},
+  {c:'Saying',t:'THE EARLY BIRD'},
+  {c:'Phrase',t:'BACK TO SQUARE ONE'},
+  {c:'Saying',t:'TWO PEAS IN A POD'},
+  {c:'Phrase',t:'CROSS THAT BRIDGE'},
+  {c:'Phrase',t:'FIRST THINGS FIRST'},
+  {c:'Phrase',t:'NO PLACE LIKE HOME'},
+  {c:'Saying',t:'TIME FLIES'},
+  {c:'Saying',t:'PRACTICE MAKES PERFECT'},
+  {c:'Phrase',t:'RISE AND SHINE'},
+  {c:'Saying',t:'SAVE THE BEST FOR LAST'},
+  {c:'Nature',t:'DISTANT THUNDER'},
+  {c:'Nature',t:'FIRST SNOWFALL'},
+  {c:'Nature',t:'NORTHERN LIGHTS'},
+  {c:'Nature',t:'DESERT CANYON'},
+  {c:'Nature',t:'FULL MOON RISING'},
+  {c:'Food',t:'PANCAKES AND SYRUP'},
+  {c:'Food',t:'FRESH BAKED BREAD'},
+  {c:'Food',t:'CHICKEN NOODLE SOUP'},
+  {c:'Food',t:'ICE COLD LEMONADE'},
+  {c:'Food',t:'BACKYARD BARBECUE'},
+  {c:'Thing',t:'POCKET FLASHLIGHT'},
+  {c:'Thing',t:'VINYL RECORD PLAYER'},
+  {c:'Thing',t:'PAPER ROAD MAP'},
+  {c:'Thing',t:'CAST IRON SKILLET'},
+  {c:'Thing',t:'WOODEN ROCKING CHAIR'},
+  {c:'Thing',t:'RUSTY TOOLBOX'},
+  {c:'Place',t:'PUBLIC LIBRARY'},
+  {c:'Place',t:'CORNER HARDWARE STORE'},
+  {c:'Place',t:'LIGHTHOUSE POINT'},
+  {c:'Place',t:'NATIONAL PARK'},
+  {c:'Place',t:'SMALL TOWN MAIN STREET'},
+  {c:'Activity',t:'SUNDAY MORNING WALK'},
+  {c:'Activity',t:'CAMPFIRE SINGALONG'},
+  {c:'Event',t:'COUNTY FAIR'},
+  {c:'Event',t:'FIREWORKS FINALE'},
+  {c:'On the Road',t:'LONG WEEKEND ROAD TRIP'}
 ];
 var VALUES=[500,600,650,700,800,900,300,350,400,550,'BANKRUPT'];
 var VOWELS='AEIOU';
-var puzzle, revealed, used, bank=0, total=0, best=0, spinValue=null, paidVowel=false, roundOver=false, lastIndex=-1;
+var puzzle, revealed, used, bank=0, total=0, best=0, spinValue=null, paidVowel=false, roundOver=false, lastIndex=-1, bag=[];
 
 async function loadBest(){ try{var r=await window.storage.get(SKEY); if(r&&r.value){var d=JSON.parse(r.value); best=d.best||0;} }catch(e){} document.getElementById('best').textContent='$'+best; }
 async function saveBest(){ if(total>best){ best=total; document.getElementById('best').textContent='$'+best; try{await window.storage.set(SKEY,JSON.stringify({best:best}));}catch(e){} } }
 
-function pickIndex(){ if(PUZZLES.length<2) return 0; var i; do{ i=Math.floor(Math.random()*PUZZLES.length); }while(i===lastIndex); return i; }
-function newPuzzle(){ lastIndex=pickIndex(); puzzle=PUZZLES[lastIndex]; revealed={}; used={}; bank=0; spinValue=null; paidVowel=false; roundOver=false;
+// Deal from a shuffled bag: every puzzle comes up once before any repeats.
+function refillBag(){ var i,j,t; bag=[]; for(i=0;i<PUZZLES.length;i++) bag.push(i);
+  for(i=bag.length-1;i>0;i--){ j=Math.floor(Math.random()*(i+1)); t=bag[i]; bag[i]=bag[j]; bag[j]=t; }
+  // Don't open a fresh bag with the puzzle that closed the last one.
+  if(bag.length>1 && bag[0]===lastIndex){ j=1+Math.floor(Math.random()*(bag.length-1)); t=bag[0]; bag[0]=bag[j]; bag[j]=t; }
+}
+function nextIndex(){ if(!bag.length) refillBag(); return bag.shift(); }
+function newPuzzle(){ lastIndex=nextIndex(); puzzle=PUZZLES[lastIndex]; revealed={}; used={}; bank=0; spinValue=null; paidVowel=false; roundOver=false;
   document.getElementById('bank').textContent='$0';
   document.getElementById('cat').textContent=puzzle.c;
   document.getElementById('wval').textContent='Spin →'; document.getElementById('wmsg').textContent='Spin the wheel, then pick a consonant.';
