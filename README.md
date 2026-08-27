@@ -30,6 +30,17 @@ offline-os/
   apps/
     gut-check/            first app
       index.html  sw.js  manifest.webmanifest
+    chess/                BUILT output — do not edit by hand (see sources/chess)
+    vox/                  BUILT output — do not edit by hand (see sources/vox)
+    cascade/              falling-blocks puzzle (hand-written, like the others)
+    glowline/             neon arcade racer (ships its own icons + manifest)
+    glowline2/            neon maze racer (ships its own icons + manifest)
+    redline/              speed platformer (ships its own icons + manifest)
+  sources/
+    chess/                Chess source (Vite + React); `npm run build` here
+                          writes the deployable app to apps/chess/
+    vox/                  Vox source (Vite + Phaser); same build flow, output
+                          goes to apps/vox/
 ```
 
 ## Adding an app
@@ -48,10 +59,28 @@ offline-os/
 
 `status` is one of `active`, `experimental`, or `external`.
 
+### Apps built from source (Chess, Vox)
+
+Most apps are hand-written static files. Chess (Vite + React) and Vox
+(Vite + Phaser) are the exceptions: their sources live in `sources/chess/` and
+`sources/vox/`, and their **built output is committed** at `apps/chess/` and
+`apps/vox/`, so GitHub Pages still serves the repo as-is with no build step.
+To change either:
+
+1. Edit the source in `sources/<name>/`.
+2. From `sources/<name>/`, run `npm install` once, then `npm run build` — it
+   type-checks and writes the app to `apps/<name>/` (wiping it first).
+3. Commit both the source change and the regenerated `apps/<name>/` files.
+
+Never edit `apps/chess/` or `apps/vox/` by hand; the next build overwrites
+them. Chess engine rules (Stockfish worker + wasm naming, two-worker setup)
+are in `sources/chess/CLAUDE.md`; Vox's own agent rules are in
+`sources/vox/AGENTS.md`.
+
 ### Linking external apps / your games
 
-Your offline games already live in their own repos on GitHub Pages — leave them
-there. Just add them to the registry with a full URL:
+An app can also live in its own repo on GitHub Pages (as some still do).
+Just add it to the registry with a full URL:
 
 ```json
 { "name": "Some Game", "blurb": "...", "url": "https://chargingthefuture.github.io/some-game/", "icon": "🎮", "status": "external" }
@@ -73,6 +102,13 @@ So back up. The dashboard's **Data & backup** card has:
 - **Export all** — downloads one JSON file containing every app's data. On
   iPhone, save it to **Files → iCloud Drive** (that copy *is* backed up).
 - **Import…** — reads a backup file and restores it (merges into current data).
+
+> Exception: the ported games (Chess, Cascade, Glowline, Glowline 2, Redline,
+> Vox) keep their original storage keys (`chesscoach:*`, `cascade.best`,
+> `glowline2.*`, …) rather than `window.storage`, so their saved settings,
+> best times, and world progress are **not** in the export file. The games were
+> left untouched; Vox also has its own save-code feature for carrying progress
+> across devices.
 
 **Recovery flow after a new/wiped phone:** open the dashboard, install it to the
 home screen, tap **Import…**, pick the JSON from iCloud Drive — every app is

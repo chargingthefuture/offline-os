@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Redline</title>
+
+  <!-- Fill the whole screen on phones; let the game manage its own scaling. -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#6e0b12" />
+
+  <!-- Installable / offline app plumbing. -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="assets/favicon.png" type="image/png" />
+
+  <!-- iOS: run full-screen from the home screen and use a real app icon. -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Redline" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="stage">
+    <canvas id="game" width="640" height="360"></canvas>
+
+    <!-- On-screen controls for touch devices. Hidden until a touch is seen. -->
+    <div id="touch" class="hidden" aria-hidden="true">
+      <div class="pad-left">
+        <button class="tbtn" data-btn="left" aria-label="Move left">◀</button>
+        <button class="tbtn" data-btn="right" aria-label="Move right">▶</button>
+      </div>
+      <div class="pad-right">
+        <button class="tbtn tbtn-down" data-btn="down" aria-label="Crouch and roll">▼</button>
+        <button class="tbtn tbtn-jump" data-btn="jump" aria-label="Jump">A</button>
+      </div>
+      <button class="tbtn tbtn-pause" data-btn="start" aria-label="Pause">❚❚</button>
+      <button class="tbtn tbtn-back" data-btn="back" aria-label="Back to the home screen">⌂</button>
+    </div>
+
+    <button id="fullscreen" title="Toggle full screen" aria-label="Toggle full screen">⤢</button>
+    <a id="backOS" href="../../" title="Back to the OS dashboard" aria-label="Back to the OS dashboard">&lsaquo; OS</a>
+  </div>
+
+  <script src="js/levels.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/game.js"></script>
+  <script>
+    // Trailing-slash-safe "‹ OS" back link: resolve the dashboard root from the
+    // current path so the link works whether or not the app URL ends in "/".
+    (function () {
+      var b = document.getElementById('backOS');
+      if (b) {
+        var m = location.pathname.match(/^(.*?\/)apps\//);
+        if (m) b.href = m[1];
+      }
+    })();
+  </script>
+  <script>
+    // Register the offline service worker. Only works over http(s)/localhost,
+    // which is exactly where "add to home screen" offline install happens.
+    if ('serviceWorker' in navigator) {
+      // If a new service worker takes over while the app is open, reload once so
+      // the player sees the update — no manual hard refresh needed. Guarded so
+      // the very first install (which also takes control) does not reload.
+      var hadController = !!navigator.serviceWorker.controller;
+      var reloaded = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (hadController && !reloaded) {
+          reloaded = true;
+          window.location.reload();
+        }
+      });
+
+      window.addEventListener('load', function () {
+        // updateViaCache 'none' keeps the browser from serving sw.js itself from
+        // its HTTP cache, so a new worker is picked up on the next load.
+        navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
+          // Check for a newer version now, and again whenever the app is brought
+          // back to the foreground (how you usually return to a phone app).
+          reg.update();
+          document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') reg.update();
+          });
+        }).catch(function () {
+          /* offline install just won't be available; the game still runs */
+        });
+      });
+    }
+  </script>
+</body>
+</html>

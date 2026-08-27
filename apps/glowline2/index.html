@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#05060d" />
+  <title>Glowline 2</title>
+
+  <!-- Installable app: manifest and icons. Relative URLs so it works from any base path. -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305060d'/%3E%3Cpath d='M8 16 L24 8 L20 16 L24 24 Z' fill='%2338f0d0'/%3E%3C/svg%3E" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Glowline 2" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <link rel="stylesheet" href="styles/style.css" />
+</head>
+<body>
+  <div id="stage">
+    <canvas id="game"></canvas>
+
+    <!-- Title / level select -->
+    <div id="menu" class="overlay">
+      <div class="panel">
+        <h1 class="logo">GLOWLINE<span>2</span></h1>
+        <p class="tagline">Steer the dart through the maze. Brush the walls to charge your boost.</p>
+        <div id="levelList" class="level-list"></div>
+        <details class="how-to">
+          <summary>How to play</summary>
+          <ul>
+            <li><b>Steer:</b> Left / Right arrows or A / D. On a phone, the two buttons at bottom-left.</li>
+            <li><b>Boost:</b> Space or Up, or the button at bottom-right. Needs charge.</li>
+            <li><b>Charge:</b> Slide along a wall at a shallow angle to fill the boost meter.</li>
+            <li><b>Gravity levels:</b> The last two mazes pull you down — steer up to hold your line, and grind the roof or floor to keep charging.</li>
+            <li><b>Restart:</b> R at any time.</li>
+            <li><b>Sound:</b> M or the speaker button turns sound on or off.</li>
+            <li><b>Install it:</b> Add it to your home screen (or install from the browser) to play full-screen and offline.</li>
+          </ul>
+        </details>
+        <p class="back-os"><a id="backOS" href="../../">&lsaquo; OS</a></p>
+      </div>
+    </div>
+
+    <!-- Win screen -->
+    <div id="win" class="overlay hidden">
+      <div class="panel">
+        <h2 id="winTitle">Finished</h2>
+        <div id="winTimes" class="times"></div>
+        <div class="buttons">
+          <button id="btnNext" class="primary">Next level</button>
+          <button id="btnReplay">Replay</button>
+          <button id="btnMenu">Levels</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Trailing-slash-safe "‹ OS" back link: resolve the dashboard root from the
+    // current path so the link works whether or not the app URL ends in "/".
+    (function () {
+      var b = document.getElementById('backOS');
+      if (b) {
+        var m = location.pathname.match(/^(.*?\/)apps\//);
+        if (m) b.href = m[1];
+      }
+    })();
+  </script>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
