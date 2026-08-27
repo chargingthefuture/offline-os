@@ -1,20 +1,6 @@
 {
   "apps": [
     {
-      "name": "Gut Check",
-      "blurb": "20-second daily gut symptom log",
-      "url": "apps/gut-check/",
-      "icon": "🩺",
-      "status": "active"
-    },
-    {
-      "name": "Gamepad Signal Path",
-      "blurb": "Controller input detection reference",
-      "url": "apps/gamepad-signal-path/",
-      "icon": "🎮",
-      "status": "active"
-    },
-    {
       "name": "Roadwork",
       "blurb": "No-gym workouts, routines & timers",
       "url": "apps/roadwork/",
@@ -26,6 +12,13 @@
       "blurb": "Plain-text notes — no auto-formatting, .txt export",
       "url": "apps/plaintext/",
       "icon": "📝",
+      "status": "active"
+    },
+    {
+      "name": "Gamepad Signal Path",
+      "blurb": "Controller input detection reference",
+      "url": "apps/gamepad-signal-path/",
+      "icon": "🎮",
       "status": "active"
     },
     {
@@ -132,6 +125,13 @@
       "url": "apps/vox/",
       "icon": "🎙️",
       "status": "active"
+    },
+    {
+      "name": "Farah's Arcade",
+      "blurb": "Free, open-source, offline-first games — no ads, no tracking",
+      "url": "https://chargingthefuture.github.io/arcade/",
+      "icon": "🕹️",
+      "status": "external"
     }
   ]
 }
