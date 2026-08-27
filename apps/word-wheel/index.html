@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Word Wheel</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Word Wheel">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back:hover{color:var(--amber);}
+  .scores{display:flex;gap:10px;}
+  .score{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 12px;text-align:center;min-width:70px;}
+  .score .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .score .v{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:19px;color:var(--amber);font-variant-numeric:tabular-nums;}
+  .cat{text-align:center;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-size:12px;margin:14px 0 8px;}
+  .puzzle{display:flex;flex-wrap:wrap;gap:10px 14px;justify-content:center;margin-bottom:14px;}
+  .word{display:flex;gap:4px;}
+  .tile{width:26px;height:34px;border-radius:5px;background:var(--panel);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-family:'Barlow Semi Condensed','Inter',sans-serif;
+    font-weight:700;font-size:20px;color:var(--text);}
+  .tile.blank{background:var(--panel-2);}
+  .wheel{text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;}
+  .wheel .val{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:30px;color:var(--amber);}
+  .wheel .msg{color:var(--muted);font-size:12px;margin-top:2px;min-height:16px;}
+  .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+  .actions .btn{padding:12px 6px;font-size:14px;}
+  .keys{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .key{aspect-ratio:1;border:1px solid var(--line);background:var(--panel-2);color:var(--text);border-radius:8px;
+    font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:16px;cursor:pointer;}
+  .key:disabled{opacity:.28;}
+  .key.vowel{color:var(--amber);}
+  .hint{color:var(--muted);font-size:12px;text-align:center;margin-top:12px;line-height:1.5;}
+</style>
+</head>
+<body>
+  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+  <div class="header" style="margin-top:2px">
+    <div><h1>Word Wheel</h1><p class="sub">Spin · guess · solve</p></div>
+    <div class="scores">
+      <div class="score"><div class="k">Round</div><div class="v" id="bank">$0</div></div>
+      <div class="score"><div class="k">Total</div><div class="v" id="total">$0</div></div>
+      <div class="score"><div class="k">Best</div><div class="v" id="best">$0</div></div>
+    </div>
+  </div>
+  <div class="cat" id="cat">—</div>
+  <div class="puzzle" id="puzzle"></div>
+  <div class="wheel"><div class="val" id="wval">Spin →</div><div class="msg" id="wmsg">Spin the wheel, then pick a consonant.</div></div>
+  <div class="actions">
+    <button class="btn" id="spinBtn" onclick="spin()">Spin</button>
+    <button class="btn ghost" id="vowelBtn" onclick="buyVowel()">Vowel $250</button>
+    <button class="btn ghost" onclick="solve()">Solve</button>
+  </div>
+  <div class="keys" id="keys"></div>
+  <div class="hint">Consonants need a spin (you earn the wheel value × how many appear). Vowels cost $250. Solve to bank the round into your total.</div>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+registerPWA('sw.js');
+(function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
+
+var SKEY='game-word-wheel';
+var PUZZLES=[
+  {c:'Phrase',t:'BETTER LATE THAN NEVER'},
+  {c:'On the Road',t:'REST STOP AHEAD'},
+  {c:'Phrase',t:'EASY DOES IT'},
+  {c:'Thing',t:'EIGHTEEN WHEELER'},
+  {c:'Place',t:'THE OPEN ROAD'},
+  {c:'Phrase',t:'KEEP ON TRUCKING'},
+  {c:'Food',t:'HOT COFFEE AND EGGS'},
+  {c:'Phrase',t:'HOME SWEET HOME'},
+  {c:'Thing',t:'CB RADIO CHATTER'},
+  {c:'Nature',t:'MOUNTAIN SUNRISE'},
+  {c:'Phrase',t:'MILES TO GO'},
+  {c:'Saying',t:'SLOW AND STEADY WINS'},
+  {c:'Place',t:'WEIGH STATION'},
+  {c:'Thing',t:'DIESEL FUEL PUMP'},
+  {c:'Phrase',t:'TAKE A BREAK'}
+];
+var VALUES=[500,600,650,700,800,900,300,350,400,550,'BANKRUPT'];
+var VOWELS='AEIOU';
+var puzzle, revealed, used, bank=0, total=0, best=0, spinValue=null, paidVowel=false;
+
+async function loadBest(){ try{var r=await window.storage.get(SKEY); if(r&&r.value){var d=JSON.parse(r.value); best=d.best||0;} }catch(e){} document.getElementById('best').textContent='$'+best; }
+async function saveBest(){ if(total>best){ best=total; document.getElementById('best').textContent='$'+best; try{await window.storage.set(SKEY,JSON.stringify({best:best}));}catch(e){} } }
+
+function newPuzzle(){ puzzle=PUZZLES[Math.floor(Math.random()*PUZZLES.length)]; revealed={}; used={}; bank=0; spinValue=null; paidVowel=false;
+  document.getElementById('bank').textContent='$0';
+  document.getElementById('cat').textContent=puzzle.c;
+  document.getElementById('wval').textContent='Spin →'; document.getElementById('wmsg').textContent='Spin the wheel, then pick a consonant.';
+  document.getElementById('spinBtn').disabled=false;
+  renderPuzzle(); renderKeys();
+}
+function renderPuzzle(){
+  var el=document.getElementById('puzzle'); el.innerHTML='';
+  puzzle.t.split(' ').forEach(function(w){
+    var g=document.createElement('div'); g.className='word';
+    w.split('').forEach(function(ch){
+      var t=document.createElement('div');
+      if(!/[A-Z]/.test(ch)){ t.className='tile'; t.textContent=ch; }
+      else if(revealed[ch]){ t.className='tile'; t.textContent=ch; }
+      else { t.className='tile blank'; t.textContent=''; }
+      g.appendChild(t);
+    });
+    el.appendChild(g);
+  });
+}
+function renderKeys(){
+  var el=document.getElementById('keys'); el.innerHTML='';
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function(ch){
+    var b=document.createElement('button'); b.className='key'+(VOWELS.indexOf(ch)>=0?' vowel':'');
+    b.textContent=ch; b.disabled=!!used[ch]; b.onclick=function(){ onLetter(ch); };
+    el.appendChild(b);
+  });
+}
+function countIn(ch){ return (puzzle.t.split('').filter(function(x){return x===ch;})).length; }
+function allRevealed(){ return puzzle.t.split('').every(function(ch){ return !/[A-Z]/.test(ch) || revealed[ch]; }); }
+
+function spin(){ if(spinValue!==null) return; var v=VALUES[Math.floor(Math.random()*VALUES.length)];
+  if(v==='BANKRUPT'){ bank=0; document.getElementById('bank').textContent='$0'; document.getElementById('wval').textContent='BANKRUPT'; document.getElementById('wmsg').textContent='Round money lost. Spin again.'; spinValue=null; }
+  else { spinValue=v; document.getElementById('wval').textContent='$'+v; document.getElementById('wmsg').textContent='Pick a consonant.'; document.getElementById('spinBtn').disabled=true; }
+}
+function onLetter(ch){ if(used[ch]) return;
+  if(VOWELS.indexOf(ch)>=0){
+    if(!paidVowel){ document.getElementById('wmsg').textContent='Buy a vowel first ($250).'; return; }
+    paidVowel=false; used[ch]=1; applyGuess(ch); return;
+  }
+  if(spinValue===null){ document.getElementById('wmsg').textContent='Spin before guessing a consonant.'; return; }
+  used[ch]=1; var val=spinValue; spinValue=null; document.getElementById('spinBtn').disabled=false;
+  var n=countIn(ch);
+  if(n>0){ revealed[ch]=1; bank+=val*n; document.getElementById('bank').textContent='$'+bank; document.getElementById('wmsg').textContent=ch+' × '+n+' → +$'+(val*n)+'. Spin again.'; }
+  else { document.getElementById('wmsg').textContent='No '+ch+'. Spin again.'; }
+  document.getElementById('wval').textContent='Spin →';
+  finish();
+}
+function applyGuess(ch){ var n=countIn(ch);
+  if(n>0){ revealed[ch]=1; document.getElementById('wmsg').textContent=ch+' × '+n+'.'; }
+  else document.getElementById('wmsg').textContent='No '+ch+'.';
+  finish();
+}
+function buyVowel(){ if(paidVowel){ document.getElementById('wmsg').textContent='Pick a vowel.'; return; }
+  if(bank<250){ document.getElementById('wmsg').textContent='Need $250 in the round to buy a vowel.'; return; }
+  if(!VOWELS.split('').some(function(v){return !used[v];})){ document.getElementById('wmsg').textContent='All vowels used.'; return; }
+  bank-=250; document.getElementById('bank').textContent='$'+bank; paidVowel=true; document.getElementById('wmsg').textContent='Pick a vowel.';
+}
+function finish(){ renderPuzzle(); renderKeys();
+  if(allRevealed()) winRound();
+}
+function solve(){ var g=prompt('Solve the puzzle:'); if(g==null) return;
+  var norm=function(s){return s.toUpperCase().replace(/[^A-Z0-9]/g,'');};
+  if(norm(g)===norm(puzzle.t)){ puzzle.t.split('').forEach(function(ch){ if(/[A-Z]/.test(ch)) revealed[ch]=1; }); renderPuzzle(); winRound(); }
+  else { document.getElementById('wmsg').textContent='Not quite — keep going.'; }
+}
+function winRound(){ total+=bank; document.getElementById('total').textContent='$'+total; saveBest();
+  document.getElementById('wmsg').textContent='Solved! +$'+bank+' banked. Next puzzle…';
+  setTimeout(newPuzzle, 1600);
+}
+
+(async function(){ await loadBest(); newPuzzle(); })();
+</script>
+</body>
+</html>

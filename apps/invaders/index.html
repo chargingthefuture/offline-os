@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Space Invaders</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Invaders">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back:hover{color:var(--amber);}
+  .scores{display:flex;gap:10px;}
+  .score{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 12px;text-align:center;min-width:60px;}
+  .score .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .score .v{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:20px;color:var(--amber);font-variant-numeric:tabular-nums;}
+  .wrap{position:relative;margin:16px 0;}
+  canvas{width:100%;height:auto;display:block;background:#101116;border:1px solid var(--line);border-radius:12px;touch-action:none;}
+  .overlay{position:absolute;inset:0;background:rgba(16,17,22,.86);border-radius:12px;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;}
+  .overlay.hide{display:none;}
+  .overlay .big{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:26px;text-transform:uppercase;letter-spacing:.04em;color:var(--amber);}
+  .hint{color:var(--muted);font-size:12px;text-align:center;margin-top:2px;}
+</style>
+</head>
+<body>
+  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+  <div class="header" style="margin-top:2px">
+    <div><h1>Invaders</h1><p class="sub">Slide to move · auto-fire</p></div>
+    <div class="scores">
+      <div class="score"><div class="k">Score</div><div class="v" id="score">0</div></div>
+      <div class="score"><div class="k">Lives</div><div class="v" id="lives">3</div></div>
+      <div class="score"><div class="k">Best</div><div class="v" id="best">0</div></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <canvas id="cv" width="360" height="480"></canvas>
+    <div class="overlay" id="overlay"><div class="big" id="ovtext">Space Invaders</div>
+      <button class="btn" style="width:auto;padding:14px 24px" onclick="start()">Play</button></div>
+  </div>
+  <div class="hint">Drag to move your ship. It fires automatically. Clear the wave.</div>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+registerPWA('sw.js');
+(function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
+
+var SKEY='game-invaders';
+var cv=document.getElementById('cv'), ctx=cv.getContext('2d'), W=cv.width, H=cv.height;
+var ship, aliens, pb, eb, dir, dropT, score=0, lives=3, best=0, running=false, wave=1, fireT=0, stepT=0;
+
+async function loadBest(){ try{var r=await window.storage.get(SKEY); if(r&&r.value) best=JSON.parse(r.value).best||0;}catch(e){} document.getElementById('best').textContent=best; }
+async function saveBest(){ if(score>best){ best=score; document.getElementById('best').textContent=best; try{await window.storage.set(SKEY,JSON.stringify({best:best}));}catch(e){} } }
+
+function buildWave(){ aliens=[]; var cols=6, rows=4, gx=44, gy=40, sx=30, sy=36;
+  for(var r=0;r<rows;r++)for(var c=0;c<cols;c++) aliens.push({x:sx+c*gx, y:gy+r*sy, w:26, h:18, alive:true, row:r});
+  dir=1; }
+function start(){ ship={x:W/2-20,y:H-34,w:40,h:14}; pb=[]; eb=[]; score=0; lives=3; wave=1; fireT=0; stepT=0;
+  document.getElementById('score').textContent=0; document.getElementById('lives').textContent=3;
+  buildWave(); document.getElementById('overlay').classList.add('hide'); running=true; requestAnimationFrame(frame); }
+
+function frame(ts){ if(!running) return; update(); render(); requestAnimationFrame(frame); }
+function alive(){ return aliens.filter(function(a){return a.alive;}); }
+function update(){
+  // player auto-fire
+  fireT++; if(fireT>=16){ fireT=0; pb.push({x:ship.x+ship.w/2-1.5,y:ship.y,w:3,h:10}); }
+  for(var i=pb.length-1;i>=0;i--){ pb[i].y-=7; if(pb[i].y<-10) pb.splice(i,1); }
+  // aliens step
+  var al=alive(); var speed=Math.max(6,34-al.length-wave*2); stepT++;
+  if(stepT>=speed){ stepT=0; var edge=false, drop=0;
+    al.forEach(function(a){ if((dir>0&&a.x+a.w>=W-6)||(dir<0&&a.x<=6)) edge=true; });
+    if(edge){ dir*=-1; drop=16; }
+    aliens.forEach(function(a){ if(!a.alive)return; a.x+=dir*(edge?0:10); a.y+=drop; });
+    // random enemy shot
+    if(al.length && Math.random()<0.5){ var s=al[Math.floor(Math.random()*al.length)]; eb.push({x:s.x+s.w/2,y:s.y+s.h,w:3,h:10}); }
+  }
+  for(var j=eb.length-1;j>=0;j--){ eb[j].y+=4.4; if(eb[j].y>H+10) eb.splice(j,1); }
+  // collisions: player bullets vs aliens
+  for(var b=pb.length-1;b>=0;b--){ var p=pb[b];
+    for(var k=0;k<aliens.length;k++){ var a=aliens[k]; if(!a.alive)continue;
+      if(p.x<a.x+a.w&&p.x+p.w>a.x&&p.y<a.y+a.h&&p.y+p.h>a.y){ a.alive=false; pb.splice(b,1); score+=(4-a.row)*10; document.getElementById('score').textContent=score; break; } } }
+  // enemy bullets vs ship
+  for(var e=eb.length-1;e>=0;e--){ var q=eb[e];
+    if(q.x<ship.x+ship.w&&q.x+q.w>ship.x&&q.y<ship.y+ship.h&&q.y+q.h>ship.y){ eb.splice(e,1); hit(); } }
+  // aliens reach bottom
+  if(alive().some(function(a){return a.y+a.h>=ship.y;})){ hit(true); }
+  if(!alive().length){ wave++; buildWave(); eb=[]; }
+}
+function hit(reset){ lives--; document.getElementById('lives').textContent=lives; saveBest();
+  if(lives<=0){ running=false; document.getElementById('ovtext').textContent='Game over · '+score; document.getElementById('overlay').classList.remove('hide'); return; }
+  if(reset) buildWave(); eb=[]; ship.x=W/2-ship.w/2; }
+function render(){
+  ctx.fillStyle='#101116'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#4caf7d'; aliens.forEach(function(a){ if(!a.alive)return; ctx.fillRect(a.x,a.y,a.w,a.h); ctx.clearRect(a.x+5,a.y+5,4,3); ctx.clearRect(a.x+a.w-9,a.y+5,4,3); });
+  ctx.fillStyle='#4caf7d'; aliens.forEach(function(a){ if(!a.alive)return; ctx.fillRect(a.x+5,a.y+5,4,3); });
+  ctx.fillStyle='#ffb000'; pb.forEach(function(p){ ctx.fillRect(p.x,p.y,p.w,p.h); });
+  ctx.fillStyle='#d9534f'; eb.forEach(function(q){ ctx.fillRect(q.x,q.y,q.w,q.h); });
+  ctx.fillStyle='#e9e6df'; ctx.fillRect(ship.x,ship.y+6,ship.w,ship.h-6); ctx.fillRect(ship.x+ship.w/2-3,ship.y,6,8);
+}
+function moveShip(clientX){ if(!ship)return; var rect=cv.getBoundingClientRect(); var x=(clientX-rect.left)/rect.width*W; ship.x=Math.max(0,Math.min(W-ship.w,x-ship.w/2)); }
+cv.addEventListener('touchmove',function(e){ e.preventDefault(); moveShip(e.touches[0].clientX); },{passive:false});
+cv.addEventListener('touchstart',function(e){ moveShip(e.touches[0].clientX); },{passive:true});
+cv.addEventListener('mousemove',function(e){ if(e.buttons) moveShip(e.clientX); });
+document.addEventListener('keydown',function(e){ if(!ship)return; if(e.key==='ArrowLeft'){ship.x=Math.max(0,ship.x-20);} if(e.key==='ArrowRight'){ship.x=Math.min(W-ship.w,ship.x+20);} });
+
+(async function(){ await loadBest(); ctx.fillStyle='#101116'; ctx.fillRect(0,0,W,H); })();
+</script>
+</body>
+</html>
