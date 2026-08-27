@@ -1,0 +1,160 @@
+:root {
+  --bg: #0b0710;
+  --accent: #f02a38;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: #fff;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+  /* keep iOS from selecting/zooming on the touch buttons */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+/* #stage is sized and (in portrait) rotated by layout() in js/game.js so the
+   16:9 game always shows as landscape and fills the screen. Its transform makes
+   it the positioning frame for the fixed touch overlay inside it. */
+#stage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  transform-origin: 0 0;
+  background: var(--bg);
+}
+
+/* The canvas is centred in the stage and sized in pixels by layout() to the
+   largest 16:9 box that fits. The JS backing store tracks the display size so
+   large screens get a sharper render instead of a stretched low-res canvas. */
+#game {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #1a1030;
+  touch-action: none;
+}
+
+.hidden { display: none !important; }
+
+/* ---- Touch controls ---- */
+#touch {
+  position: fixed;
+  inset: 0;
+  pointer-events: none; /* only the buttons take touches */
+  z-index: 5;
+}
+
+#touch .pad-left,
+#touch .pad-right {
+  position: absolute;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 16px;
+  pointer-events: none;
+}
+#touch .pad-left { left: max(18px, env(safe-area-inset-left)); }
+#touch .pad-right { right: max(18px, env(safe-area-inset-right)); }
+
+.tbtn {
+  pointer-events: auto;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgba(20, 12, 30, 0.45);
+  color: #fff;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.05s ease, background 0.05s ease;
+}
+.tbtn:active,
+.tbtn.pressed {
+  background: rgba(240, 42, 56, 0.7);
+  transform: scale(0.94);
+}
+.tbtn-jump {
+  width: 92px;
+  height: 92px;
+  font-size: 30px;
+  background: rgba(240, 42, 56, 0.5);
+  border-color: rgba(255, 200, 60, 0.8);
+}
+
+/* Dedicated pause button, top-centre, so pausing needs its own tap and the
+   movement/jump buttons never pause the game. */
+.tbtn-pause {
+  pointer-events: auto;
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+.tbtn-pause:active,
+.tbtn-pause.pressed {
+  transform: translateX(-50%) scale(0.94);
+}
+
+/* Back / home button, top-left, so there is always a way out of a level or the
+   level-select screen back to the title. */
+.tbtn-back {
+  pointer-events: auto;
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  left: max(10px, env(safe-area-inset-left));
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  border-radius: 8px;
+}
+
+#fullscreen {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 6;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(20, 12, 30, 0.5);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Link back to the Offline OS dashboard, styled like the fullscreen button
+   and sitting just left of it. */
+#backOS {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  right: calc(max(10px, env(safe-area-inset-right)) + 48px);
+  z-index: 6;
+  height: 40px;
+  line-height: 38px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(20, 12, 30, 0.5);
+  color: #fff;
+  font-size: 14px;
+  text-decoration: none;
+}

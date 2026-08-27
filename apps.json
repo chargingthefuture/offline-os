@@ -87,16 +87,16 @@
     {
       "name": "Glowline",
       "blurb": "Glowing-line arcade game",
-      "url": "https://chargingthefuture.github.io/glowline/",
+      "url": "apps/glowline/",
       "icon": "✨",
-      "status": "external"
+      "status": "active"
     },
     {
       "name": "Glowline 2",
       "blurb": "Glowing-line arcade game — sequel",
-      "url": "https://chargingthefuture.github.io/glowline2/",
+      "url": "apps/glowline2/",
       "icon": "🌟",
-      "status": "external"
+      "status": "active"
     },
     {
       "name": "SpecterRealm",
@@ -122,9 +122,9 @@
     {
       "name": "Redline",
       "blurb": "Fast-running platformer",
-      "url": "https://chargingthefuture.github.io/redline/",
+      "url": "apps/redline/",
       "icon": "🦔",
-      "status": "external"
+      "status": "active"
     },
     {
       "name": "Vox",

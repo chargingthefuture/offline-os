@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>Glowline</title>
+  <meta name="description" content="Glowline — a relaxing neon arcade racer. Glide, dodge, and free the Core." />
+  <meta name="theme-color" content="#0a0a1e" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+
+  <!-- iOS standalone / "Add to Home Screen" -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Glowline" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <link rel="icon" href="./icons/icon-192.png" />
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- mute toggle -->
+  <button id="muteBtn" aria-label="Mute">🔊</button>
+
+  <!-- race HUD -->
+  <div id="hud">
+    <div id="hudName">Act 1</div>
+    <div id="hudSub">First Delivery</div>
+    <div id="progressBar"><div id="progressFill"></div></div>
+    <div id="hudHint">Hold the left / right side of the screen to steer</div>
+  </div>
+
+  <!-- dialogue overlay -->
+  <div id="dialogue" data-speaker="narrator">
+    <p id="dialogueText"></p>
+    <div id="choices"></div>
+    <div id="dialogueHint">tap to continue ▸</div>
+  </div>
+
+  <!-- toast -->
+  <div id="toast"></div>
+
+  <!-- title screen -->
+  <div id="title" class="overlay">
+    <h1>GLOWLINE</h1>
+    <p class="tagline">A neon courier's journey to free the Core.</p>
+    <button id="startBtn" class="bigBtn">▸ Begin</button>
+    <p class="hint">Headphones recommended. Add to your Home Screen to play offline.</p>
+    <p class="hint"><a id="backOS" class="backOS" href="../../">&lsaquo; OS</a></p>
+  </div>
+
+  <!-- end screen -->
+  <div id="end" class="overlay">
+    <h2>The Core is reborn</h2>
+    <p id="endText"></p>
+    <button id="replayBtn" class="bigBtn">↻ Play again</button>
+  </div>
+
+  <script>
+    // Trailing-slash-safe "‹ OS" back link: resolve the dashboard root from the
+    // current path so the link works whether or not the app URL ends in "/".
+    (function () {
+      var b = document.getElementById("backOS");
+      if (b) {
+        var m = location.pathname.match(/^(.*?\/)apps\//);
+        if (m) b.href = m[1];
+      }
+    })();
+  </script>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

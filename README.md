@@ -32,6 +32,9 @@ offline-os/
       index.html  sw.js  manifest.webmanifest
     chess/                BUILT output — do not edit by hand (see sources/chess)
     cascade/              falling-blocks puzzle (hand-written, like the others)
+    glowline/             neon arcade racer (ships its own icons + manifest)
+    glowline2/            neon maze racer (ships its own icons + manifest)
+    redline/              speed platformer (ships its own icons + manifest)
   sources/
     chess/                Chess source (Vite + React); `npm run build` here
                           writes the deployable app to apps/chess/
@@ -71,8 +74,8 @@ Never edit `apps/chess/` by hand; the next build overwrites it. Engine rules
 
 ### Linking external apps / your games
 
-Your offline games already live in their own repos on GitHub Pages — leave them
-there. Just add them to the registry with a full URL:
+An app can also live in its own repo on GitHub Pages (as some still do).
+Just add it to the registry with a full URL:
 
 ```json
 { "name": "Some Game", "blurb": "...", "url": "https://chargingthefuture.github.io/some-game/", "icon": "🎮", "status": "external" }
@@ -95,10 +98,12 @@ So back up. The dashboard's **Data & backup** card has:
   iPhone, save it to **Files → iCloud Drive** (that copy *is* backed up).
 - **Import…** — reads a backup file and restores it (merges into current data).
 
-> Exception: the ported games Chess and Cascade keep their original storage
-> keys (`chesscoach:*`, `cascade.best`) rather than `window.storage`, so their
-> saved settings/best score are **not** in the export file. Both are trivially
-> re-creatable (a best score, an optional API key), so they were left untouched.
+> Exception: the ported games (Chess, Cascade, Glowline, Glowline 2, Redline)
+> keep their original storage keys (`chesscoach:*`, `cascade.best`,
+> `glowline2.*`, …) rather than `window.storage`, so their saved settings and
+> best times are **not** in the export file. All of it is trivially
+> re-creatable (best scores, a mute flag, an optional API key), so the games
+> were left untouched.
 
 **Recovery flow after a new/wiped phone:** open the dashboard, install it to the
 home screen, tap **Import…**, pick the JSON from iCloud Drive — every app is
