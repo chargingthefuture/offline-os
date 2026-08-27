@@ -32,6 +32,8 @@
   .wheel .msg{color:var(--muted);font-size:12px;margin-top:2px;min-height:16px;}
   .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
   .actions .btn{padding:12px 6px;font-size:14px;}
+  .actions .btn.wide{grid-column:1/-1;padding:9px 6px;font-size:12px;color:var(--muted);}
+  .actions .btn.wide:hover{color:var(--text);}
   .keys{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
   .key{aspect-ratio:1;border:1px solid var(--line);background:var(--panel-2);color:var(--text);border-radius:8px;
     font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:16px;cursor:pointer;}
@@ -57,9 +59,10 @@
     <button class="btn" id="spinBtn" onclick="spin()">Spin</button>
     <button class="btn ghost" id="vowelBtn" onclick="buyVowel()">Vowel $250</button>
     <button class="btn ghost" onclick="solve()">Solve</button>
+    <button class="btn ghost wide" id="giveUpBtn" onclick="giveUp()">Give up · show answer</button>
   </div>
   <div class="keys" id="keys"></div>
-  <div class="hint">Consonants need a spin (you earn the wheel value × how many appear). Vowels cost $250. Solve to bank the round into your total.</div>
+  <div class="hint">Consonants need a spin (you earn the wheel value × how many appear). Vowels cost $250. Solve to bank the round into your total. Stuck? Give up to see the answer and move on — the round money is forfeited.</div>
 
 <script src="../../shared/storage.js"></script>
 <script src="../../shared/pwa.js"></script>
@@ -87,16 +90,18 @@ var PUZZLES=[
 ];
 var VALUES=[500,600,650,700,800,900,300,350,400,550,'BANKRUPT'];
 var VOWELS='AEIOU';
-var puzzle, revealed, used, bank=0, total=0, best=0, spinValue=null, paidVowel=false;
+var puzzle, revealed, used, bank=0, total=0, best=0, spinValue=null, paidVowel=false, roundOver=false, lastIndex=-1;
 
 async function loadBest(){ try{var r=await window.storage.get(SKEY); if(r&&r.value){var d=JSON.parse(r.value); best=d.best||0;} }catch(e){} document.getElementById('best').textContent='$'+best; }
 async function saveBest(){ if(total>best){ best=total; document.getElementById('best').textContent='$'+best; try{await window.storage.set(SKEY,JSON.stringify({best:best}));}catch(e){} } }
 
-function newPuzzle(){ puzzle=PUZZLES[Math.floor(Math.random()*PUZZLES.length)]; revealed={}; used={}; bank=0; spinValue=null; paidVowel=false;
+function pickIndex(){ if(PUZZLES.length<2) return 0; var i; do{ i=Math.floor(Math.random()*PUZZLES.length); }while(i===lastIndex); return i; }
+function newPuzzle(){ lastIndex=pickIndex(); puzzle=PUZZLES[lastIndex]; revealed={}; used={}; bank=0; spinValue=null; paidVowel=false; roundOver=false;
   document.getElementById('bank').textContent='$0';
   document.getElementById('cat').textContent=puzzle.c;
   document.getElementById('wval').textContent='Spin →'; document.getElementById('wmsg').textContent='Spin the wheel, then pick a consonant.';
   document.getElementById('spinBtn').disabled=false;
+  document.getElementById('giveUpBtn').disabled=false;
   renderPuzzle(); renderKeys();
 }
 function renderPuzzle(){
@@ -117,18 +122,18 @@ function renderKeys(){
   var el=document.getElementById('keys'); el.innerHTML='';
   'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function(ch){
     var b=document.createElement('button'); b.className='key'+(VOWELS.indexOf(ch)>=0?' vowel':'');
-    b.textContent=ch; b.disabled=!!used[ch]; b.onclick=function(){ onLetter(ch); };
+    b.textContent=ch; b.disabled=roundOver||!!used[ch]; b.onclick=function(){ onLetter(ch); };
     el.appendChild(b);
   });
 }
 function countIn(ch){ return (puzzle.t.split('').filter(function(x){return x===ch;})).length; }
 function allRevealed(){ return puzzle.t.split('').every(function(ch){ return !/[A-Z]/.test(ch) || revealed[ch]; }); }
 
-function spin(){ if(spinValue!==null) return; var v=VALUES[Math.floor(Math.random()*VALUES.length)];
+function spin(){ if(roundOver||spinValue!==null) return; var v=VALUES[Math.floor(Math.random()*VALUES.length)];
   if(v==='BANKRUPT'){ bank=0; document.getElementById('bank').textContent='$0'; document.getElementById('wval').textContent='BANKRUPT'; document.getElementById('wmsg').textContent='Round money lost. Spin again.'; spinValue=null; }
   else { spinValue=v; document.getElementById('wval').textContent='$'+v; document.getElementById('wmsg').textContent='Pick a consonant.'; document.getElementById('spinBtn').disabled=true; }
 }
-function onLetter(ch){ if(used[ch]) return;
+function onLetter(ch){ if(roundOver||used[ch]) return;
   if(VOWELS.indexOf(ch)>=0){
     if(!paidVowel){ document.getElementById('wmsg').textContent='Buy a vowel first ($250).'; return; }
     paidVowel=false; used[ch]=1; applyGuess(ch); return;
@@ -146,7 +151,8 @@ function applyGuess(ch){ var n=countIn(ch);
   else document.getElementById('wmsg').textContent='No '+ch+'.';
   finish();
 }
-function buyVowel(){ if(paidVowel){ document.getElementById('wmsg').textContent='Pick a vowel.'; return; }
+function buyVowel(){ if(roundOver) return;
+  if(paidVowel){ document.getElementById('wmsg').textContent='Pick a vowel.'; return; }
   if(bank<250){ document.getElementById('wmsg').textContent='Need $250 in the round to buy a vowel.'; return; }
   if(!VOWELS.split('').some(function(v){return !used[v];})){ document.getElementById('wmsg').textContent='All vowels used.'; return; }
   bank-=250; document.getElementById('bank').textContent='$'+bank; paidVowel=true; document.getElementById('wmsg').textContent='Pick a vowel.';
@@ -154,14 +160,29 @@ function buyVowel(){ if(paidVowel){ document.getElementById('wmsg').textContent=
 function finish(){ renderPuzzle(); renderKeys();
   if(allRevealed()) winRound();
 }
-function solve(){ var g=prompt('Solve the puzzle:'); if(g==null) return;
+function solve(){ if(roundOver) return;
+  var g=prompt('Solve the puzzle:'); if(g==null) return;
   var norm=function(s){return s.toUpperCase().replace(/[^A-Z0-9]/g,'');};
   if(norm(g)===norm(puzzle.t)){ puzzle.t.split('').forEach(function(ch){ if(/[A-Z]/.test(ch)) revealed[ch]=1; }); renderPuzzle(); winRound(); }
   else { document.getElementById('wmsg').textContent='Not quite — keep going.'; }
 }
+function endRound(msg, delay){ roundOver=true; spinValue=null;
+  document.getElementById('spinBtn').disabled=true;
+  document.getElementById('giveUpBtn').disabled=true;
+  renderKeys();
+  document.getElementById('wmsg').textContent=msg;
+  setTimeout(newPuzzle, delay);
+}
 function winRound(){ total+=bank; document.getElementById('total').textContent='$'+total; saveBest();
-  document.getElementById('wmsg').textContent='Solved! +$'+bank+' banked. Next puzzle…';
-  setTimeout(newPuzzle, 1600);
+  endRound('Solved! +$'+bank+' banked. Next puzzle…', 1600);
+}
+function giveUp(){ if(roundOver) return;
+  if(!confirm('Give up on this puzzle? The answer is revealed and the $'+bank+' in this round is lost.')) return;
+  puzzle.t.split('').forEach(function(ch){ if(/[A-Z]/.test(ch)) revealed[ch]=1; });
+  bank=0; document.getElementById('bank').textContent='$0';
+  renderPuzzle();
+  document.getElementById('wval').textContent='GIVE UP';
+  endRound('Answer: '+puzzle.t+' — round forfeited. Next puzzle…', 2600);
 }
 
 (async function(){ await loadBest(); newPuzzle(); })();
