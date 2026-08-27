@@ -28,7 +28,7 @@ offline-os/
     pwa.js                service-worker registration helper
     icons/                app icons
   apps/
-    gut-check/            first app
+    roadwork/             first tile — a hand-written app
       index.html  sw.js  manifest.webmanifest
     chess/                BUILT output — do not edit by hand (see sources/chess)
     vox/                  BUILT output — do not edit by hand (see sources/vox)
@@ -46,10 +46,10 @@ offline-os/
 ## Adding an app
 
 1. Create `apps/<name>/index.html`. In its `<head>` link the shared theme and
-   add the PWA tags (copy from `apps/gut-check/index.html`).
+   add the PWA tags (copy from `apps/roadwork/index.html`).
 2. Use `window.storage.get/set` for persistence (provided by
    `shared/storage.js`) so it's covered by backup/restore.
-3. Give it a `manifest.webmanifest` and `sw.js` (copy Gut Check's, change the
+3. Give it a `manifest.webmanifest` and `sw.js` (copy Roadwork's, change the
    `VERSION` string and the file list).
 4. Add an entry to `apps.json`:
 

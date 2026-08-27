@@ -1,5 +1,5 @@
 /* Offline OS — shared design system
-   Extracted from the Gut Check app: sodium-vapor highway amber on dark.
+   Sodium-vapor highway amber on dark.
    Every app links this file so the whole OS shares one look. */
 
 :root{
@@ -78,13 +78,6 @@ input:focus,textarea:focus{outline:none;border-color:var(--amber-dim);}
 .btn:active{transform:scale(.98);}
 .btn.ghost{background:var(--panel-2);color:var(--text);border:1px solid var(--line);}
 .btn.flash{background:var(--green);color:#0c1a13;}
-/* legacy alias from Gut Check markup */
-.save{width:100%;padding:18px;border:none;border-radius:14px;background:var(--amber);
-  color:#1a1300;font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;
-  font-size:19px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
-  margin-top:4px;transition:transform .05s;}
-.save:active{transform:scale(.98);}
-.saved-flash{background:var(--green);color:#0c1a13;}
 
 .section-title{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:600;
   text-transform:uppercase;letter-spacing:.06em;font-size:15px;color:var(--muted);

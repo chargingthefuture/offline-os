@@ -1,6 +1,6 @@
 /* Roadwork — service worker. Precaches the app shell (incl. shared fonts +
  * storage helper) so it runs fully offline. Bump VERSION to push updates. */
-var VERSION = 'roadwork-v4';
+var VERSION = 'roadwork-v5';
 var SHELL = [
   './',
   './index.html',
