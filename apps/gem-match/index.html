@@ -20,28 +20,44 @@
   .score{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 14px;text-align:center;min-width:74px;}
   .score .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
   .score .v{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:22px;color:var(--amber);font-variant-numeric:tabular-nums;}
-  .board{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:6px;margin:16px 0;
+  .goal{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px;color:var(--muted);margin-top:10px;}
+  .goal .need{color:var(--text);}
+  .track{height:6px;background:var(--panel);border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:5px;}
+  .track .bar{height:100%;width:0;background:var(--amber);border-radius:99px;transition:width .25s ease;}
+  .boardwrap{position:relative;margin:12px 0;}
+  .board{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:6px;
     display:grid;gap:4px;aspect-ratio:1;touch-action:manipulation;user-select:none;}
   .gem{border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .08s;}
   .gem:active{transform:scale(.9);}
   .gem.sel{outline:3px solid var(--text);outline-offset:-3px;}
   .gem.clear{animation:pop .18s ease;}
   @keyframes pop{0%{transform:scale(1)}60%{transform:scale(.4);opacity:.4}100%{transform:scale(1)}}
+  .notice{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .18s ease;}
+  .notice.on{opacity:1;}
+  .notice span{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 18px;
+    font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:20px;color:var(--amber);
+    text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.45);}
   .hint{color:var(--muted);font-size:12px;text-align:center;margin-top:2px;}
 </style>
 </head>
 <body>
   <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
   <div class="header" style="margin-top:2px">
-    <div><h1>Gem Match</h1><p class="sub">Swap to match three</p></div>
+    <div><h1>Gem Match</h1><p class="sub" id="sub">Swap to match three</p></div>
     <div class="scores">
+      <div class="score"><div class="k">Level</div><div class="v" id="level">1</div></div>
       <div class="score"><div class="k">Score</div><div class="v" id="score">0</div></div>
       <div class="score"><div class="k">Best</div><div class="v" id="best">0</div></div>
     </div>
   </div>
-  <div class="board" id="board"></div>
-  <div class="row" style="display:flex"><button class="btn" onclick="newGame()">New board</button></div>
-  <div class="hint">Tap a gem, then an adjacent gem to swap. Line up 3+ of a color.</div>
+  <div class="goal"><div id="rule" class="need">Match 3 in a row</div><div id="progress">0 / 600</div></div>
+  <div class="track"><div class="bar" id="bar"></div></div>
+  <div class="boardwrap">
+    <div class="board" id="board"></div>
+    <div class="notice" id="notice"><span id="noticeText"></span></div>
+  </div>
+  <div class="row" style="display:flex"><button class="btn" onclick="newGame()">New game</button></div>
+  <div class="hint" id="hint">Tap a gem, then an adjacent gem to swap. Line up 3+ of a color.</div>
 
 <script src="../../shared/storage.js"></script>
 <script src="../../shared/pwa.js"></script>
@@ -49,28 +65,91 @@
 registerPWA('sw.js');
 (function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
 
-var SKEY='game-gem-match', N=8, COLORS=['#ffb000','#4caf7d','#d96a5a','#5aa0e0','#b07de0','#3ec8c0'];
-var board=[], score=0, best=0, sel=null, busy=false;
+var SKEY='game-gem-match', N=8;
+var COLORS=['#ffb000','#4caf7d','#d96a5a','#5aa0e0','#b07de0','#3ec8c0','#e0668f'];
+// Each level sets the run length that clears, how many gem colors are in play,
+// and the cumulative score that unlocks the next level. Colors thin out when the
+// run length grows — four-in-a-row across seven colors deadlocks constantly.
+var LEVELS=[
+  {need:3,colors:5,goal:600},
+  {need:3,colors:6,goal:1200},
+  {need:3,colors:7,goal:1800},
+  {need:4,colors:4,goal:2700},
+  {need:4,colors:5,goal:3800}
+];
+var TAIL=1200; // goal step for levels past the table
+
+var board=[], score=0, best=0, level=1, sel=null, busy=false;
 var boardEl=document.getElementById('board');
 boardEl.style.gridTemplateColumns='repeat('+N+',1fr)';
+
+function levelCfg(l){
+  if(l<=LEVELS.length) return LEVELS[l-1];
+  var last=LEVELS[LEVELS.length-1];
+  return {need:last.need,colors:last.colors,goal:last.goal+(l-LEVELS.length)*TAIL};
+}
+function need(){ return levelCfg(level).need; }
+function goal(){ return levelCfg(level).goal; }
+function floorScore(){ return level>1?levelCfg(level-1).goal:0; }
 
 async function loadBest(){ try{var r=await window.storage.get(SKEY); if(r&&r.value) best=JSON.parse(r.value).best||0;}catch(e){} document.getElementById('best').textContent=best; }
 async function saveBest(){ if(score>best){ best=score; document.getElementById('best').textContent=best; try{await window.storage.set(SKEY,JSON.stringify({best:best}));}catch(e){} } }
 
-function rc(r,c){ return r*N+c; }
-function makeBoard(){ board=[]; for(var r=0;r<N;r++){ board.push([]); for(var c=0;c<N;c++){ var col; do{ col=Math.floor(Math.random()*COLORS.length); }while((c>=2&&board[r][c-1]===col&&board[r][c-2]===col)||(r>=2&&board[r-1][c]===col&&board[r-2][c]===col)); board[r].push(col); } } }
-function newGame(){ score=0; document.getElementById('score').textContent=0; sel=null; makeBoard(); render(); }
+function delay(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+function notice(text){ var n=document.getElementById('notice'); document.getElementById('noticeText').textContent=text; n.classList.add('on'); }
+function clearNotice(){ document.getElementById('notice').classList.remove('on'); }
 
-function getMatches(){ var m={};
-  for(var r=0;r<N;r++){ var run=1; for(var c=1;c<=N;c++){ if(c<N&&board[r][c]===board[r][c-1]&&board[r][c]>=0) run++; else { if(run>=3) for(var k=1;k<=run;k++) m[rc(r,c-k)]=1; run=1; } } }
-  for(var c2=0;c2<N;c2++){ var run2=1; for(var r2=1;r2<=N;r2++){ if(r2<N&&board[r2][c2]===board[r2-1][c2]&&board[r2][c2]>=0) run2++; else { if(run2>=3) for(var k2=1;k2<=run2;k2++) m[rc(r2-k2,c2)]=1; run2=1; } } }
+function rc(r,c){ return r*N+c; }
+function paint(){
+  var n=need();
+  document.getElementById('level').textContent=level;
+  document.getElementById('score').textContent=score;
+  document.getElementById('sub').textContent='Swap to match '+(n===3?'three':'four');
+  document.getElementById('rule').textContent='Match '+n+' in a row';
+  document.getElementById('hint').textContent='Tap a gem, then an adjacent gem to swap. Line up '+n+'+ of a color.';
+  var lo=floorScore(), hi=goal();
+  document.getElementById('progress').textContent=Math.min(score,hi)+' / '+hi;
+  var pct=Math.max(0,Math.min(1,(score-lo)/(hi-lo)))*100;
+  document.getElementById('bar').style.width=pct.toFixed(1)+'%';
+}
+
+function runLen(r,c,col,dr,dc){ var k=1; for(var i=r-dr,j=c-dc; i>=0&&j>=0&&board[i][j]===col; i-=dr,j-=dc) k++; return k; }
+function makeBoard(){
+  var n=need(), colors=levelCfg(level).colors;
+  board=[];
+  for(var r=0;r<N;r++){ board.push([]);
+    for(var c=0;c<N;c++){ var col;
+      do{ col=Math.floor(Math.random()*colors); }
+      while(runLen(r,c,col,0,1)>=n||runLen(r,c,col,1,0)>=n);
+      board[r].push(col);
+    }
+  }
+}
+// A fresh board is only worth playing if some swap can still clear a run.
+function dealBoard(){ for(var i=0;i<200;i++){ makeBoard(); if(hasMove()) return; } }
+
+function getMatches(){ var n=need(), m={};
+  for(var r=0;r<N;r++){ var run=1; for(var c=1;c<=N;c++){ if(c<N&&board[r][c]===board[r][c-1]&&board[r][c]>=0) run++; else { if(run>=n) for(var k=1;k<=run;k++) m[rc(r,c-k)]=1; run=1; } } }
+  for(var c2=0;c2<N;c2++){ var run2=1; for(var r2=1;r2<=N;r2++){ if(r2<N&&board[r2][c2]===board[r2-1][c2]&&board[r2][c2]>=0) run2++; else { if(run2>=n) for(var k2=1;k2<=run2;k2++) m[rc(r2-k2,c2)]=1; run2=1; } } }
   return Object.keys(m).map(Number);
 }
-function collapse(){ for(var c=0;c<N;c++){ var col=[]; for(var r=N-1;r>=0;r--) if(board[r][c]>=0) col.push(board[r][c]);
-  for(var r2=N-1;r2>=0;r2--) board[r2][c]= (N-1-r2)<col.length ? col[N-1-r2] : Math.floor(Math.random()*COLORS.length); } }
+function swapCells(a,b){ var t=board[a[0]][a[1]]; board[a[0]][a[1]]=board[b[0]][b[1]]; board[b[0]][b[1]]=t; }
+function clearsSomething(a,b){ swapCells(a,b); var ok=getMatches().length>0; swapCells(a,b); return ok; }
+function hasMove(){
+  for(var r=0;r<N;r++)for(var c=0;c<N;c++){
+    if(c+1<N&&clearsSomething([r,c],[r,c+1])) return true;
+    if(r+1<N&&clearsSomething([r,c],[r+1,c])) return true;
+  }
+  return false;
+}
+
+function collapse(){ var colors=levelCfg(level).colors;
+  for(var c=0;c<N;c++){ var col=[]; for(var r=N-1;r>=0;r--) if(board[r][c]>=0) col.push(board[r][c]);
+  for(var r2=N-1;r2>=0;r2--) board[r2][c]= (N-1-r2)<col.length ? col[N-1-r2] : Math.floor(Math.random()*colors); } }
+
 function resolve(){ var total=0, chain=0;
   return new Promise(function(done){
-    function stepOnce(){ var m=getMatches(); if(!m.length){ if(total>0){ score+=total; document.getElementById('score').textContent=score; saveBest(); } done(total>0); return; }
+    function stepOnce(){ var m=getMatches(); if(!m.length){ if(total>0){ score+=total; paint(); saveBest(); } done(total>0); return; }
       chain++; total+= m.length*10*chain;
       // mark cleared
       m.forEach(function(i){ board[Math.floor(i/N)][i%N]=-1; });
@@ -80,11 +159,31 @@ function resolve(){ var total=0, chain=0;
     stepOnce();
   });
 }
+
+// Level up on the score target, and deal a fresh board whenever the current one
+// is dead — no swap left that clears a run.
+async function settle(){
+  while(score>=goal()){
+    level++;
+    paint();
+    notice('Level '+level+' — match '+need());
+    dealBoard(); render();
+    await delay(900); clearNotice(); await delay(180);
+  }
+  if(!hasMove()){
+    notice('No moves left — new board');
+    await delay(800);
+    dealBoard(); render();
+    await delay(400); clearNotice(); await delay(180);
+  }
+  paint();
+}
+
 function adjacent(a,b){ return (Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]))===1; }
 async function trySwap(a,b){ busy=true;
-  var t=board[a[0]][a[1]]; board[a[0]][a[1]]=board[b[0]][b[1]]; board[b[0]][b[1]]=t;
-  if(getMatches().length){ render(); await resolve(); }
-  else { render(); await new Promise(function(r){setTimeout(r,120);}); var t2=board[a[0]][a[1]]; board[a[0]][a[1]]=board[b[0]][b[1]]; board[b[0]][b[1]]=t2; render(); }
+  swapCells(a,b);
+  if(getMatches().length){ render(); await resolve(); await settle(); }
+  else { render(); await delay(120); swapCells(a,b); render(); }
   busy=false;
 }
 function onCell(r,c){ if(busy) return;
@@ -104,6 +203,7 @@ function render(cleared){
     boardEl.appendChild(d);
   }
 }
+function newGame(){ if(busy) return; score=0; level=1; sel=null; clearNotice(); dealBoard(); paint(); render(); }
 
 (async function(){ await loadBest(); newGame(); })();
 </script>
