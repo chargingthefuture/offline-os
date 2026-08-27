@@ -58,7 +58,7 @@
     },
     {
       "name": "Gem Match",
-      "blurb": "Swap gems, match three",
+      "blurb": "Swap gems, match 3 then 4",
       "url": "apps/gem-match/",
       "icon": "💎",
       "status": "active"
