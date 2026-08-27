@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>VOX — take your voice back</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='26' rx='7' fill='%2335d0ba'/%3E%3Crect x='8' y='11' width='16' height='5' fill='%23f7f7ff'/%3E%3C/svg%3E"
+    />
+    <meta
+      name="description"
+      content="VOX is a side-scrolling action platformer. Play a survivor who got their voice back and send the Specterati packing, one cartoon tactic at a time."
+    />
+    <!-- Install / fullscreen: a manifest for Android, apple meta for iOS "Add to Home Screen". -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#0d0b1e" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="VOX" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        /* Match the game sky so any letterboxing blends in instead of reading as broken */
+        background: #0d0b1e;
+        height: 100%;
+        overflow: hidden;
+        overscroll-behavior: none;
+        /* Pixel-art identity: hard edges, no smoothing, anywhere the browser would soften. */
+        -webkit-font-smoothing: none;
+        -moz-osx-font-smoothing: unset;
+      }
+      #game {
+        /* Fixed to the visual viewport: no address-bar overflow on phones */
+        position: fixed;
+        inset: 0;
+        height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: none;
+      }
+      canvas {
+        touch-action: none;
+        /* Keep the upscaled canvas crisp instead of bilinear-blurred. */
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+      }
+      /* The game is a landscape side-scroller. On a phone held upright, ask for a turn
+         instead of showing a sliver of game in a wall of black. */
+      #rotate {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        background: #0d0b1e;
+        color: #f7f7ff;
+        font-family: monospace;
+        font-size: 18px;
+        line-height: 1.6;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+      }
+      #rotate .turn {
+        display: block;
+        font-size: 44px;
+        margin-bottom: 16px;
+      }
+      /* iOS Safari can't rotate the screen for us, so if turning does nothing it is
+         almost always the phone's rotation lock. Say so, right here on the prompt. */
+      #rotate .hint {
+        display: block;
+        margin-top: 20px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #8f90b3;
+      }
+      #rotate button {
+        margin-top: 24px;
+        font-family: monospace;
+        font-size: 15px;
+        color: #35d0ba;
+        background: transparent;
+        border: 1px solid #35d0ba;
+        border-radius: 8px;
+        padding: 10px 18px;
+      }
+      @media (orientation: portrait) and (pointer: coarse) {
+        #rotate {
+          display: flex;
+        }
+        /* Escape hatch: never a dead end — let them play letterboxed in portrait. */
+        body.force-play #rotate {
+          display: none;
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index-Dfqkz8rp.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-B6zx9Ky8.css">
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="rotate">
+      <div>
+        <span class="turn">📱↻</span>
+        VOX plays sideways.<br />
+        Turn your phone to landscape.
+        <span class="hint">
+          Turning does nothing? Your phone's rotation lock is on. Open Control Center
+          (swipe down from the top-right) and tap the 🔒↻ rotation-lock button, then turn
+          the phone. On iPhone, a web page can't rotate the screen for you.
+        </span>
+        <button id="playAnyway" type="button">Play in portrait anyway →</button>
+      </div>
+    </div>
+    <script>
+      // Escape hatch so the prompt is never a dead end (see body.force-play in the CSS).
+      document.getElementById('playAnyway')?.addEventListener('click', function () {
+        document.body.classList.add('force-play');
+      });
+    </script>
+  </body>
+</html>
