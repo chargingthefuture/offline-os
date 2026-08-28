@@ -28,8 +28,12 @@
     font-weight:700;font-size:20px;color:var(--text);}
   .tile.blank{background:var(--panel-2);}
   .wheel{text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;}
-  .wheel .val{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:30px;color:var(--amber);}
-  .wheel .msg{color:var(--muted);font-size:12px;margin-top:2px;min-height:16px;}
+  .wheel .val{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:30px;line-height:36px;
+    color:var(--amber);white-space:nowrap;overflow:hidden;}
+  /* Fixed two-line slot: the box must not resize as messages of different
+     lengths swap through it. */
+  .wheel .msg{color:var(--muted);font-size:12px;line-height:14px;margin-top:2px;height:28px;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;}
   .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
   .actions .btn{padding:12px 6px;font-size:14px;}
   .actions .btn.wide{grid-column:1/-1;padding:9px 6px;font-size:12px;color:var(--muted);}
