@@ -48,7 +48,7 @@
      lengths swap through it. */
   .wheel .msg{color:var(--muted);font-size:12px;line-height:14px;margin-top:2px;height:28px;
     display:flex;align-items:center;justify-content:center;overflow:hidden;}
-  .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+  .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px;}
   .actions .btn{padding:12px 6px;font-size:14px;}
   /* The shared theme has no disabled treatment for .btn, so a dead Spin button
      still looked live. Match the dimming the keys use. */
@@ -88,12 +88,12 @@
     <button class="btn spin" id="spinBtn" onclick="spin()">Spin</button>
     <div class="wheel"><div class="val" id="wval">Spin →</div><div class="msg" id="wmsg">Spin the wheel, then pick a consonant.</div></div>
   </div>
+  <div class="keys" id="keys"></div>
   <div class="actions">
     <button class="btn ghost" id="vowelBtn" onclick="buyVowel()">Vowel $250</button>
     <button class="btn ghost" id="solveBtn" onclick="solve()">Solve</button>
     <button class="btn ghost quiet" id="giveUpBtn" onclick="giveUp()">Give up</button>
   </div>
-  <div class="keys" id="keys"></div>
   <div class="hint">Consonants need a spin (you earn the wheel value × how many appear). Vowels cost $250. Solve to bank the round into your total. Stuck? Give up to see the answer and move on — the round money is forfeited.</div>
 
 <script src="../../shared/storage.js"></script>
