@@ -27,6 +27,17 @@
     display:flex;align-items:center;justify-content:center;font-family:'Barlow Semi Condensed','Inter',sans-serif;
     font-weight:700;font-size:20px;color:var(--text);}
   .tile.blank{background:var(--panel-2);}
+  /* Solving happens inline, right under the tiles: prompt() hands the screen to
+     iOS, whose dialog and keyboard cover the puzzle you are trying to read. */
+  .solvebar{display:none;gap:8px;margin-bottom:12px;}
+  .solvebar.on{display:flex;}
+  .solvebar input{flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;
+    color:var(--text);font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;
+    /* 16px+ or iOS zooms the page on focus. */
+    font-size:18px;letter-spacing:.04em;padding:12px 14px;text-transform:uppercase;}
+  .solvebar input::placeholder{color:var(--muted);font-weight:500;letter-spacing:0;text-transform:none;}
+  .solvebar input:focus{outline:2px solid var(--amber);outline-offset:-2px;}
+  .solvebar .btn{flex:none;width:70px;padding:12px 4px;font-size:13px;}
   /* Spin sits beside the wheel it drives, so nothing tappable sits under it. */
   .wheelrow{display:flex;align-items:stretch;gap:8px;margin-bottom:12px;}
   .wheel{flex:1;min-width:0;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;}
@@ -65,6 +76,12 @@
   </div>
   <div class="cat" id="cat">—</div>
   <div class="puzzle" id="puzzle"></div>
+  <form class="solvebar" id="solveBar" onsubmit="submitSolve(event)">
+    <input id="solveInput" type="text" placeholder="Type the phrase" enterkeyhint="go"
+      autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+    <button class="btn" type="submit">Enter</button>
+    <button class="btn ghost quiet" type="button" onclick="closeSolve()">Cancel</button>
+  </form>
   <!-- Spin on the left: it keeps Give up out from under the button players
        hit most, which is how the round kept getting forfeited by accident. -->
   <div class="wheelrow">
@@ -73,7 +90,7 @@
   </div>
   <div class="actions">
     <button class="btn ghost" id="vowelBtn" onclick="buyVowel()">Vowel $250</button>
-    <button class="btn ghost" onclick="solve()">Solve</button>
+    <button class="btn ghost" id="solveBtn" onclick="solve()">Solve</button>
     <button class="btn ghost quiet" id="giveUpBtn" onclick="giveUp()">Give up</button>
   </div>
   <div class="keys" id="keys"></div>
@@ -239,12 +256,22 @@ function finish(){ renderPuzzle(); renderKeys(); updateWheel();
   if(allRevealed()) winRound();
 }
 function solve(){ if(roundOver) return;
-  var g=prompt('Solve the puzzle:'); if(g==null) return;
+  var bar=document.getElementById('solveBar'), inp=document.getElementById('solveInput');
+  if(bar.classList.contains('on')){ closeSolve(); return; }
+  bar.classList.add('on'); inp.value=''; inp.focus();
+  // The keyboard shoves the page up, so pull the tiles to the top of what's left.
+  setTimeout(function(){ document.getElementById('cat').scrollIntoView({block:'start'}); }, 300);
+}
+function closeSolve(){ document.getElementById('solveInput').blur();
+  document.getElementById('solveBar').classList.remove('on'); }
+function submitSolve(e){ e.preventDefault();
+  var g=document.getElementById('solveInput').value; closeSolve();
+  if(roundOver||!g.trim()) return;
   var norm=function(s){return s.toUpperCase().replace(/[^A-Z0-9]/g,'');};
   if(norm(g)===norm(puzzle.t)){ puzzle.t.split('').forEach(function(ch){ if(/[A-Z]/.test(ch)) revealed[ch]=1; }); renderPuzzle(); winRound(); }
   else { document.getElementById('wmsg').textContent='Not quite — keep going.'; }
 }
-function endRound(msg, delay){ roundOver=true; spinValue=null;
+function endRound(msg, delay){ roundOver=true; spinValue=null; closeSolve();
   document.getElementById('spinBtn').disabled=true;
   document.getElementById('giveUpBtn').disabled=true;
   renderKeys();
@@ -265,6 +292,8 @@ function giveUp(){ if(roundOver) return;
   // wheel's fixed two-line slot at any phone width.
   endRound('Round forfeited — answer above. Next puzzle…', 2600);
 }
+
+document.getElementById('solveInput').addEventListener('keydown', function(e){ if(e.key==='Escape') closeSolve(); });
 
 (async function(){ await loadBest(); newPuzzle(); })();
 </script>
