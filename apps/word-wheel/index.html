@@ -27,7 +27,10 @@
     display:flex;align-items:center;justify-content:center;font-family:'Barlow Semi Condensed','Inter',sans-serif;
     font-weight:700;font-size:20px;color:var(--text);}
   .tile.blank{background:var(--panel-2);}
-  .wheel{text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;}
+  /* Spin sits beside the wheel it drives, so nothing tappable sits under it. */
+  .wheelrow{display:flex;align-items:stretch;gap:8px;margin-bottom:12px;}
+  .wheel{flex:1;min-width:0;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;}
+  .btn.spin{flex:none;width:104px;padding:12px 6px;font-size:15px;}
   .wheel .val{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:30px;line-height:36px;
     color:var(--amber);white-space:nowrap;overflow:hidden;}
   /* Fixed two-line slot: the box must not resize as messages of different
@@ -36,8 +39,12 @@
     display:flex;align-items:center;justify-content:center;overflow:hidden;}
   .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
   .actions .btn{padding:12px 6px;font-size:14px;}
-  .actions .btn.wide{grid-column:1/-1;padding:9px 6px;font-size:12px;color:var(--muted);}
-  .actions .btn.wide:hover{color:var(--text);}
+  /* The shared theme has no disabled treatment for .btn, so a dead Spin button
+     still looked live. Match the dimming the keys use. */
+  .btn:disabled{opacity:.35;}
+  .btn:disabled:active{transform:none;}
+  .actions .btn.quiet{color:var(--muted);}
+  .actions .btn.quiet:hover{color:var(--text);}
   .keys{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
   .key{aspect-ratio:1;border:1px solid var(--line);background:var(--panel-2);color:var(--text);border-radius:8px;
     font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:16px;cursor:pointer;}
@@ -58,12 +65,16 @@
   </div>
   <div class="cat" id="cat">—</div>
   <div class="puzzle" id="puzzle"></div>
-  <div class="wheel"><div class="val" id="wval">Spin →</div><div class="msg" id="wmsg">Spin the wheel, then pick a consonant.</div></div>
+  <!-- Spin on the left: it keeps Give up out from under the button players
+       hit most, which is how the round kept getting forfeited by accident. -->
+  <div class="wheelrow">
+    <button class="btn spin" id="spinBtn" onclick="spin()">Spin</button>
+    <div class="wheel"><div class="val" id="wval">Spin →</div><div class="msg" id="wmsg">Spin the wheel, then pick a consonant.</div></div>
+  </div>
   <div class="actions">
-    <button class="btn" id="spinBtn" onclick="spin()">Spin</button>
     <button class="btn ghost" id="vowelBtn" onclick="buyVowel()">Vowel $250</button>
     <button class="btn ghost" onclick="solve()">Solve</button>
-    <button class="btn ghost wide" id="giveUpBtn" onclick="giveUp()">Give up · show answer</button>
+    <button class="btn ghost quiet" id="giveUpBtn" onclick="giveUp()">Give up</button>
   </div>
   <div class="keys" id="keys"></div>
   <div class="hint">Consonants need a spin (you earn the wheel value × how many appear). Vowels cost $250. Solve to bank the round into your total. Stuck? Give up to see the answer and move on — the round money is forfeited.</div>
@@ -172,15 +183,32 @@ function renderKeys(){
   var el=document.getElementById('keys'); el.innerHTML='';
   'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(function(ch){
     var b=document.createElement('button'); b.className='key'+(VOWELS.indexOf(ch)>=0?' vowel':'');
-    b.textContent=ch; b.disabled=roundOver||!!used[ch]; b.onclick=function(){ onLetter(ch); };
+    b.textContent=ch; b.onclick=function(){ onLetter(ch); };
+    // Consonants are dead keys once every consonant in the puzzle is up.
+    b.disabled=roundOver||!!used[ch]||(VOWELS.indexOf(ch)<0&&!consonantsLeft());
     el.appendChild(b);
   });
 }
 function countIn(ch){ return (puzzle.t.split('').filter(function(x){return x===ch;})).length; }
 function allRevealed(){ return puzzle.t.split('').every(function(ch){ return !/[A-Z]/.test(ch) || revealed[ch]; }); }
+function consonantsLeft(){ return puzzle.t.split('').some(function(ch){ return /[A-Z]/.test(ch)&&VOWELS.indexOf(ch)<0&&!revealed[ch]; }); }
+function vowelsLeft(){ return VOWELS.split('').some(function(v){ return !used[v]; }); }
+// What the player can actually do next, so the wheel never asks for a consonant
+// that cannot be in the puzzle.
+function nextStep(){
+  if(consonantsLeft()) return 'Spin again.';
+  if(vowelsLeft()&&bank>=250) return 'Only vowels left — buy one.';
+  return 'Only vowels left — solve the puzzle.';
+}
+function updateWheel(){
+  if(roundOver) return;
+  var left=consonantsLeft();
+  if(!left){ spinValue=null; document.getElementById('wval').textContent='VOWELS ONLY'; }
+  document.getElementById('spinBtn').disabled=!left||spinValue!==null;
+}
 
-function spin(){ if(roundOver||spinValue!==null) return; var v=VALUES[Math.floor(Math.random()*VALUES.length)];
-  if(v==='BANKRUPT'){ bank=0; document.getElementById('bank').textContent='$0'; document.getElementById('wval').textContent='BANKRUPT'; document.getElementById('wmsg').textContent='Round money lost. Spin again.'; spinValue=null; }
+function spin(){ if(roundOver||spinValue!==null||!consonantsLeft()) return; var v=VALUES[Math.floor(Math.random()*VALUES.length)];
+  if(v==='BANKRUPT'){ bank=0; document.getElementById('bank').textContent='$0'; document.getElementById('wval').textContent='BANKRUPT'; document.getElementById('wmsg').textContent='Round money lost. '+nextStep(); spinValue=null; }
   else { spinValue=v; document.getElementById('wval').textContent='$'+v; document.getElementById('wmsg').textContent='Pick a consonant.'; document.getElementById('spinBtn').disabled=true; }
 }
 function onLetter(ch){ if(roundOver||used[ch]) return;
@@ -191,14 +219,14 @@ function onLetter(ch){ if(roundOver||used[ch]) return;
   if(spinValue===null){ document.getElementById('wmsg').textContent='Spin before guessing a consonant.'; return; }
   used[ch]=1; var val=spinValue; spinValue=null; document.getElementById('spinBtn').disabled=false;
   var n=countIn(ch);
-  if(n>0){ revealed[ch]=1; bank+=val*n; document.getElementById('bank').textContent='$'+bank; document.getElementById('wmsg').textContent=ch+' × '+n+' → +$'+(val*n)+'. Spin again.'; }
-  else { document.getElementById('wmsg').textContent='No '+ch+'. Spin again.'; }
+  if(n>0){ revealed[ch]=1; bank+=val*n; document.getElementById('bank').textContent='$'+bank; document.getElementById('wmsg').textContent=ch+' × '+n+' → +$'+(val*n)+'. '+nextStep(); }
+  else { document.getElementById('wmsg').textContent='No '+ch+'. '+nextStep(); }
   document.getElementById('wval').textContent='Spin →';
   finish();
 }
 function applyGuess(ch){ var n=countIn(ch);
-  if(n>0){ revealed[ch]=1; document.getElementById('wmsg').textContent=ch+' × '+n+'.'; }
-  else document.getElementById('wmsg').textContent='No '+ch+'.';
+  if(n>0){ revealed[ch]=1; document.getElementById('wmsg').textContent=ch+' × '+n+'. '+nextStep(); }
+  else document.getElementById('wmsg').textContent='No '+ch+'. '+nextStep();
   finish();
 }
 function buyVowel(){ if(roundOver) return;
@@ -207,7 +235,7 @@ function buyVowel(){ if(roundOver) return;
   if(!VOWELS.split('').some(function(v){return !used[v];})){ document.getElementById('wmsg').textContent='All vowels used.'; return; }
   bank-=250; document.getElementById('bank').textContent='$'+bank; paidVowel=true; document.getElementById('wmsg').textContent='Pick a vowel.';
 }
-function finish(){ renderPuzzle(); renderKeys();
+function finish(){ renderPuzzle(); renderKeys(); updateWheel();
   if(allRevealed()) winRound();
 }
 function solve(){ if(roundOver) return;
@@ -224,6 +252,7 @@ function endRound(msg, delay){ roundOver=true; spinValue=null;
   setTimeout(newPuzzle, delay);
 }
 function winRound(){ total+=bank; document.getElementById('total').textContent='$'+total; saveBest();
+  document.getElementById('wval').textContent='SOLVED';
   endRound('Solved! +$'+bank+' banked. Next puzzle…', 1600);
 }
 function giveUp(){ if(roundOver) return;
@@ -232,7 +261,9 @@ function giveUp(){ if(roundOver) return;
   bank=0; document.getElementById('bank').textContent='$0';
   renderPuzzle();
   document.getElementById('wval').textContent='GIVE UP';
-  endRound('Answer: '+puzzle.t+' — round forfeited. Next puzzle…', 2600);
+  // The answer is on the board now, so the line stays short enough for the
+  // wheel's fixed two-line slot at any phone width.
+  endRound('Round forfeited — answer above. Next puzzle…', 2600);
 }
 
 (async function(){ await loadBest(); newPuzzle(); })();
