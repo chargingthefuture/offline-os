@@ -162,19 +162,33 @@ var PUZZLES=[
 ];
 var VALUES=[500,600,650,700,800,900,300,350,400,550,'BANKRUPT'];
 var VOWELS='AEIOU';
-var puzzle, revealed, used, bank=0, total=0, best=0, spinValue=null, paidVowel=false, roundOver=false, lastIndex=-1, bag=[];
+var MONTH=30*24*60*60*1000;   // how long a phrase stays off the table
+var puzzle, revealed, used, bank=0, total=0, best=0, spinValue=null, paidVowel=false, roundOver=false, lastIndex=-1;
+var seen={};                  // phrase -> when it was last dealt
 
-async function loadBest(){ try{var r=await window.storage.get(SKEY); if(r&&r.value){var d=JSON.parse(r.value); best=d.best||0;} }catch(e){} document.getElementById('best').textContent='$'+best; }
-async function saveBest(){ if(total>best){ best=total; document.getElementById('best').textContent='$'+best; try{await window.storage.set(SKEY,JSON.stringify({best:best}));}catch(e){} } }
+async function loadSaved(){ try{var r=await window.storage.get(SKEY); if(r&&r.value){var d=JSON.parse(r.value); best=d.best||0; seen=d.seen||{};} }catch(e){}
+  forget(); document.getElementById('best').textContent='$'+best; }
+async function save(){ try{await window.storage.set(SKEY,JSON.stringify({best:best,seen:seen}));}catch(e){} }
+async function saveBest(){ if(total>best){ best=total; document.getElementById('best').textContent='$'+best; await save(); } }
 
-// Deal from a shuffled bag: every puzzle comes up once before any repeats.
-function refillBag(){ var i,j,t; bag=[]; for(i=0;i<PUZZLES.length;i++) bag.push(i);
-  for(i=bag.length-1;i>0;i--){ j=Math.floor(Math.random()*(i+1)); t=bag[i]; bag[i]=bag[j]; bag[j]=t; }
-  // Don't open a fresh bag with the puzzle that closed the last one.
-  if(bag.length>1 && bag[0]===lastIndex){ j=1+Math.floor(Math.random()*(bag.length-1)); t=bag[0]; bag[0]=bag[j]; bag[j]=t; }
+// Drop phrases that fell out of the no-repeat window.
+function forget(){ var cut=Date.now()-MONTH;
+  Object.keys(seen).forEach(function(k){ if(!(seen[k]>cut)) delete seen[k]; }); }
+// Deal a phrase that hasn't come up in the last month. The record is stored,
+// so the window survives reloads — an in-memory bag reset on every launch.
+// Once every phrase has been played inside one month, fall back to whichever
+// was seen longest ago.
+function nextIndex(){ forget();
+  var fresh=[], i;
+  for(i=0;i<PUZZLES.length;i++) if(!seen[PUZZLES[i].t] && i!==lastIndex) fresh.push(i);
+  if(fresh.length) return fresh[Math.floor(Math.random()*fresh.length)];
+  var oldest=-1;
+  for(i=0;i<PUZZLES.length;i++){ if(i===lastIndex && PUZZLES.length>1) continue;
+    if(oldest<0 || (seen[PUZZLES[i].t]||0) < (seen[PUZZLES[oldest].t]||0)) oldest=i; }
+  return oldest<0?0:oldest;
 }
-function nextIndex(){ if(!bag.length) refillBag(); return bag.shift(); }
-function newPuzzle(){ lastIndex=nextIndex(); puzzle=PUZZLES[lastIndex]; revealed={}; used={}; bank=0; spinValue=null; paidVowel=false; roundOver=false;
+function newPuzzle(){ lastIndex=nextIndex(); puzzle=PUZZLES[lastIndex]; seen[puzzle.t]=Date.now(); save();
+  revealed={}; used={}; bank=0; spinValue=null; paidVowel=false; roundOver=false;
   document.getElementById('bank').textContent='$0';
   document.getElementById('cat').textContent=puzzle.c;
   document.getElementById('wval').textContent='Spin →'; document.getElementById('wmsg').textContent='Spin the wheel, then pick a consonant.';
@@ -295,7 +309,7 @@ function giveUp(){ if(roundOver) return;
 
 document.getElementById('solveInput').addEventListener('keydown', function(e){ if(e.key==='Escape') closeSolve(); });
 
-(async function(){ await loadBest(); newPuzzle(); })();
+(async function(){ await loadSaved(); newPuzzle(); })();
 </script>
 </body>
 </html>
