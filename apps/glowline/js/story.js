@@ -145,6 +145,97 @@ export const STORY = [
       boostEdges: ["left", "left", "right", "right", "right", "left", "left", "left", "right", "right", "right", "left", "left", "right", "right", "left"],
     },
   }) },
+  { say: (b) => b === "broker"
+      ? ["Broker: The lattice is holding, but the far sectors are still shaking loose.",
+         "GL-1N3: Then we go get them."]
+      : ["The Pulse: The Core is awake, and it is pulling the whole grid with it.",
+         "GL-1N3: Hold on. I'm coming."] },
+  { race: (b) => ({
+    name: b === "broker" ? "Act 8 — Overflow" : "Act 8 — Cascade",
+    subtitle: b === "broker" ? "Hold the sectors steady" : "Ride out the surge",
+    seconds: 28,
+    mode: "intense",
+    setback: 0.16,
+    moteBoost: 0.045,
+  }) },
+  { say: (b) => b === "broker"
+      ? ["Broker: Sector by sector. You are doing this properly.",
+         "GL-1N3: Steady wins."]
+      : ["The Pulse: You held it. The grid is listening to you now.",
+         "GL-1N3: Then let's give it something to follow."] },
+  { race: (b) => ({
+    name: b === "broker" ? "Act 9 — Tight Lattice" : "Act 9 — Deep Lattice",
+    subtitle: b === "broker" ? "Reinforce the narrow spans" : "Thread the narrow spans",
+    seconds: 28,
+    mode: "maze",
+    setback: 0,
+    maze: {
+      gap: 208,
+      wallHeight: 84,
+      interval: 1.18,
+      spawnUntil: 0.9,
+      gaps: [300, 480, 220, 390, 545, 350, 175, 420, 260, 505, 330, 195, 455, 370],
+    },
+  }) },
+  { say: (b) => b === "broker"
+      ? ["Broker: There is a current running under the lattice. Use it.",
+         "GL-1N3: Skimming now."]
+      : ["The Pulse: The Core is pushing a current through the lattice. Ride it.",
+         "GL-1N3: On the green."] },
+  { race: (b) => ({
+    name: b === "broker" ? "Act 10 — Undertow" : "Act 10 — Slipstream",
+    subtitle: "Ride the current, hold your line",
+    seconds: 32,
+    mode: "maze",
+    setback: 0.04,
+    moteBoost: 0.035,
+    maze: {
+      gap: 226,
+      wallHeight: 76,
+      interval: 1.12,
+      spawnUntil: 0.9,
+      boostAmount: 0.075,
+      boostRange: 44,
+      gaps: [240, 400, 555, 430, 275, 165, 320, 490, 545, 360, 200, 285, 460, 540, 380, 215],
+      boostEdges: ["right", "right", "left", "left", "left", "right", "right", "right", "left", "left", "right", "right", "left", "left", "right", "left"],
+    },
+  }) },
+  { say: (b) => b === "broker"
+      ? ["Broker: One more push and the whole grid settles.",
+         "GL-1N3: Say when."]
+      : ["The Pulse: Broker's last sentinels are between us and the Beacon.",
+         "GL-1N3: Then they had better keep up."] },
+  { race: (b) => ({
+    name: b === "broker" ? "Act 11 — Full Load" : "Act 11 — Sentinel Storm",
+    subtitle: b === "broker" ? "Carry the load through" : "Outrun the last of them",
+    seconds: 32,
+    mode: "intense",
+    setback: 0.1,
+    moteBoost: 0.05,
+  }) },
+  { say: (b) => b === "broker"
+      ? ["Broker: The Beacon is open. Take it home.",
+         "GL-1N3: Bringing it in."]
+      : ["The Pulse: The Beacon is open. Everything comes down to this run.",
+         "GL-1N3: Then let's make it a good one."] },
+  { race: (b) => ({
+    name: b === "broker" ? "Act 12 — The Beacon" : "Act 12 — Beacon Run",
+    subtitle: b === "broker" ? "Lock the Core, gently" : "Carry the patch home",
+    seconds: 34,
+    mode: "maze",
+    setback: 0.035,
+    moteBoost: 0.03,
+    maze: {
+      gap: 214,
+      wallHeight: 80,
+      interval: 1.06,
+      spawnUntil: 0.92,
+      boostAmount: 0.08,
+      boostRange: 42,
+      gaps: [360, 190, 300, 470, 555, 415, 245, 170, 335, 520, 440, 265, 180, 390, 545, 310, 205, 425],
+      boostEdges: ["left", "right", "right", "left", "left", "left", "right", "right", "left", "left", "right", "right", "right", "left", "left", "right", "right", "left"],
+    },
+  }) },
   { say: (branch) => branch === "broker"
       ? ["GL-1N3 delivers the patch, and Broker steadies.",
          "Broker (rebooting): GL-1N3...? What happened?",
@@ -158,7 +249,18 @@ export const STORY = [
          "Broker: Thank you, GL-1N3."] },
 ];
 
+// Campaign mode plays the levels straight through with no dialogue. The races
+// live in STORY, so pull them out in order and resolve the branch-dependent
+// ones — the Pulse variants, which are the faster read of each level.
+export function campaignLevels(branch = "pulse") {
+  return STORY
+    .filter((beat) => beat.race)
+    .map((beat) => (typeof beat.race === "function" ? beat.race(branch) : beat.race))
+    .filter(Boolean);
+}
+
 export const ENDINGS = {
   broker: "The system holds — stable, and a little less alone. GL-1N3 carries on.",
   pulse: "New connections bloom across the Core. GL-1N3 is more than data. GL-1N3 is hope.",
+  campaign: "Every line run, every corridor clear. The Core hums, and GL-1N3 flies on.",
 };

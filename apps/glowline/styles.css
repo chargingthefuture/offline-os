@@ -157,6 +157,17 @@ html, body {
   box-shadow: 0 0 30px rgba(0,255,204,.6);
 }
 .bigBtn:active { transform: scale(.97); }
+.bigBtn + .bigBtn { margin-top: 12px; }
+/* Secondary action: same shape, quieter fill, so the two modes read as a pair
+   without competing. */
+.ghostBtn {
+  color: var(--teal);
+  background: rgba(0, 255, 204, .10);
+  border: 1px solid rgba(0, 255, 204, .55);
+  box-shadow: none;
+  font-size: 17px;
+  padding: 14px 30px;
+}
 .hint { font-size: 12px; opacity: .5; margin-top: 26px; max-width: 24em; }
 .backOS { color: inherit; text-decoration: none; }
 .hint:has(.backOS) { margin-top: 10px; }

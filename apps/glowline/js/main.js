@@ -4,7 +4,7 @@
 import * as audio from "./audio.js";
 import * as dlg from "./dialogue.js";
 import { Background, Race, VW, VH } from "./game.js";
-import { STORY, ENDINGS } from "./story.js";
+import { STORY, ENDINGS, campaignLevels } from "./story.js";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -16,8 +16,11 @@ const toast = document.getElementById("toast");
 const titleScreen = document.getElementById("title");
 const startBtn = document.getElementById("startBtn");
 const endScreen = document.getElementById("end");
+const endTitle = document.getElementById("endTitle");
 const endText = document.getElementById("endText");
 const replayBtn = document.getElementById("replayBtn");
+const campaignBtn = document.getElementById("campaignBtn");
+const menuBtn = document.getElementById("menuBtn");
 const muteBtn = document.getElementById("muteBtn");
 
 const bg = new Background();
@@ -95,6 +98,7 @@ canvas.addEventListener("pointercancel", () => { if (activeRace) { steer = 0; ap
 let padConnected = false;
 let padSteer = 0;          // -1 / 0 / 1 from the controller, separate from keys
 let padActionPrev = false; // edge-detect the A button so a hold fires once
+let padAltPrev = false;    // same for B (the secondary option on an overlay)
 const STICK_DEADZONE = 0.35;
 
 window.addEventListener("gamepadconnected", () => { padConnected = true; });
@@ -142,6 +146,15 @@ function pollGamepad() {
     else dlg.advance();
   }
   padActionPrev = action;
+
+  // B button (index 1): the second option on either overlay — campaign from the
+  // title, back to the title from the end screen. Ignored during play.
+  const alt = !!(p.buttons[1] && p.buttons[1].pressed);
+  if (alt && !padAltPrev) {
+    if (titleScreen.classList.contains("visible")) beginCampaign();
+    else if (endScreen.classList.contains("visible")) toTitle();
+  }
+  padAltPrev = alt;
 }
 
 // ---- toast ----
@@ -197,24 +210,53 @@ async function runStory() {
   showEnd(branch);
 }
 
-function showEnd(branch) {
-  endText.textContent = ENDINGS[branch] || ENDINGS.pulse;
+// ---- campaign: the same levels, no dialogue ----
+async function runCampaign() {
+  const levels = campaignLevels();
+  for (let i = 0; i < levels.length; i++) {
+    const cfg = levels[i];
+    await runRace({ ...cfg, subtitle: `Level ${i + 1} of ${levels.length} · ${cfg.subtitle}` });
+  }
+  showEnd("campaign");
+}
+
+function showEnd(ending) {
+  endTitle.textContent = ending === "campaign" ? "Campaign complete" : "The Core is reborn";
+  endText.textContent = ENDINGS[ending] || ENDINGS.pulse;
   endScreen.classList.add("visible");
 }
 
 // ---- title / start ----
-function begin() {
-  titleScreen.classList.remove("visible");
-  audio.start();           // must be inside the gesture (iOS)
-  runStory();
-}
-startBtn.addEventListener("click", begin);
+// Which mode is running, so "Play again" repeats the one you chose.
+let mode = "story";
 
-function replay() {
+function play(which) {
+  mode = which;
+  titleScreen.classList.remove("visible");
   endScreen.classList.remove("visible");
-  runStory();
+  audio.start();           // must be inside the gesture (iOS)
+  if (which === "campaign") runCampaign(); else runStory();
 }
+function begin() { play("story"); }
+function beginCampaign() { play("campaign"); }
+startBtn.addEventListener("click", begin);
+campaignBtn.addEventListener("click", beginCampaign);
+
+function replay() { play(mode); }
 replayBtn.addEventListener("click", replay);
+
+function toTitle() {
+  endScreen.classList.remove("visible");
+  // The count comes from the level list itself, so the title can't go stale.
+const campaignHint = document.getElementById("campaignHint");
+if (campaignHint) {
+  campaignHint.textContent =
+    `Campaign skips the dialogue and runs all ${campaignLevels().length} levels back to back.`;
+}
+
+titleScreen.classList.add("visible");
+}
+menuBtn.addEventListener("click", toTitle);
 
 muteBtn.addEventListener("click", () => {
   const m = audio.toggleMute();
@@ -227,6 +269,13 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").catch((e) => console.warn("SW failed", e));
   });
+}
+
+// The count comes from the level list itself, so the title can't go stale.
+const campaignHint = document.getElementById("campaignHint");
+if (campaignHint) {
+  campaignHint.textContent =
+    `Campaign skips the dialogue and runs all ${campaignLevels().length} levels back to back.`;
 }
 
 titleScreen.classList.add("visible");

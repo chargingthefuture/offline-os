@@ -692,6 +692,133 @@ function level19() {
   };
 }
 
+// --- Level 20: ribs. Short-spaced spurs from alternating walls; the lane is
+// always open, but only on one side at a time. -----------------------------
+function level20() {
+  const length = 7600;
+  const mid = (x) => 560 + Math.sin(x / 620) * 190;
+  const half = (x) => 122 - Math.sin(x / 1100) * 12;
+  const { top, bottom } = corridor({ length, mid, half });
+  const walls = [top, bottom];
+  for (let x = 1000; x < length - 700; x += 460) {
+    const ceiling = ((x / 460) | 0) % 2 === 0;
+    const m = mid(x), h = half(x);
+    walls.push(pillar(x, ceiling ? m - h + 50 : m + h - 50, 26, 56, 4, Math.PI / 4));
+  }
+  return {
+    name: 'Ribcage',
+    theme: { wall: '#4de0ff', glow: 'rgba(77,224,255,0.5)', accent: '#b6f2ff' },
+    par: 50,
+    start: { x: 120, y: mid(120), angle: 0 },
+    finishX: length - 200,
+    bounds: { left: -80, right: length + 80, top: -400, bottom: 1400 },
+    checkpoints: [1500, 3000, 4400, 5800, 6900],
+    walls,
+  };
+}
+
+// --- Level 21: a chicane run that keeps tightening. Fast swings, and the
+// corridor loses width as it goes. -----------------------------------------
+function level21() {
+  const length = 8200;
+  const mid = (x) => 570 + Math.sin(x / 380) * 250 + Math.sin(x / 140) * 20;
+  const half = (x) => 112 - Math.min(26, x / 420);
+  const { top, bottom } = corridor({ length, step: 30, mid, half });
+  const walls = [top, bottom];
+  for (let x = 1600; x < length - 900; x += 1100) {
+    walls.push(pillar(x, mid(x), 34, 44, 5, 0.6));
+  }
+  return {
+    name: 'Chicane',
+    theme: { wall: '#ff8a3d', glow: 'rgba(255,138,61,0.5)', accent: '#ffcfa8' },
+    par: 58,
+    start: { x: 120, y: mid(120), angle: 0 },
+    finishX: length - 220,
+    bounds: { left: -80, right: length + 80, top: -500, bottom: 1600 },
+    checkpoints: [1600, 3200, 4800, 6400, 7400],
+    walls,
+  };
+}
+
+// --- Level 22: a long descent under a heavy pull. Hold the nose up or ride
+// the floor; the corridor drops the whole way down. ------------------------
+function level22() {
+  const length = 7000;
+  const mid = (x) => 380 + x * 0.055 + Math.sin(x / 820) * 90;
+  const half = () => 165;
+  const { top, bottom } = corridor({ length, mid, half });
+  const walls = [top, bottom];
+  for (let x = 1400; x < length - 800; x += 900) {
+    const ceiling = ((x / 900) | 0) % 2 === 0;
+    const m = mid(x);
+    walls.push(pillar(x, ceiling ? m - 165 + 62 : m + 165 - 62, 32, 70, 4, Math.PI / 4));
+  }
+  return {
+    name: 'Downdraft',
+    theme: { wall: '#ffe14d', glow: 'rgba(255,225,77,0.5)', accent: '#fff4b0' },
+    par: 46,
+    gravity: { x: 0, y: 320 },
+    start: { x: 120, y: mid(120), angle: 0 },
+    finishX: length - 200,
+    bounds: { left: -80, right: length + 80, top: -300, bottom: 1500 },
+    checkpoints: [1500, 3000, 4400, 5800],
+    walls,
+  };
+}
+
+// --- Level 23: an oval circuit with chicane posts set in the lane, so the
+// racing line has to weave instead of hugging one wall. 3 laps. ------------
+function level23() {
+  const Cx = 1480, Cy = 880;
+  const ORx = 1120, ORy = 560;   // outer ring
+  const IRx = 700,  IRy = 250;   // inner island
+  const MRx = (ORx + IRx) / 2, MRy = (ORy + IRy) / 2;   // racing line
+  const walls = [ellipse(Cx, Cy, ORx, ORy), ellipse(Cx, Cy, IRx, IRy)];
+  // Posts on the racing line, away from the finish straight, alternating which
+  // side of the lane they pinch.
+  for (const [th, sway] of [[0.9, 1], [1.9, -1], [Math.PI + 0.9, 1], [Math.PI + 1.9, -1]]) {
+    const rx = MRx + sway * 70, ry = MRy + sway * 40;
+    walls.push(pillar(Cx + Math.cos(th) * rx, Cy + Math.sin(th) * ry, 40, 40, 6, th));
+  }
+  const line = { a: { x: Cx + IRx, y: Cy }, b: { x: Cx + ORx, y: Cy }, forward: { x: 0, y: 1 } };
+  const check = { x: Cx - MRx, y: Cy, r: 240 };
+  return {
+    name: 'Sentinel',
+    theme: { wall: '#9dff5c', glow: 'rgba(157,255,92,0.5)', accent: '#d9ffb8' },
+    par: 46,
+    circuit: { laps: 3, line, check },
+    start: { x: Cx + MRx, y: Cy - 50, angle: Math.PI / 2 },
+    bounds: { left: Cx - ORx - 140, right: Cx + ORx + 140, top: Cy - ORy - 140, bottom: Cy + ORy + 140 },
+    checkpoints: [],
+    walls,
+  };
+}
+
+// --- Level 24: the long one. Every shape the run has taught, end to end.
+function level24() {
+  const length = 10400;
+  const mid = (x) => 560 + Math.sin(x / 700) * 210 + Math.sin(x / 250) * 34;
+  const half = (x) => 128 - Math.sin(x / 1500) * 22;
+  const { top, bottom } = corridor({ length, step: 30, mid, half });
+  const walls = [top, bottom];
+  for (let x = 900; x < length - 700; x += 520) {
+    const k = (x / 520) | 0;
+    const m = mid(x), h = half(x);
+    if (k % 3 === 2) walls.push(pillar(x, m, 38, 48, 6, 0.4));                       // mid-lane post
+    else walls.push(pillar(x, k % 3 === 0 ? m - h + 48 : m + h - 48, 24, 52, 4, Math.PI / 4)); // wall spur
+  }
+  return {
+    name: 'Long Haul',
+    theme: { wall: '#ff5ce0', glow: 'rgba(255,92,224,0.5)', accent: '#ffb8f2' },
+    par: 78,
+    start: { x: 120, y: mid(120), angle: 0 },
+    finishX: length - 220,
+    bounds: { left: -80, right: length + 80, top: -500, bottom: 1600 },
+    checkpoints: [1600, 3200, 4800, 6400, 8000, 9400],
+    walls,
+  };
+}
+
 export const LEVELS = [
-  level1(), level2(), level3(), level4(), level5(), level6(), level7(), level8(), level9(), level10(), level11(), level12(), level13(), level14(), level15(), level16(), level17(), level18(), level19(),
+  level1(), level2(), level3(), level4(), level5(), level6(), level7(), level8(), level9(), level10(), level11(), level12(), level13(), level14(), level15(), level16(), level17(), level18(), level19(), level20(), level21(), level22(), level23(), level24(),
 ];
