@@ -27,7 +27,10 @@
     display:flex;align-items:center;justify-content:center;font-family:'Barlow Semi Condensed','Inter',sans-serif;
     font-weight:700;font-size:20px;color:var(--text);}
   .tile.blank{background:var(--panel-2);}
-  .wheel{text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;}
+  /* Spin sits beside the wheel it drives, so nothing tappable sits under it. */
+  .wheelrow{display:flex;align-items:stretch;gap:8px;margin-bottom:12px;}
+  .wheel{flex:1;min-width:0;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;}
+  .btn.spin{flex:none;width:104px;padding:12px 6px;font-size:15px;}
   .wheel .val{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:30px;line-height:36px;
     color:var(--amber);white-space:nowrap;overflow:hidden;}
   /* Fixed two-line slot: the box must not resize as messages of different
@@ -38,10 +41,10 @@
   .actions .btn{padding:12px 6px;font-size:14px;}
   /* The shared theme has no disabled treatment for .btn, so a dead Spin button
      still looked live. Match the dimming the keys use. */
-  .actions .btn:disabled{opacity:.35;}
-  .actions .btn:disabled:active{transform:none;}
-  .actions .btn.wide{grid-column:1/-1;padding:9px 6px;font-size:12px;color:var(--muted);}
-  .actions .btn.wide:hover{color:var(--text);}
+  .btn:disabled{opacity:.35;}
+  .btn:disabled:active{transform:none;}
+  .actions .btn.quiet{color:var(--muted);}
+  .actions .btn.quiet:hover{color:var(--text);}
   .keys{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
   .key{aspect-ratio:1;border:1px solid var(--line);background:var(--panel-2);color:var(--text);border-radius:8px;
     font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:16px;cursor:pointer;}
@@ -62,12 +65,16 @@
   </div>
   <div class="cat" id="cat">—</div>
   <div class="puzzle" id="puzzle"></div>
-  <div class="wheel"><div class="val" id="wval">Spin →</div><div class="msg" id="wmsg">Spin the wheel, then pick a consonant.</div></div>
+  <!-- Spin on the left: it keeps Give up out from under the button players
+       hit most, which is how the round kept getting forfeited by accident. -->
+  <div class="wheelrow">
+    <button class="btn spin" id="spinBtn" onclick="spin()">Spin</button>
+    <div class="wheel"><div class="val" id="wval">Spin →</div><div class="msg" id="wmsg">Spin the wheel, then pick a consonant.</div></div>
+  </div>
   <div class="actions">
-    <button class="btn" id="spinBtn" onclick="spin()">Spin</button>
     <button class="btn ghost" id="vowelBtn" onclick="buyVowel()">Vowel $250</button>
     <button class="btn ghost" onclick="solve()">Solve</button>
-    <button class="btn ghost wide" id="giveUpBtn" onclick="giveUp()">Give up · show answer</button>
+    <button class="btn ghost quiet" id="giveUpBtn" onclick="giveUp()">Give up</button>
   </div>
   <div class="keys" id="keys"></div>
   <div class="hint">Consonants need a spin (you earn the wheel value × how many appear). Vowels cost $250. Solve to bank the round into your total. Stuck? Give up to see the answer and move on — the round money is forfeited.</div>
@@ -254,7 +261,9 @@ function giveUp(){ if(roundOver) return;
   bank=0; document.getElementById('bank').textContent='$0';
   renderPuzzle();
   document.getElementById('wval').textContent='GIVE UP';
-  endRound('Answer: '+puzzle.t+' — round forfeited. Next puzzle…', 2600);
+  // The answer is on the board now, so the line stays short enough for the
+  // wheel's fixed two-line slot at any phone width.
+  endRound('Round forfeited — answer above. Next puzzle…', 2600);
 }
 
 (async function(){ await loadBest(); newPuzzle(); })();
