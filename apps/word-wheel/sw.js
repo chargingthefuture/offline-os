@@ -1,6 +1,6 @@
 /* Word Wheel — service worker. Precaches the shell (incl. shared assets) so it
  * runs fully offline. Bump VERSION to push updates. */
-var VERSION = 'wordwheel-v6';
+var VERSION = 'wordwheel-v7';
 var SHELL = [
   './',
   './index.html',
