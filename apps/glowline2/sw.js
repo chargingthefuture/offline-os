@@ -3,7 +3,7 @@
 // connection every load fetches the latest files (so the app always refreshes to
 // the newest version), and the cache is only used as a fallback when the network is
 // unavailable or too slow — so the game still opens with no data.
-const CACHE = 'oos-glowline2-v1';
+const CACHE = 'oos-glowline2-v2';
 
 // How long to wait for the network before falling back to the cached copy, so a weak
 // or dropped connection still opens the game quickly instead of hanging.

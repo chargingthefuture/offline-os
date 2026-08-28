@@ -2,7 +2,7 @@
 // network, and serve network-first so every load picks up the latest version
 // while still working offline.
 // Bump CACHE when any asset changes so clients pull the new version.
-const CACHE = "oos-glowline-v1";
+const CACHE = "oos-glowline-v2";
 
 const ASSETS = [
   "./",
