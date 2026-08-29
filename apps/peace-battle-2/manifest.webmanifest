@@ -1,7 +1,7 @@
 {
   "name": "Peace-Battle 2",
   "short_name": "Peace-Battle 2",
-  "description": "Peace-Battle 2 — one board, two rule sets, and only one of them can end well for everybody",
+  "description": "Peace-Battle 2 — a map where isolation spreads and four people with skills spread against it",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

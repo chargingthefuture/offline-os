@@ -14,146 +14,107 @@
 <link rel="stylesheet" href="../../shared/fonts.css">
 <link rel="stylesheet" href="../../shared/theme.css">
 <style>
-  /* An author rule that sets display beats the browser's own [hidden]{display:none}, and
-     .actions below sets display:flex. Without this, hiding a row does nothing. */
   [hidden]{display:none!important;}
-  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:2px;}
   .back:hover,.back:focus-visible{color:var(--amber);}
-  .rules{display:flex;gap:8px;margin:14px 0 4px;}
-  .rules button{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;
-    color:var(--text);padding:9px 8px;font:inherit;font-size:13px;cursor:pointer;}
-  .rules button[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);}
-  .rules button:focus-visible,.act:focus-visible,.reset:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
-  .ruleline{color:var(--muted);font-size:12px;line-height:1.6;margin:2px 0 12px;}
-  .players{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-  .p{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;}
-  .p.me{border-color:var(--amber);}
-  .p.out{opacity:.45;}
-  .p .n{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
-  .p .m{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:20px;
-    color:var(--text);font-variant-numeric:tabular-nums;}
-  .p .h{font-size:11px;color:var(--muted);}
-  .board{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;}
-  .sq{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:3px 4px;border-radius:6px;color:var(--muted);}
-  .sq.here{background:rgba(255,255,255,.06);color:var(--text);}
-  .sq.corner{color:var(--text);opacity:.75;}
-  .sq .o{color:var(--amber);font-size:11px;white-space:nowrap;}
-  .log{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;
-    font-size:12px;line-height:1.7;color:var(--muted);min-height:66px;max-height:190px;
-    overflow-y:auto;margin-bottom:10px;}
-  .log div + div{margin-top:5px;}
-  .log b{color:var(--text);}
-  .actions{display:flex;gap:8px;margin-bottom:10px;}
+  .topline{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:6px 0 2px;}
+  .reach{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:34px;
+    line-height:1;color:var(--amber);font-variant-numeric:tabular-nums;}
+  .reach small{display:block;font-family:inherit;font-weight:400;font-size:11px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.09em;margin-top:3px;}
+  .counters{text-align:right;font-size:11px;color:var(--muted);line-height:1.7;white-space:nowrap;}
+  .counters b{color:var(--text);font-variant-numeric:tabular-nums;}
+  .counters .warn{color:#e5794b;}
+  svg.map{display:block;width:100%;height:auto;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:12px;margin:8px 0;touch-action:manipulation;}
+  svg.map .link{stroke:#2c2f36;stroke-width:1.1;}
+  svg.map .link.open{stroke:#3d424c;}
+  svg.map text{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-size:3.1px;fill:#8a8f99;
+    text-anchor:middle;pointer-events:none;}
+  svg.map .node{cursor:pointer;}
+  svg.map .ring{fill:none;stroke:var(--amber);stroke-width:.9;}
+  svg.map .who{font-size:2.9px;font-weight:700;fill:#16171b;text-anchor:middle;pointer-events:none;}
+  svg.map .reachable{stroke:var(--amber);stroke-width:.8;stroke-dasharray:1.6 1.4;fill:none;}
+  .team{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
+  .m{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 9px;
+    cursor:pointer;text-align:left;font:inherit;color:var(--text);}
+  .m[aria-pressed="true"]{border-color:var(--amber);}
+  .m .n{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);}
+  .m .s{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:15px;}
+  .m .w{font-size:11px;color:var(--muted);}
+  .status{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 11px;
+    font-size:12px;line-height:1.6;color:var(--muted);min-height:34px;margin-bottom:8px;}
+  .status b{color:var(--text);}
+  .actions{display:flex;gap:8px;margin-bottom:8px;}
   .act{flex:1;background:var(--amber);border:1px solid var(--amber);border-radius:10px;color:#16171b;
-    padding:11px 10px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;}
+    padding:11px 8px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;}
   .act.ghost{background:none;color:var(--text);border-color:var(--line);font-weight:400;}
   .act[disabled]{opacity:.4;cursor:default;}
+  .act:focus-visible,.m:focus-visible,.reset:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
   .reset{width:100%;background:none;border:1px solid var(--line);border-radius:10px;color:var(--muted);
-    padding:9px 12px;font:inherit;font-size:12px;cursor:pointer;margin-bottom:10px;}
-  .reset[disabled]{opacity:.4;cursor:default;}
-  .over{background:var(--panel-2);border:1px solid var(--amber);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+    padding:9px 12px;font:inherit;font-size:12px;cursor:pointer;margin-bottom:14px;}
+  .over{background:var(--panel-2);border:1px solid var(--amber);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
   .over .t{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:16px;
     text-transform:uppercase;letter-spacing:.05em;color:var(--amber);margin-bottom:4px;}
   .over p{margin:0;font-size:12px;color:var(--muted);line-height:1.7;}
-  h3{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:13px;
-    text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:18px 0 8px;}
-  blockquote{border-left:2px solid var(--line);margin:0 0 10px;padding:0 0 0 12px;color:var(--muted);
-    font-size:12px;line-height:1.7;}
-  .src{font-size:11px;color:var(--muted);line-height:1.7;}
-  .src a{color:var(--amber-dim,var(--amber));}
-  .caveat{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:11px;
-    color:var(--muted);line-height:1.7;margin-top:10px;}
-  .caveat ul{margin:6px 0 0;padding-left:16px;}
-  .caveat li{margin-bottom:4px;}
+  details{border-top:1px solid var(--line);padding-top:10px;}
+  summary{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:13px;
+    text-transform:uppercase;letter-spacing:.06em;color:var(--muted);cursor:pointer;}
+  details p{font-size:11px;color:var(--muted);line-height:1.75;}
   @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;}}
 </style>
 </head>
 <body>
   <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
-  <div class="header" style="margin-top:2px">
-    <div><h1>Peace-Battle 2</h1><p class="sub">One board. Two rule sets. Both printed on the same 1932 sheet.</p></div>
+
+  <div class="topline">
+    <div class="reach"><span id="reach">0</span><small>people covered</small></div>
+    <div class="counters">
+      Round <b id="round">1</b> &middot; actions <b id="acts">4</b><br>
+      Cut off <b id="cuts" class="warn">0</b> of 6
+    </div>
   </div>
 
-  <div class="rules" role="group" aria-label="Rule set">
-    <button type="button" id="bLandlord" aria-pressed="true">Landlord&rsquo;s Game</button>
-    <button type="button" id="bProsperity" aria-pressed="false">Prosperity</button>
-  </div>
-  <p class="ruleline" id="ruleline"></p>
-
-  <div class="players" id="players"></div>
+  <svg class="map" id="map" viewBox="0 0 100 118" role="img" aria-label="Map of places"></svg>
 
   <div id="overBox"></div>
+  <div class="status" id="status"></div>
 
-  <div class="log" id="log"></div>
+  <div class="team" id="team"></div>
 
   <div class="actions">
-    <button type="button" class="act" id="roll">Roll</button>
-    <button type="button" class="act ghost" id="improve" disabled>Improve</button>
-  </div>
-  <div class="actions" id="buyRow" hidden>
-    <button type="button" class="act" id="buy">Buy</button>
-    <button type="button" class="act ghost" id="pass">Pass</button>
+    <button type="button" class="act" id="help">Help here</button>
+    <button type="button" class="act ghost" id="wait">End round</button>
   </div>
 
-  <button type="button" class="reset" id="switchRules">Call for Prosperity Rules</button>
+  <button type="button" class="reset" id="reset">New map</button>
 
-  <div class="board" id="board"></div>
-
-  <button type="button" class="reset" id="reset">New board, same rules</button>
-
-  <h3>Whose game this is</h3>
-  <p class="src">
-    Lizzie Magie patented <i>The Landlord&rsquo;s Game</i> in 1904 to teach Henry George&rsquo;s
-    argument about land. She said so herself in the 1924 patent application:
-  </p>
-  <blockquote>
-    the object of the game is not only to afford amusement to the players, but to illustrate to
-    them how under the present or prevailing system of land tenure, the landlord has an advantage
-    over other enterprises and also how the single tax would discourage land speculation.
-  </blockquote>
-  <p class="src">
-    The squares here carry her names. She sold the patent to Parker Brothers in November 1935 for
-    $500 and no royalties; Charles Darrow patented Monopoly a month later and was sold to the
-    world as its inventor. She died in obscurity in 1948. Asked how she felt about it, she said
-    that if the idea reached the people shaking the dice, the whole business would not have been
-    in vain.
-  </p>
-  <h3>Where the rules come from</h3>
-  <p class="src">
-    Both rule sets are taken from the printed rules sheet of the 1932 Adgame Company edition,
-    <i>The Landlord&rsquo;s Game and Prosperity</i> &mdash; the numbered rules, the win conditions,
-    the wage scale, the tax offices, the condemnation of the utilities. Its own summary of the two:
-  </p>
-  <blockquote>
-    The Landlord&rsquo;s Game shows why our national housekeeping has gone wrong and Prosperity
-    Game shows how to start it right and keep it going right.
-  </blockquote>
-  <p class="src">
-    Both sources are committed alongside this game at <code>sources/peace-battle-2/</code>: the
-    1932 rules sheet, and
-    <a href="https://invention.si.edu/invention-stories/woman-inventor-behind-monopoly">The Woman
-    Inventor Behind &ldquo;Monopoly&rdquo;</a>, Monica M. Smith, Smithsonian Lemelson Center, 2015,
-    which is where the patents, the sale and her own words come from.
-  </p>
-  <div class="caveat">
-    What is this game&rsquo;s and not hers. The 1932 board has forty spaces; this one has twenty,
-    so it fits a phone. That shortening forces the rest:
-    <ul>
-      <li>One local utility and one railroad, where the sheet has three of each. The monopoly
-        rates that double the charge cannot come up here.</li>
-      <li>One tax office doing the work of the sheet&rsquo;s three &mdash; personal property, land,
-        improvements &mdash; charged together.</li>
-      <li>Rule 1(a) doubles land rent on a side of the board once four Improvements stand on it.
-        A side here carries two or three buildable squares, so the threshold is two.</li>
-      <li>Day-laborer&rsquo;s wages are $100. The sheet names the other five wage rates and not
-        this one.</li>
-      <li>Starting capital is $350. The sheet says $300 in its opening paragraph, deals $350 in
-        its setup table, and prints the Prosperity target as &ldquo;$7000 (double his original
-        capital)&rdquo;, which is right for neither. $350 and $700 make it consistent.</li>
-    </ul>
-    She did not patent two rule sets; the patents describe one game. The second set is the 1932
-    edition&rsquo;s.
-  </div>
+  <details>
+    <summary>How this works</summary>
+    <p>
+      Four people, each with one skill, on a map of places that need something. Tap a person, then
+      tap a place next to them to move, or <b>Help here</b> to work where they stand. Four actions,
+      then the round ends.
+    </p>
+    <p>
+      What spreads on this board is isolation &mdash; a place where somebody needs something and
+      nobody findable can do it. Each round it grows in two more places. A place already at three
+      cuts off, and pushes its isolation into every place beside it. Six cut off and it is over.
+    </p>
+    <p>
+      Helping in a place whose need matches your skill clears twice as much, and clearing a place to
+      nothing puts it in the <b>Directory</b>: it is covered from then on, its people count, and
+      isolation never returns to it. Cover the whole map and every person on it is reachable.
+    </p>
+    <p>
+      Nobody wins this alone and nobody wins it against anybody. There is no winner at all: either
+      everybody is reachable at the end or the map came apart.
+    </p>
+    <p>
+      The places are real cities and the figures are their rounded populations. Nothing else here is
+      a claim about them.
+    </p>
+  </details>
 
 <script src="../../shared/storage.js"></script>
 <script src="../../shared/pwa.js"></script>
@@ -161,511 +122,246 @@
 (function () {
   'use strict';
   var KEY = 'peace-battle-2:state';
-  var START = 350;          // Setup table, 1932 sheet. See the note on screen.
-  var BIG_LANDLORD = 2000;  // Rule 13 — the Landlord's Game is won, not survived.
-  var IMPROVE_COST = 250;   // Optional A
-  var IMPROVE_RENT = 100;   // Optional A
-  var DOUBLE_AT = 2;        // Rule 1(a) says four; this board's sides are shorter.
-  var JAIL_FINE = 50;       // Rule 9
-  var JAIL_OUT = 6;         // Rule 9 — six or more spots to leave.
-  var CONDEMN_LOCAL = 200;  // Prosperity Rule 2(a)
-  var CONDEMN_INTER = 300;  // Prosperity Rule 3(a)
-  var LOCAL_PUBLIC = 25;    // Prosperity Rule 2(a), rate after purchase
-  var INTER_PUBLIC = 50;    // Prosperity Rule 3(a), fare after purchase
+  var ACTIONS = 4;      // per round
+  var SPREAD = 2;       // places that gain isolation each round
+  var MAX_ISO = 3;      // a place at this level cuts off when pushed further
+  var MAX_CUTS = 6;
 
-  // Magie's square names, from the 1904 and 1924 boards and the 1932 sheet.
-  var BOARD = [
-    { n: 'Your Wages Corner', t: 'wages' },
-    { n: 'Poverty Place', t: 'green', cost: 60, rent: 12 },
-    { n: 'Goat Alley', t: 'green', cost: 60, rent: 12 },
-    { n: 'Jail', t: 'jail' },
-    { n: 'Rickety Row', t: 'green', cost: 80, rent: 16 },
-    { n: 'Poor House', t: 'poor' },
-    { n: "Hell's Half Acre", t: 'green', cost: 80, rent: 16 },
-    { n: 'Gee Whiz R.R.', t: 'inter', cost: 200, rent: 100 },
-    { n: 'The Bowery', t: 'green', cost: 100, rent: 20 },
-    { n: 'George Street', t: 'green', cost: 120, rent: 24 },
-    { n: 'Public Park', t: 'park' },
-    { n: 'Soakum Lighting', t: 'local', cost: 150, rent: 50 },
-    { n: 'Fels Avenue', t: 'green', cost: 140, rent: 28 },
-    { n: 'Johnson Road', t: 'green', cost: 140, rent: 28 },
-    { n: 'Tax Office', t: 'tax' },
-    { n: "Lord Blueblood's Estate", t: 'blueblood' },
-    { n: 'The Public Highway', t: 'green', cost: 160, rent: 32 },
-    { n: 'Easy Street', t: 'green', cost: 160, rent: 32 },
-    { n: 'Progress Park', t: 'green', cost: 180, rent: 36 },
-    { n: 'Lake Shore Drive', t: 'green', cost: 200, rent: 40 }
+  var SKILLS = ['childcare', 'driving', 'repairs', 'tutoring'];
+
+  // Real cities, rounded populations, laid out roughly where they sit. The layout is
+  // schematic — close enough to read as a map, not a claim about geography.
+  var PLACES = [
+    { n: 'Seattle',      x: 10, y: 10, pop: 750000,  need: 2 },
+    { n: 'Denver',       x: 33, y: 40, pop: 710000,  need: 3 },
+    { n: 'Los Angeles',  x: 10, y: 52, pop: 3800000, need: 1 },
+    { n: 'San Diego',    x: 13, y: 63, pop: 1400000, need: 0 },
+    { n: 'Phoenix',      x: 25, y: 60, pop: 1600000, need: 2 },
+    { n: 'Dallas',       x: 48, y: 70, pop: 1300000, need: 3 },
+    { n: 'Austin',       x: 46, y: 80, pop: 970000,  need: 0 },
+    { n: 'San Antonio',  x: 41, y: 88, pop: 1500000, need: 1 },
+    { n: 'Houston',      x: 55, y: 84, pop: 2300000, need: 2 },
+    { n: 'Chicago',      x: 62, y: 32, pop: 2700000, need: 0 },
+    { n: 'Indianapolis', x: 66, y: 42, pop: 880000,  need: 3 },
+    { n: 'Columbus',     x: 74, y: 37, pop: 910000,  need: 1 },
+    { n: 'Charlotte',    x: 80, y: 58, pop: 880000,  need: 2 },
+    { n: 'Jacksonville', x: 83, y: 80, pop: 970000,  need: 0 },
+    { n: 'Philadelphia', x: 89, y: 34, pop: 1600000, need: 3 },
+    { n: 'New York',     x: 91, y: 24, pop: 8300000, need: 1 }
   ];
-  var CORNERS = [0, 5, 10, 15];
-  var JAIL_AT = 3;
-  var NAMES = ['You', 'Ada', 'Bess', 'Cal'];
+  var LINKS = [
+    [0,1],[0,2],[1,4],[1,9],[1,5],[1,2],[2,3],[2,4],[3,4],[4,5],
+    [5,8],[5,6],[5,9],[6,7],[6,8],[7,8],[8,13],[9,10],[9,11],[10,11],
+    [10,12],[11,14],[12,13],[12,14],[14,15]
+  ];
+  var NEIGHBOURS = (function () {
+    var m = PLACES.map(function () { return []; });
+    LINKS.forEach(function (l) { m[l[0]].push(l[1]); m[l[1]].push(l[0]); });
+    return m;
+  })();
 
-  var state = null;
+  var TEAM = [
+    { n: 'You',  skill: 0, at: 9 },
+    { n: 'Ada',  skill: 1, at: 2 },
+    { n: 'Bess', skill: 2, at: 5 },
+    { n: 'Cal',  skill: 3, at: 15 }
+  ];
+
+  var s = null;
   var el = function (id) { return document.getElementById(id); };
-  var fmt = function (n) { return '$' + Math.round(n).toLocaleString('en-US'); };
-  var buyable = function (sq) { return sq.t === 'green' || sq.t === 'local' || sq.t === 'inter'; };
-
-  // Every line in the log is built from a player's name, and one of the players is named
-  // "You". A third-person verb on a second-person subject reads as a typo — "You pays rent",
-  // "You has nothing left". vb() picks the form that matches the subject; both forms are
-  // written out rather than derived, because the verbs here are not all regular (goes/go,
-  // passes/pass, has/have). own() does the same for the possessive.
-  function vb(p, third, second) { return p.me ? second : third; }
-  function own(p, third) { return p.me ? 'yours' : third; }
-  // A square name can already end in a period — "Gee Whiz R.R." — and a sentence that ends
-  // on one printed two.
-  function stop(text) { return /\.$/.test(text) ? text : text + '.'; }
-
-  // The log holds the lines for the round just played, not one line. It used to be a single
-  // string, so each of the three other players overwrote it in turn and your own move was gone
-  // before the screen redrew — you only ever saw what Cal did.
-  function say(s, text) { s.lines.push(text); }
-  function more(s, text) {
-    if (s.lines.length) s.lines[s.lines.length - 1] += text; else s.lines.push(text);
-  }
-
-  function sideOf(i) {
-    var s = 0;
-    for (var k = 0; k < CORNERS.length; k++) { if (i >= CORNERS[k]) s = k; }
-    return s;
-  }
+  var num = function (n) { return n.toLocaleString('en-US'); };
 
   function rng(seed) {
-    var s = seed >>> 0;
-    return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+    var v = seed >>> 0;
+    return function () { v = (v * 1664525 + 1013904223) >>> 0; return v / 4294967296; };
   }
 
-  function fresh(rules, seed) {
-    return {
-      rules: rules,
-      seed: seed,
-      rand: null,
-      turn: 0,
-      players: NAMES.map(function (n, i) {
-        return { name: n, money: START, at: 0, out: false, jail: false, me: i === 0 };
-      }),
-      owned: {},
-      imp: {},
-      fund: 0,       // Prosperity Land Rent Fund
-      general: 0,    // General Fund of the Public Treasury
-      publicUtil: {},
-      switched: false,
-      lines: ['Everyone starts with ' + fmt(START) + '. Roll to move.'],
-      over: null,
-      pending: null
+  function fresh(seed) {
+    var st = {
+      seed: seed, rand: null, round: 1, acts: ACTIONS, cuts: 0, sel: 0,
+      iso: PLACES.map(function () { return 0; }),
+      covered: PLACES.map(function () { return false; }),
+      team: TEAM.map(function (p) { return { n: p.n, skill: p.skill, at: p.at }; }),
+      status: 'Tap a person, then a place beside them to move. <b>Help here</b> works where they stand.',
+      over: null
     };
+    st.rand = rng(seed);
+    // Three places start already struggling, none of them where somebody is standing.
+    var free = PLACES.map(function (_, i) { return i; }).filter(function (i) {
+      return st.team.every(function (p) { return p.at !== i; });
+    });
+    for (var k = 0; k < 3; k++) {
+      var pick = free.splice(Math.floor(st.rand() * free.length), 1)[0];
+      st.iso[pick] = 1 + Math.floor(st.rand() * 2);
+    }
+    return st;
   }
 
-  function alive(s) { return s.players.filter(function (p) { return !p.out; }); }
-  function heldBy(s, i) {
-    var n = 0;
-    for (var k in s.owned) { if (s.owned[k] === i) n++; }
-    return n;
+  function reached() {
+    var t = 0;
+    for (var i = 0; i < PLACES.length; i++) if (s.covered[i]) t += PLACES[i].pop;
+    return t;
   }
 
-  // Rule 11. Wages are collected at Your Wages Corner and the amount depends on the throw.
-  // The sheet names five rates and stops at double 2, so any lower double is read as the
-  // same $600 band. A throw that carries you past the corner rather than onto it is
-  // day-laborer's wages, whose figure the sheet does not print; $100 is this game's.
-  function wages(d1, d2, exact) {
-    if (!exact) return 100;
-    if (d1 === d2) { if (d1 === 6) return 800; if (d1 === 5) return 700; return 600; }
-    return 500;
+  function addIso(i, chain) {
+    if (s.covered[i]) return;                    // somebody findable lives here now
+    if (s.iso[i] < MAX_ISO) { s.iso[i] += 1; return; }
+    // Already at the top and pushed further: it cuts off, and what it was carrying goes
+    // into every place beside it. That is how one place going quiet takes its neighbours.
+    if (chain.indexOf(i) >= 0) return;
+    chain.push(i);
+    s.cuts += 1;
+    NEIGHBOURS[i].forEach(function (j) { addIso(j, chain); });
   }
 
-  function landRent(s, at) {
-    var sq = BOARD[at], r = sq.rent;
-    if (sq.t !== 'green') return r;
-    if (s.rules === 'landlord') {
-      var side = sideOf(at), n = 0;
-      for (var k in s.imp) { if (sideOf(+k) === side) n++; }
-      if (n >= DOUBLE_AT) r *= 2;
+  function spread() {
+    var open = [];
+    for (var i = 0; i < PLACES.length; i++) if (!s.covered[i]) open.push(i);
+    if (!open.length) return [];
+    var hit = [];
+    for (var k = 0; k < SPREAD && open.length; k++) {
+      var pick = open.splice(Math.floor(s.rand() * open.length), 1)[0];
+      hit.push(PLACES[pick].n);
+      addIso(pick, []);
     }
-    return r;
+    return hit;
   }
 
-  // Rule 12. Broke is not elimination. A player short of the money sells land back to the
-  // board until they can meet the bill, and only leaves the game with nothing left to sell.
-  function settle(s, p) {
-    var me = s.players.indexOf(p);
-    while (p.money < 0) {
-      var cheapest = -1;
-      for (var k in s.owned) {
-        if (s.owned[k] !== me) continue;
-        if (cheapest < 0 || BOARD[+k].cost < BOARD[cheapest].cost) cheapest = +k;
-      }
-      if (cheapest < 0) break;
-      p.money += BOARD[cheapest].cost;
-      delete s.owned[cheapest];
-      delete s.imp[cheapest];
-      more(s, ' ' + p.name + ' ' + vb(p, 'sells', 'sell') + ' <b>' + BOARD[cheapest].n +
-        '</b> back to the board for ' +
-        fmt(BOARD[cheapest].cost) + '.');
-    }
-    if (p.money < 0) {
-      p.out = true; p.money = 0;
-      for (var j in s.owned) { if (s.owned[j] === me) { delete s.owned[j]; delete s.imp[j]; } }
-      more(s, ' ' + p.name + ' ' + vb(p, 'has', 'have') + ' nothing left to sell and ' +
-        vb(p, 'is', 'are') + ' out.');
-    }
-  }
-
-  // Prosperity Rules 2(a) and 3(a). The fund does not pay dividends to players — it buys the
-  // utilities out of private hands, cheapest first, and their charge drops once it has.
-  function condemn(s) {
-    if (s.rules !== 'prosperity') return;
-    for (var i = 0; i < BOARD.length; i++) {
-      var sq = BOARD[i];
-      if (sq.t !== 'local' && sq.t !== 'inter') continue;
-      if (s.publicUtil[i]) continue;
-      var price = sq.t === 'local' ? CONDEMN_LOCAL : CONDEMN_INTER;
-      if (sq.t === 'inter' && !localsDone(s)) continue;
-      if (s.fund < price) continue;
-      s.fund -= price;
-      var owner = s.owned[i];
-      if (owner !== undefined) { s.players[owner].money += price; delete s.owned[i]; }
-      s.publicUtil[i] = true;
-      say(s, 'The fund condemns <b>' + sq.n + '</b> for ' + fmt(price) +
-        '. Its charge drops to ' + fmt(sq.t === 'local' ? LOCAL_PUBLIC : INTER_PUBLIC) + '.');
-    }
-  }
-  function localsDone(s) {
-    for (var i = 0; i < BOARD.length; i++) {
-      if (BOARD[i].t === 'local' && !s.publicUtil[i]) return false;
-    }
-    return true;
-  }
-
-  function taxOffice(s, p) {
-    var me = s.players.indexOf(p), owed = 0, why;
-    if (s.rules === 'landlord') {
-      // Rules 5, 6 and 7 together: personal property, land, improvements.
-      owed += Math.floor(Math.max(0, p.money - 100) / 100) * 10;
-      for (var k in s.owned) { if (s.owned[k] === me) owed += 10; }
-      for (var j in s.imp) { if (s.owned[j] === me) owed += 25; }
-      why = 'taxes';
-      p.money -= owed; s.general += owed;
-    } else {
-      // Prosperity Rules 5, 6, 7: all taxes abolished. What is left is rent on the
-      // franchises still held privately, and it goes to the fund, not the treasury.
-      for (var u in s.owned) {
-        if (s.owned[u] !== me) continue;
-        if (BOARD[+u].t === 'local' || BOARD[+u].t === 'inter') owed += 25;
-      }
-      why = 'rent on the franchises they still hold';
-      p.money -= owed; s.fund += owed;
-    }
-    say(s, owed
-      ? p.name + ' ' + vb(p, 'stops', 'stop') + ' at the <b>Tax Office</b> and ' +
-        vb(p, 'pays', 'pay') + ' ' + fmt(owed) + ' in ' + why + '.'
-      : p.name + ' ' + vb(p, 'stops', 'stop') + ' at the <b>Tax Office</b> and ' +
-        vb(p, 'owes', 'owe') + ' nothing.');
-    if (p.money < 0) settle(s, p);
-  }
-
-  function land(s, p) {
-    var sq = BOARD[p.at], me = s.players.indexOf(p);
-
-    if (sq.t === 'wages') { say(s, p.name + ' ' + vb(p, 'is', 'are') + ' at <b>Your Wages Corner</b>.'); return; }
-    if (sq.t === 'poor') { say(s, p.name + ' ' + vb(p, 'rests', 'rest') + ' at the <b>Poor House</b>.'); return; }
-    if (sq.t === 'park') { say(s, p.name + ' ' + vb(p, 'rests', 'rest') + ' in the <b>Public Park</b>.'); return; }
-
-    if (sq.t === 'blueblood') {
-      // Rule 8 under the Landlord's Game. Under Prosperity Rule 8 the same square is a
-      // public park and there is no charge for entering it.
-      if (s.rules === 'landlord') {
-        p.at = JAIL_AT; p.jail = true;
-        say(s, p.name + ' ' + vb(p, 'is', 'are') + ' trespassing on <b>Lord Blueblood’s Estate</b> and ' +
-          vb(p, 'goes', 'go') + ' back to Jail.');
-      } else {
-        say(s, '<b>Lord Blueblood’s Estate</b> is a public park now. ' + p.name + ' ' +
-          vb(p, 'walks', 'walk') + ' in free.');
-      }
-      return;
-    }
-
-    if (sq.t === 'jail') {
-      // Rule 9. Under Prosperity Rule 9 there is no reason for trespassing and no Jail.
-      if (s.rules === 'landlord') {
-        p.money -= JAIL_FINE; s.general += JAIL_FINE; p.jail = true;
-        say(s, p.name + ' ' + vb(p, 'is', 'are') + ' in <b>Jail</b> and ' + vb(p, 'pays', 'pay') +
-          ' the ' + fmt(JAIL_FINE) + ' fine.');
-        if (p.money < 0) settle(s, p);
-      } else {
-        say(s, p.name + ' ' + vb(p, 'passes', 'pass') + ' the old <b>Jail</b>. Prosperity does not use it.');
-      }
-      return;
-    }
-
-    if (sq.t === 'tax') { taxOffice(s, p); return; }
-
-    if (s.publicUtil[p.at]) {
-      var pubCharge = sq.t === 'local' ? LOCAL_PUBLIC : INTER_PUBLIC;
-      p.money -= pubCharge; s.general += pubCharge;
-      say(s, p.name + ' ' + vb(p, 'pays', 'pay') + ' ' + fmt(pubCharge) + ' at <b>' + sq.n +
-        '</b>, which the public owns now.');
-      if (p.money < 0) settle(s, p);
-      return;
-    }
-
-    var owner = s.owned[p.at];
-    if (owner === undefined) {
-      if (p.me) { s.pending = p.at; say(s, '<b>' + sq.n + '</b> is unclaimed. ' + fmt(sq.cost) + ' to take it.'); }
-      else if (p.money >= sq.cost + 120) {
-        p.money -= sq.cost; s.owned[p.at] = me;
-        say(s, p.name + ' takes <b>' + sq.n + '</b> for ' + fmt(sq.cost) + '.');
-        aiImprove(s, p);
-      } else { say(s, stop(p.name + ' passes on <b>' + sq.n + '</b>')); }
-      return;
-    }
-
-    if (owner === me) {
-      say(s, p.name + ' ' + vb(p, 'is', 'are') + ' standing on <b>' + sq.n + '</b>, already ' +
-        own(p, 'theirs') + '.');
-      if (!p.me) aiImprove(s, p);
-      return;
-    }
-
-    var rent = landRent(s, p.at);
-    var extra = s.imp[p.at] ? IMPROVE_RENT : 0;
-    p.money -= rent + extra;
-
-    if (s.rules === 'landlord' || sq.t !== 'green') {
-      // Under the Landlord's Game every charge goes to whoever holds the card. Under
-      // Prosperity a franchise still in private hands is charged the same way until the
-      // fund condemns it, which is Rule 2(a) and Rule 3(b).
-      s.players[owner].money += rent + extra;
-      say(s, p.name + ' ' + vb(p, 'pays', 'pay') + ' ' + fmt(rent + extra) + ' at <b>' + sq.n + '</b> to ' +
-        s.players[owner].name + (extra ? ', ' + fmt(extra) + ' of it for the Improvement.' : '.'));
-    } else {
-      // Prosperity Rule 1(a). The landlord keeps the rent on the Improvement, which is
-      // their own work, and turns the Land Rent over to the fund, which is not.
-      s.fund += rent;
-      if (extra) s.players[owner].money += extra;
-      say(s, p.name + ' ' + vb(p, 'pays', 'pay') + ' ' + fmt(rent) + ' Land Rent on <b>' + sq.n + '</b> into the fund' +
-        (extra ? ', and ' + fmt(extra) + ' to ' + s.players[owner].name + ' for the Improvement.' : '.'));
-    }
-    if (p.money < 0) settle(s, p);
-  }
-
-  function aiImprove(s, p) {
-    var me = s.players.indexOf(p), at = p.at;
-    if (BOARD[at].t !== 'green' || s.owned[at] !== me || s.imp[at]) return;
-    if (p.money < IMPROVE_COST + 300) return;
-    p.money -= IMPROVE_COST; s.imp[at] = true;
-    more(s, ' ' + p.name + ' improves it for ' + fmt(IMPROVE_COST) + '.');
-  }
-
-  function canImprove(s) {
-    var p = s.players[0];
-    if (s.over || p.out || s.pending !== null) return false;
-    return BOARD[p.at].t === 'green' && s.owned[p.at] === 0 && !s.imp[p.at] && p.money >= IMPROVE_COST;
-  }
-
-  function checkOver(s) {
+  function checkOver() {
     if (s.over) return;
-    var live = alive(s);
-    if (s.rules === 'landlord') {
-      // Rule 13. The title is won by reaching $2,000, not by being the last one standing.
-      var big = null;
-      live.forEach(function (p) { if (p.money >= BIG_LANDLORD && (!big || p.money > big.money)) big = p; });
-      if (big) {
-        s.over = big.name + ' ' + vb(big, 'has', 'have') + ' ' + fmt(big.money) + ' and ' +
-          vb(big, 'is', 'are') + ' the <b>Big Landlord</b>. ' +
-          'Rule 13 lets the other three carry on under Prosperity Rules instead, without a break.';
-        return;
-      }
-      if (live.length <= 1) {
-        s.over = live.length
-          ? live[0].name + ' ' + vb(live[0], 'is', 'are') + ' the only one left, and never reached ' +
-            fmt(BIG_LANDLORD) + '.'
-          : 'Everybody went out.';
-      }
-    } else {
-      var poorest = live.reduce(function (a, b) { return a.money <= b.money ? a : b; }, live[0]);
-      if (poorest && poorest.money >= START * 2) {
-        var lost = s.players.length - live.length;
-        s.over = (poorest.me
-          ? 'You have the least, and now hold '
-          : poorest.name + ' has the least, and now holds ') + fmt(poorest.money) +
-          ' — double the ' + fmt(START) + ' everyone started with. Prosperity is achieved.' +
-          (lost ? ' ' + lost + ' player' + (lost > 1 ? 's' : '') +
-            (s.switched ? ' went out before the rules changed.' : ' went out along the way.') : '');
-      }
+    if (s.cuts >= MAX_CUTS) {
+      s.over = { win: false, text: 'Six places cut off. ' + num(reached()) + ' people were covered ' +
+        'when it stopped, out of ' + num(PLACES.reduce(function (a, p) { return a + p.pop; }, 0)) + '.' };
+      return;
+    }
+    if (s.covered.every(Boolean)) {
+      s.over = { win: true, text: 'Every place is covered. ' + num(reached()) + ' people can find ' +
+        'somebody, and nobody had to lose anything for it.' };
     }
   }
 
-  function step(s, p) {
-    if (p.out) return;
-    var d1 = 1 + Math.floor(s.rand() * 6), d2 = 1 + Math.floor(s.rand() * 6), d = d1 + d2;
-
-    if (p.jail) {
-      if (s.rules === 'prosperity') { p.jail = false; }
-      else if (d >= JAIL_OUT) {
-        p.jail = false;
-        say(s, p.name + ' ' + vb(p, 'throws', 'throw') + ' ' + d + ' and ' + vb(p, 'walks', 'walk') +
-          ' out of <b>Jail</b>.');
-      } else {
-        say(s, p.name + ' ' + vb(p, 'throws', 'throw') + ' ' + d + ' and ' + vb(p, 'stays', 'stay') +
-          ' in <b>Jail</b>.');
-        return;
-      }
-    }
-
-    var before = p.at;
-    p.at = (p.at + d) % BOARD.length;
-    if (p.at <= before) p.money += wages(d1, d2, p.at === 0);
-    land(s, p);
-  }
-
-  function advance() {
-    var s = state;
-    if (s.over || s.pending !== null) return;
-    s.lines = [];
-    step(s, s.players[0]);
-    if (s.pending !== null) { render(); return; }
-    finishRound();
-  }
-
-  function finishRound() {
-    var s = state;
-    for (var i = 1; i < s.players.length; i++) step(s, s.players[i]);
-    condemn(s);
-    s.turn++;
-    checkOver(s);
-    render();
+  function endRound() {
+    if (s.over) return;
+    var hit = spread();
+    s.round += 1;
+    s.acts = ACTIONS;
+    s.status = hit.length ? 'Isolation grows in <b>' + hit.join('</b> and <b>') + '</b>.'
+      : 'Nowhere left for it to grow.';
+    checkOver();
+    draw();
     save();
   }
 
-  function render() {
-    var s = state;
-    el('bLandlord').setAttribute('aria-pressed', String(s.rules === 'landlord'));
-    el('bProsperity').setAttribute('aria-pressed', String(s.rules === 'prosperity'));
-    el('ruleline').textContent = s.rules === 'landlord'
-      ? 'Every charge goes to whoever holds the card. It ends when somebody reaches ' +
-        fmt(BIG_LANDLORD) + ' and is the Big Landlord.'
-      : 'Land Rent goes to a public fund that buys the utilities out of private hands. It ends ' +
-        'when the player with the least has doubled their ' + fmt(START) + '.';
+  function spend() {
+    s.acts -= 1;
+    if (s.acts <= 0) endRound(); else { draw(); save(); }
+  }
 
-    el('players').innerHTML = s.players.map(function (p, i) {
-      var imps = 0;
-      for (var k in s.imp) { if (s.owned[k] === i) imps++; }
-      return '<div class="p' + (p.me ? ' me' : '') + (p.out ? ' out' : '') + '">' +
-        '<div class="n">' + p.name + (p.out ? ' — out' : (p.jail ? ' — jail' : '')) + '</div>' +
-        '<div class="m">' + fmt(p.money) + '</div>' +
-        '<div class="h">' + heldBy(s, i) + ' held' + (imps ? ' · ' + imps + ' improved' : '') +
-        ' · ' + BOARD[p.at].n + '</div></div>';
-    }).join('');
-
-    el('board').innerHTML = BOARD.map(function (sq, i) {
-      var who = s.players.filter(function (p) { return p.at === i && !p.out; }).map(function (p) { return p.name; });
-      var tag = '';
-      if (s.publicUtil[i]) tag = 'public';
-      else if (s.owned[i] !== undefined) tag = s.players[s.owned[i]].name + (s.imp[i] ? ' +' : '');
-      else if (buyable(sq)) tag = fmt(sq.cost);
-      return '<div class="sq' + (who.length ? ' here' : '') + (buyable(sq) ? '' : ' corner') +
-        '"><span>' + sq.n + (who.length ? ' · ' + who.join(', ') : '') +
-        '</span><span class="o">' + tag + '</span></div>';
-    }).join('');
-
-    var funds = '';
-    if (s.rules === 'prosperity') funds = 'Land Rent Fund holds ' + fmt(s.fund) + '.';
-    else if (s.general > 0) funds = 'Public Treasury holds ' + fmt(s.general) + '.';
-    el('log').innerHTML = s.lines.map(function (line) { return '<div>' + line + '</div>'; }).join('') +
-      (funds ? '<div>' + funds + '</div>' : '');
-
-    el('overBox').innerHTML = s.over
-      ? '<div class="over"><div class="t">Game over</div><p>' + s.over + '</p></div>' : '';
-
-    el('roll').disabled = !!s.over || s.pending !== null;
-    el('improve').disabled = !canImprove(s);
-    el('improve').textContent = 'Improve ' + fmt(IMPROVE_COST);
-    el('buyRow').hidden = s.pending === null;
-    if (s.pending !== null) {
-      // Buy is disabled rather than clickable-and-refused when the money is not there, so
-      // the two ways out of the prompt are the two that actually do something. Pass is
-      // always available: declining a square is a move, and the other three players make
-      // it every turn they choose not to buy.
-      var can = s.players[0].money >= BOARD[s.pending].cost;
-      el('buy').disabled = !can;
-      el('buy').textContent = can ? 'Buy ' + fmt(BOARD[s.pending].cost)
-        : 'Need ' + fmt(BOARD[s.pending].cost - s.players[0].money) + ' more';
-      el('pass').textContent = can ? 'Pass' : 'Leave it';
+  function move(to) {
+    var p = s.team[s.sel];
+    if (NEIGHBOURS[p.at].indexOf(to) < 0) {
+      s.status = '<b>' + PLACES[to].n + '</b> is not next to <b>' + PLACES[p.at].n + '</b>.';
+      draw();
+      return;
     }
-    var sw = el('switchRules');
-    sw.hidden = s.rules !== 'landlord';
-    sw.disabled = !!s.over;
+    p.at = to;
+    s.status = p.n + ' &rarr; <b>' + PLACES[to].n + '</b>.';
+    spend();
+  }
+
+  function help() {
+    var p = s.team[s.sel], i = p.at;
+    if (s.covered[i]) { s.status = '<b>' + PLACES[i].n + '</b> is already covered.'; draw(); return; }
+    if (!s.iso[i]) { s.status = '<b>' + PLACES[i].n + '</b> needs nothing right now.'; draw(); return; }
+    // The right person being reachable is what makes the difference, so a matching skill
+    // clears twice as much.
+    var match = PLACES[i].need === p.skill;
+    s.iso[i] = Math.max(0, s.iso[i] - (match ? 2 : 1));
+    if (s.iso[i] === 0) {
+      s.covered[i] = true;
+      s.status = '<b>' + PLACES[i].n + '</b> is covered. ' + num(PLACES[i].pop) + ' people.';
+    } else {
+      s.status = p.n + ' works in <b>' + PLACES[i].n + '</b>' +
+        (match ? ', which needs ' + SKILLS[p.skill] + '.' : '. It needs ' + SKILLS[PLACES[i].need] + '.');
+    }
+    checkOver();
+    spend();
+  }
+
+  function draw() {
+    el('reach').textContent = num(reached());
+    el('round').textContent = s.round;
+    el('acts').textContent = s.acts;
+    el('cuts').textContent = s.cuts;
+
+    var here = s.team[s.sel].at;
+    var svg = '';
+    LINKS.forEach(function (l) {
+      var open = l.indexOf(here) >= 0;
+      svg += '<line class="link' + (open ? ' open' : '') + '" x1="' + PLACES[l[0]].x + '" y1="' +
+        PLACES[l[0]].y + '" x2="' + PLACES[l[1]].x + '" y2="' + PLACES[l[1]].y + '"/>';
+    });
+    PLACES.forEach(function (pl, i) {
+      // Size carries population, colour carries how bad it has got.
+      var r = 2.6 + Math.sqrt(pl.pop / 1000000) * 1.7;
+      var fill = s.covered[i] ? '#2f6b4f' : ['#3a3f48', '#6d5a32', '#8a5a2c', '#a2412c'][s.iso[i]];
+      svg += '<g class="node" data-i="' + i + '">';
+      svg += '<circle cx="' + pl.x + '" cy="' + pl.y + '" r="' + r.toFixed(2) + '" fill="' + fill + '"/>';
+      if (s.covered[i]) svg += '<circle class="ring" cx="' + pl.x + '" cy="' + pl.y + '" r="' + (r + 1.4).toFixed(2) + '"/>';
+      if (!s.covered[i] && NEIGHBOURS[here].indexOf(i) >= 0) {
+        svg += '<circle class="reachable" cx="' + pl.x + '" cy="' + pl.y + '" r="' + (r + 2.2).toFixed(2) + '"/>';
+      }
+      var on = s.team.filter(function (p) { return p.at === i; });
+      if (on.length) svg += '<text class="who" x="' + pl.x + '" y="' + (pl.y + 1.05) + '">' +
+        on.map(function (p) { return p.n.charAt(0); }).join('') + '</text>';
+      svg += '<text x="' + pl.x + '" y="' + (pl.y + r + 3.6).toFixed(2) + '">' + pl.n + '</text>';
+      svg += '</g>';
+    });
+    el('map').innerHTML = svg;
+
+    el('team').innerHTML = s.team.map(function (p, i) {
+      return '<button type="button" class="m" data-p="' + i + '" aria-pressed="' + (i === s.sel) + '">' +
+        '<div class="n">' + p.n + '</div><div class="s">' + SKILLS[p.skill] + '</div>' +
+        '<div class="w">in ' + PLACES[p.at].n + '</div></button>';
+    }).join('');
+
+    el('status').innerHTML = s.status;
+    el('overBox').innerHTML = s.over
+      ? '<div class="over"><div class="t">' + (s.over.win ? 'Covered' : 'Cut off') + '</div><p>' +
+        s.over.text + '</p></div>' : '';
+    el('help').disabled = !!s.over;
+    el('wait').disabled = !!s.over;
   }
 
   function save() {
     if (!window.storage) return;
-    try { window.storage.set(KEY, JSON.stringify({ rules: state.rules })); } catch (e) {}
+    try { window.storage.set(KEY, JSON.stringify({ seed: s.seed })); } catch (e) {}
   }
 
-  function start(rules, seed) {
-    state = fresh(rules, seed === undefined ? (Date.now() & 0xffff) : seed);
-    state.rand = rng(state.seed);
-    render();
+  function start(seed) {
+    s = fresh(seed === undefined ? (Date.now() & 0xffff) : seed);
+    draw();
     save();
   }
 
-  el('roll').addEventListener('click', advance);
-
-  el('buy').addEventListener('click', function () {
-    var s = state, at = s.pending, me = s.players[0];
-    if (at === null) return;
-    var sq = BOARD[at];
-    if (me.money < sq.cost) return;
-    me.money -= sq.cost; s.owned[at] = 0;
-    say(s, 'You take <b>' + sq.n + '</b> for ' + fmt(sq.cost) + '.');
-    s.pending = null;
-    finishRound();
+  el('map').addEventListener('click', function (e) {
+    var g = e.target.closest ? e.target.closest('.node') : null;
+    if (!g || s.over) return;
+    var i = +g.getAttribute('data-i');
+    if (i === s.team[s.sel].at) { help(); return; }
+    move(i);
   });
-
-  el('pass').addEventListener('click', function () {
-    var s = state;
-    if (s.pending === null) return;
-    say(s, 'You leave <b>' + BOARD[s.pending].n + '</b> on the board.');
-    s.pending = null;
-    finishRound();
+  el('team').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.m') : null;
+    if (!b) return;
+    s.sel = +b.getAttribute('data-p');
+    draw();
   });
+  el('help').addEventListener('click', function () { if (!s.over) help(); });
+  el('wait').addEventListener('click', function () { if (!s.over) endRound(); });
+  el('reset').addEventListener('click', function () { start(); });
 
-  el('improve').addEventListener('click', function () {
-    var s = state, me = s.players[0];
-    if (!canImprove(s)) return;
-    me.money -= IMPROVE_COST; s.imp[me.at] = true;
-    say(s, 'You improve <b>' + BOARD[me.at].n + '</b> for ' + fmt(IMPROVE_COST) + '.');
-    render();
-  });
-
-  // Rule 14: the players can change from Landlord's Game to Prosperity Rules at any time
-  // during the game. Rule 12 gives a player who has run out the right to ask for it. The
-  // board, the money and the holdings all carry over — that is the whole of the change.
-  el('switchRules').addEventListener('click', function () {
-    var s = state;
-    if (s.rules !== 'landlord' || s.over) return;
-    s.rules = 'prosperity';
-    s.switched = true;
-    s.players.forEach(function (p) { p.jail = false; });
-    s.lines = [];
-    say(s, 'The players agree to <b>Prosperity Rules</b>, mid-game, under Rule 14. Same board, ' +
-      'same money, same holdings. Land Rent goes to the fund from here.');
-    checkOver(s);
-    render();
-    save();
-  });
-
-  el('bLandlord').addEventListener('click', function () { start('landlord', state ? state.seed : undefined); });
-  el('bProsperity').addEventListener('click', function () { start('prosperity', state ? state.seed : undefined); });
-  el('reset').addEventListener('click', function () { start(state.rules); });
-
-  if (window.storage) {
-    Promise.resolve(window.storage.get(KEY)).then(function (hit) {
-      var r = 'landlord';
-      try { if (hit && hit.value) { var v = JSON.parse(hit.value); if (v.rules) r = v.rules; } } catch (e) {}
-      start(r);
-    }).catch(function () { start('landlord'); });
-  } else { start('landlord'); }
+  start();
 })();
 </script>
 </body>
