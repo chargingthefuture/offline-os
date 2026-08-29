@@ -4,7 +4,7 @@
  * The book in sources/peace-battle/ is deliberately NOT listed here. It is committed so
  * the numbers can be checked, not shipped — precaching 232K of text would make every
  * install pay for something the game only quotes four lines of. */
-var VERSION = 'peace-battle-v3';
+var VERSION = 'peace-battle-v4';
 var SHELL = [
   './',
   './index.html',

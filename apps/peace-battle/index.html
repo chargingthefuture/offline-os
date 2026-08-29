@@ -96,15 +96,17 @@
 
   <h3>Where the numbers come from</h3>
   <blockquote>
-    the college trained in Greek and Latin and mathematics, 2,000 men; and these men trained
-    full 50,000 others in morals and manners, and they in turn taught thrift and the alphabet
-    to nine millions of men &hellip; It was a miracle&mdash;the most wonderful peace-battle of
-    the 19th century
+    Where ought they to have begun to build? At the bottom, of course &hellip; And so they did
+    begin; they founded colleges, and up from the colleges shot normal schools, and out from
+    the normal schools went teachers &hellip; the college trained in Greek and Latin and
+    mathematics, 2,000 men; and these men trained full 50,000 others in morals and manners,
+    and they in turn taught thrift and the alphabet to nine millions of men &hellip; It was a
+    miracle&mdash;the most wonderful peace-battle of the 19th century
   </blockquote>
   <p class="src">
     W. E. B. Du Bois, <i>The Talented Tenth</i>, in <i>The Negro Problem</i> (1903).
-    Two thousand to fifty thousand is twenty-five times over; fifty thousand to nine million is
-    a hundred and eighty times over. Those two rates are the only numbers this game runs on.
+    2,000 to 50,000 is 25 times over; 50,000 to 9,000,000 is 180 times over. Those two rates
+    are the only numbers this game runs on.
     <br><br>
     They are Du Bois&rsquo;s figures, written in 1903 to make an argument, not an audit. The full
     book is committed alongside this game at <code>sources/peace-battle/</code> so they can be
@@ -122,7 +124,7 @@
   'use strict';
   var TEACH = 25, WORK = 180;
   var PRESETS = {
-    '1903': { start: 2000, line: 'Du Bois counted 2,000 college-trained people at the top of the chain.' },
+    '1903': { start: 2000, line: '2,000 college-trained men, the number Du Bois recorded. They began at the bottom, and it grew upward from there.' },
     'today': { start: 101, line: '101 people recruited so far, covering 160 of 657 skills. About a twentieth of where 1903 started.' }
   };
   var KEY = 'peace-battle:state';
@@ -176,10 +178,10 @@
       if (Math.round(r.reached) === 9000000) {
         cmp = 'That is what happened. Teach first, then work: the split Du Bois recorded.';
       } else if (r.reached < 9000000) {
-        cmp = fmt(9000000 - r.reached) + ' short of the nine million Du Bois recorded. ' +
+        cmp = fmt(9000000 - r.reached) + ' short of the 9,000,000 Du Bois recorded. ' +
           'Working sooner pays sooner and stops sooner.';
       } else {
-        cmp = 'Past the nine million on record, by teaching for longer than the two rounds he described.';
+        cmp = 'Past the 9,000,000 on record, by teaching for longer than the two rounds he described.';
       }
     } else {
       cmp = 'Starting at 101 instead of 2,000 — about a twentieth. The rates are unchanged; ' +
