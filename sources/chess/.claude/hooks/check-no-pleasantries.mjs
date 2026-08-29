@@ -47,6 +47,9 @@ const VOCABULARY = [
   // without being told. State the point and stop.
   { re: /\bwhole point\b/i, use: 'say the point plainly, without announcing that it is the point' },
   { re: /\bwhole argument\b/i, use: 'state the argument itself, without labeling it the argument' },
+  // A third spelling of the same tic. Three of them banned is the signal to stop reaching for
+  // the shape at all, not to find a fourth wording for it.
+  { re: /\bpoint of the thing\b/i, use: 'end on the fact itself, with no sentence explaining that it mattered' },
 ];
 
 function readStdin() {

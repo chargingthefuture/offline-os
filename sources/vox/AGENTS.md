@@ -57,10 +57,12 @@ quotes, so do not reach for a banned word even to talk about it; use the replace
 - console → dashboard (the code identifiers `console.log` / `console.error` / `console.info` are exempt)
 - whole point → say the point plainly, without announcing that it is the point
 - whole argument → state the argument itself, without labeling it the argument
+- point of the thing → end on the fact itself, with no sentence explaining that it mattered
 
-Those last two are one habit: the sentence that arrives after the facts to tell the reader which of
-them mattered. Write the point as a plain statement and stop; if a sentence does nothing but label
-what came before it, delete it.
+Those last three are one habit: the sentence that arrives after the facts to tell the reader which
+of them mattered. Write the point as a plain statement and stop; if a sentence does nothing but
+label what came before it, delete it. Three spellings of it are banned, which is the signal to stop
+reaching for the shape at all rather than to find a fourth wording.
 
 When the hook blocks a reply, restate the result in plain, factual language — none of the terms
 above, no jargon, no first-person feeling words — then stop.
