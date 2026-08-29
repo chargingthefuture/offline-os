@@ -1,7 +1,7 @@
 /* Offline OS — dashboard service worker.
  * Precaches the launcher shell and runtime-caches fonts so the dashboard
  * opens with zero network once it has been visited once. */
-var VERSION = 'oos-dash-v9';
+var VERSION = 'oos-dash-v10';
 var SHELL = [
   './',
   './index.html',
