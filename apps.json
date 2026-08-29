@@ -1,13 +1,6 @@
 {
   "apps": [
     {
-      "name": "Peace-Battle",
-      "blurb": "Teach or work — replay the 1903 chain that reached nine million",
-      "url": "apps/peace-battle/",
-      "icon": "🎓",
-      "status": "active"
-    },
-    {
       "name": "Roadwork",
       "blurb": "No-gym workouts, routines & timers",
       "url": "apps/roadwork/",
@@ -19,6 +12,13 @@
       "blurb": "Plain-text notes — no auto-formatting, .txt export",
       "url": "apps/plaintext/",
       "icon": "📝",
+      "status": "active"
+    },
+    {
+      "name": "Peace-Battle",
+      "blurb": "Teach or work — replay the 1903 chain that reached nine million",
+      "url": "apps/peace-battle/",
+      "icon": "🎓",
       "status": "active"
     },
     {
