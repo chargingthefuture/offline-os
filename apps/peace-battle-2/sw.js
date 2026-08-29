@@ -4,7 +4,7 @@
  * The source article in sources/peace-battle-2/ is deliberately NOT listed here. It is
  * committed so the history can be checked, not shipped — no app in this repo ships its
  * sources/ folder. */
-var VERSION = 'peace-battle-2-v4';
+var VERSION = 'peace-battle-2-v5';
 var SHELL = [
   './',
   './index.html',
