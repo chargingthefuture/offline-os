@@ -21,7 +21,7 @@
   .back:hover,.back:focus-visible{color:var(--amber);}
   .rules{display:flex;gap:8px;margin:14px 0 4px;}
   .rules button{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;
-    color:var(--text);padding:9px 6px;font:inherit;font-size:12px;line-height:1.3;cursor:pointer;}
+    color:var(--text);padding:9px 8px;font:inherit;font-size:13px;cursor:pointer;}
   .rules button[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);}
   .rules button:focus-visible,.act:focus-visible,.reset:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
   .ruleline{color:var(--muted);font-size:12px;line-height:1.6;margin:2px 0 12px;}
@@ -32,8 +32,7 @@
   .p .n{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
   .p .m{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:20px;
     color:var(--text);font-variant-numeric:tabular-nums;}
-  .p .h{font-size:11px;color:var(--muted);line-height:1.5;}
-  .p .unit{font-size:12px;font-weight:400;color:var(--muted);}
+  .p .h{font-size:11px;color:var(--muted);}
   .board{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;}
   .sq{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:3px 4px;border-radius:6px;color:var(--muted);}
   .sq.here{background:rgba(255,255,255,.06);color:var(--text);}
@@ -72,13 +71,12 @@
 <body>
   <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
   <div class="header" style="margin-top:2px">
-    <div><h1>Peace-Battle 2</h1><p class="sub">One board. Three rule sets. Two from 1932, one from now.</p></div>
+    <div><h1>Peace-Battle 2</h1><p class="sub">One board. Two rule sets. Both printed on the same 1932 sheet.</p></div>
   </div>
 
   <div class="rules" role="group" aria-label="Rule set">
     <button type="button" id="bLandlord" aria-pressed="true">Landlord&rsquo;s Game</button>
     <button type="button" id="bProsperity" aria-pressed="false">Prosperity</button>
-    <button type="button" id="bSkills" aria-pressed="false">Skills Economy</button>
   </div>
   <p class="ruleline" id="ruleline"></p>
 
@@ -98,7 +96,6 @@
   </div>
 
   <button type="button" class="reset" id="switchRules">Call for Prosperity Rules</button>
-  <button type="button" class="reset" id="listMe">Add yourself to the Directory</button>
 
   <div class="board" id="board"></div>
 
@@ -121,39 +118,7 @@
     that if the idea reached the people shaking the dice, the whole business would not have been
     in vain.
   </p>
-  <h3>The third rule set is not hers</h3>
-  <p class="src">
-    Landlord&rsquo;s Game and Prosperity are Magie&rsquo;s, printed on the 1932 sheet. Skills
-    Economy is this project&rsquo;s, added because the first two argue about land and this one
-    does not. It is on the same board so the three can be compared: same squares, same dice,
-    three different answers to when a thing is finished.
-  </p>
-  <p class="src">
-    What it changes. A square is a need that comes up, not a deed &mdash; somebody needs a ride,
-    or a repair, or an hour of childcare. Anyone in the <b>Directory</b> who has that skill can
-    meet it, and a player who is not in the Directory cannot be found, so nobody can ask them
-    for anything and they never earn. Holding a skill costs nobody anything, so there is no rent
-    and nobody is bled. Nothing here is a trespass, and the Jail is not used.
-  </p>
-  <p class="src">
-    <b>ServiceCredits</b> are an internal unit for exchanging services between members. They are
-    not money, they are not a currency, they cannot be exchanged or redeemed for money, and
-    nothing on this board has a cash value. That is why credits are never written with a
-    currency mark here, and why there are no wages: nothing enters from outside, the unit is
-    closed, and you earn by doing something for somebody else.
-  </p>
-  <p class="src">
-    The <b>Community Value Index</b> counts what actually settled. Value <b>waiting to happen</b>
-    is the needs still open &mdash; interest, not achievement, and it is not part of the Index.
-    Roughly one need in five is met directly between two people and never reaches the ledger at
-    all. Both of them are still counted as having given and received, because the help was real.
-    A figure that misses it is the shape of the thing, not a gap in the data.
-  </p>
-  <p class="src">
-    It ends when everybody has both given and received. Not when somebody has the most.
-  </p>
-
-  <h3>Where the other two come from</h3>
+  <h3>Where the rules come from</h3>
   <p class="src">
     Both rule sets are taken from the printed rules sheet of the 1932 Adgame Company edition,
     <i>The Landlord&rsquo;s Game and Prosperity</i> &mdash; the numbered rules, the win conditions,
@@ -171,8 +136,8 @@
     which is where the patents, the sale and her own words come from.
   </p>
   <div class="caveat">
-    What is this game&rsquo;s and not hers, in the two rule sets that are hers. The 1932 board has
-    forty spaces; this one has twenty, so it fits a phone. That shortening forces the rest:
+    What is this game&rsquo;s and not hers. The 1932 board has forty spaces; this one has twenty,
+    so it fits a phone. That shortening forces the rest:
     <ul>
       <li>One local utility and one railroad, where the sheet has three of each. The monopoly
         rates that double the charge cannot come up here.</li>
@@ -240,30 +205,6 @@
   var fmt = function (n) { return '$' + Math.round(n).toLocaleString('en-US'); };
   var buyable = function (sq) { return sq.t === 'green' || sq.t === 'local' || sq.t === 'inter'; };
 
-  // The third rule set is this project's, not Magie's, and the game says so on screen.
-  // Skills Economy runs on what people can do rather than what they own: a square is a
-  // need that comes up, not a deed. Nobody is charged for holding a skill, so there is no
-  // rent to bleed anyone with. Credits move between members and nothing enters from
-  // outside — the unit is closed, which is why there are no wages on this board.
-  var SERVICE_COST = 3;
-  var START_CREDITS = 9;
-  var OFF_BOARD = 0.2;
-  var TRADES = [
-    { skill: 'childcare', need: 'someone to watch a child' },
-    { skill: 'driving', need: 'a ride' },
-    { skill: 'repairs', need: 'a repair' },
-    { skill: 'tutoring', need: 'tutoring' },
-    { skill: 'cooking', need: 'a meal' }
-  ];
-  // Every square that was a deed under the other two rule sets carries a need under this one.
-  var NEED = {};
-  (function () {
-    var n = 0;
-    for (var i = 0; i < BOARD.length; i++) {
-      if (buyable(BOARD[i])) { NEED[i] = n % TRADES.length; n++; }
-    }
-  })();
-
   // Every line in the log is built from a player's name, and one of the players is named
   // "You". A third-person verb on a second-person subject reads as a typo — "You pays rent",
   // "You has nothing left". vb() picks the form that matches the subject; both forms are
@@ -301,12 +242,7 @@
       rand: null,
       turn: 0,
       players: NAMES.map(function (n, i) {
-        // Two skills each, spread so all five are covered and two of them sit with one
-        // person only — which is what it looks like when a community is small.
-        return { name: n, money: START, at: 0, out: false, jail: false, me: i === 0,
-          credits: START_CREDITS,
-          skills: [TRADES[i % TRADES.length].skill, TRADES[(i + 2) % TRADES.length].skill],
-          listed: i === 1, given: 0, received: 0 };
+        return { name: n, money: START, at: 0, out: false, jail: false, me: i === 0 };
       }),
       owned: {},
       imp: {},
@@ -314,12 +250,7 @@
       general: 0,    // General Fund of the Public Treasury
       publicUtil: {},
       switched: false,
-      index: 0,      // Community Value Index — what has actually settled
-      waiting: 0,    // value waiting to happen — needs still open
-      lines: [rules === 'skills'
-        ? 'You are not in the Directory yet, so nobody can find you. Everyone holds ' +
-          START_CREDITS + ' credits. Roll to move.'
-        : 'Everyone starts with ' + fmt(START) + '. Roll to move.'],
+      lines: ['Everyone starts with ' + fmt(START) + '. Roll to move.'],
       over: null,
       pending: null
     };
@@ -432,82 +363,7 @@
     if (p.money < 0) settle(s, p);
   }
 
-  // Skills Economy. A square is a need, and the question is whether anybody findable can
-  // meet it — not who holds the deed.
-  function skillsLand(s, p) {
-    var sq = BOARD[p.at], me = s.players.indexOf(p);
-
-    if (!buyable(sq)) {
-      if (sq.t === 'jail') {
-        say(s, p.name + ' ' + vb(p, 'passes', 'pass') + ' the old <b>Jail</b>. Nothing here is a trespass.');
-      } else if (sq.t === 'tax') {
-        // This square belongs to Magie's two rule sets. Skills Economy makes no statement
-        // about tax of any kind, so it passes over it without naming it.
-        say(s, p.name + ' ' + vb(p, 'moves', 'move') + ' on.');
-      } else if (sq.t === 'blueblood') {
-        say(s, 'Nobody holds <b>Lord Blueblood’s Estate</b>, so nobody is kept off it.');
-      } else if (sq.t === 'wages') {
-        say(s, p.name + ' ' + vb(p, 'is', 'are') + ' at <b>Your Wages Corner</b>. Work happens off this board; the app pays nobody.');
-      } else {
-        say(s, p.name + ' ' + vb(p, 'rests', 'rest') + ' at <b>' + sq.n + '</b>.');
-      }
-      return;
-    }
-
-    var t = TRADES[NEED[p.at]];
-    var need = '<b>' + t.need + '</b> at ' + sq.n;
-    // Only somebody in the Directory can be found, which is the Directory's entire job.
-    var able = s.players.filter(function (o, i) {
-      return i !== me && o.listed && o.skills.indexOf(t.skill) >= 0;
-    });
-
-    if (!able.length) {
-      s.waiting += SERVICE_COST;
-      say(s, stop(p.name + ' ' + vb(p, 'needs', 'need') + ' ' + need) +
-        ' Nobody findable can do it, so it stays open — value waiting to happen, not value.');
-      return;
-    }
-
-    var prov = able[Math.floor(s.rand() * able.length)];
-
-    // Most real help never touches the app. When it goes that way the service is real and
-    // both people are counted; what does not happen is a ledger entry. A figure that misses
-    // it is not a gap in the data.
-    if (s.rand() < OFF_BOARD) {
-      prov.given++; p.received++;
-      say(s, prov.name + ' ' + vb(prov, 'sorts', 'sort') + ' out ' + need + ' for ' + p.name +
-        ' directly. It happened between them and never reached the ledger.');
-      return;
-    }
-
-    if (p.credits < SERVICE_COST) {
-      s.waiting += SERVICE_COST;
-      say(s, p.name + ' ' + vb(p, 'needs', 'need') + ' ' + need + ' and ' + vb(p, 'holds', 'hold') +
-        ' ' + p.credits + '. ' + prov.name + ' can do it, and it waits until ' +
-        (p.me ? 'you have' : 'they have') + ' earned enough by doing something for somebody else.');
-      return;
-    }
-
-    p.credits -= SERVICE_COST; prov.credits += SERVICE_COST;
-    prov.given++; p.received++;
-    s.index += SERVICE_COST;
-    say(s, prov.name + ' ' + vb(prov, 'does', 'do') + ' ' + need + ' for ' + p.name + '. ' +
-      SERVICE_COST + ' credits move across, and the Community Value Index rises to ' + s.index + '.');
-  }
-
-  // People add themselves to the Directory one at a time, because that is how it happens.
-  function directorySignups(s) {
-    for (var i = 1; i < s.players.length; i++) {
-      var o = s.players[i];
-      if (!o.listed && s.rand() < 0.18) {
-        o.listed = true;
-        say(s, o.name + ' adds ' + (o.skills.join(' and ')) + ' to the <b>Directory</b>, and can be found now.');
-      }
-    }
-  }
-
   function land(s, p) {
-    if (s.rules === 'skills') { skillsLand(s, p); return; }
     var sq = BOARD[p.at], me = s.players.indexOf(p);
 
     if (sq.t === 'wages') { say(s, p.name + ' ' + vb(p, 'is', 'are') + ' at <b>Your Wages Corner</b>.'); return; }
@@ -609,36 +465,6 @@
   function checkOver(s) {
     if (s.over) return;
     var live = alive(s);
-    if (s.rules === 'skills') {
-      // Not an accumulation. It ends when nobody is only a recipient and nobody is only a
-      // provider — when everybody has been on both sides of something.
-      var whole = s.players.every(function (p) { return p.given > 0 && p.received > 0; });
-      if (whole) {
-        s.over = 'Everybody has both given and received. The Community Value Index settled at ' +
-          s.index + ', with ' + s.waiting + ' still waiting on the board. Nobody here is only ' +
-          'a recipient and nobody is only a provider.';
-        return;
-      }
-      // A game where somebody can never be asked for anything cannot reach that ending, and
-      // running on forever teaches nothing. Say which side is missing and why.
-      if (s.turn >= 30) {
-        var why = s.players.filter(function (p) { return !p.given || !p.received; })
-          .map(function (p) {
-            if (!p.listed) {
-              return p.name + ' ' + vb(p, 'is', 'are') + ' not in the Directory, so nobody could ' +
-                'find ' + (p.me ? 'you' : 'them') + ' to ask.';
-            }
-            if (!p.given) {
-              return 'Nobody needed what ' + p.name + ' can do.';
-            }
-            return p.name + ' never needed anything that somebody findable could do.';
-          });
-        s.over = 'This one cannot finish. ' + why.join(' ') +
-          ' The Community Value Index settled at ' + s.index + ', with ' + s.waiting +
-          ' left waiting.';
-      }
-      return;
-    }
     if (s.rules === 'landlord') {
       // Rule 13. The title is won by reaching $2,000, not by being the last one standing.
       var big = null;
@@ -674,7 +500,7 @@
     var d1 = 1 + Math.floor(s.rand() * 6), d2 = 1 + Math.floor(s.rand() * 6), d = d1 + d2;
 
     if (p.jail) {
-      if (s.rules !== 'landlord') { p.jail = false; }
+      if (s.rules === 'prosperity') { p.jail = false; }
       else if (d >= JAIL_OUT) {
         p.jail = false;
         say(s, p.name + ' ' + vb(p, 'throws', 'throw') + ' ' + d + ' and ' + vb(p, 'walks', 'walk') +
@@ -688,7 +514,7 @@
 
     var before = p.at;
     p.at = (p.at + d) % BOARD.length;
-    if (p.at <= before && s.rules !== 'skills') p.money += wages(d1, d2, p.at === 0);
+    if (p.at <= before) p.money += wages(d1, d2, p.at === 0);
     land(s, p);
   }
 
@@ -705,7 +531,6 @@
     var s = state;
     for (var i = 1; i < s.players.length; i++) step(s, s.players[i]);
     condemn(s);
-    if (s.rules === 'skills') directorySignups(s);
     s.turn++;
     checkOver(s);
     render();
@@ -716,26 +541,13 @@
     var s = state;
     el('bLandlord').setAttribute('aria-pressed', String(s.rules === 'landlord'));
     el('bProsperity').setAttribute('aria-pressed', String(s.rules === 'prosperity'));
-    el('bSkills').setAttribute('aria-pressed', String(s.rules === 'skills'));
     el('ruleline').textContent = s.rules === 'landlord'
       ? 'Every charge goes to whoever holds the card. It ends when somebody reaches ' +
         fmt(BIG_LANDLORD) + ' and is the Big Landlord.'
-      : s.rules === 'prosperity'
-        ? 'Land Rent goes to a public fund that buys the utilities out of private hands. It ends ' +
-          'when the player with the least has doubled their ' + fmt(START) + '.'
-        : 'A square is a need, not a deed. Anyone in the Directory who has the skill can meet it, ' +
-          'and credits move across. It ends when everybody has both given and received.';
+      : 'Land Rent goes to a public fund that buys the utilities out of private hands. It ends ' +
+        'when the player with the least has doubled their ' + fmt(START) + '.';
 
     el('players').innerHTML = s.players.map(function (p, i) {
-      if (s.rules === 'skills') {
-        // Credits are never shown with a currency mark. They are an internal unit for
-        // exchanging services and they are not money.
-        return '<div class="p' + (p.me ? ' me' : '') + '">' +
-          '<div class="n">' + p.name + (p.listed ? '' : ' — not listed') + '</div>' +
-          '<div class="m">' + p.credits + '<span class="unit"> credits</span></div>' +
-          '<div class="h">' + p.skills.join(', ') + '<br>gave ' + p.given + ' · got ' + p.received +
-          '</div></div>';
-      }
       var imps = 0;
       for (var k in s.imp) { if (s.owned[k] === i) imps++; }
       return '<div class="p' + (p.me ? ' me' : '') + (p.out ? ' out' : '') + '">' +
@@ -748,8 +560,7 @@
     el('board').innerHTML = BOARD.map(function (sq, i) {
       var who = s.players.filter(function (p) { return p.at === i && !p.out; }).map(function (p) { return p.name; });
       var tag = '';
-      if (s.rules === 'skills') tag = buyable(sq) ? TRADES[NEED[i]].need : '';
-      else if (s.publicUtil[i]) tag = 'public';
+      if (s.publicUtil[i]) tag = 'public';
       else if (s.owned[i] !== undefined) tag = s.players[s.owned[i]].name + (s.imp[i] ? ' +' : '');
       else if (buyable(sq)) tag = fmt(sq.cost);
       return '<div class="sq' + (who.length ? ' here' : '') + (buyable(sq) ? '' : ' corner') +
@@ -758,9 +569,7 @@
     }).join('');
 
     var funds = '';
-    if (s.rules === 'skills') {
-      funds = 'Community Value Index ' + s.index + ' · ' + s.waiting + ' waiting to happen.';
-    } else if (s.rules === 'prosperity') funds = 'Land Rent Fund holds ' + fmt(s.fund) + '.';
+    if (s.rules === 'prosperity') funds = 'Land Rent Fund holds ' + fmt(s.fund) + '.';
     else if (s.general > 0) funds = 'Public Treasury holds ' + fmt(s.general) + '.';
     el('log').innerHTML = s.lines.map(function (line) { return '<div>' + line + '</div>'; }).join('') +
       (funds ? '<div>' + funds + '</div>' : '');
@@ -769,12 +578,8 @@
       ? '<div class="over"><div class="t">Game over</div><p>' + s.over + '</p></div>' : '';
 
     el('roll').disabled = !!s.over || s.pending !== null;
-    el('improve').hidden = s.rules === 'skills';
     el('improve').disabled = !canImprove(s);
     el('improve').textContent = 'Improve ' + fmt(IMPROVE_COST);
-    var list = el('listMe');
-    list.hidden = s.rules !== 'skills' || s.players[0].listed;
-    list.disabled = !!s.over;
     el('buyRow').hidden = s.pending === null;
     if (s.pending !== null) {
       // Buy is disabled rather than clickable-and-refused when the money is not there, so
@@ -850,18 +655,6 @@
     save();
   });
 
-  // Being in the Directory is a move, not a setting. Until you are in it nobody can find
-  // you, so nobody can ask you for anything, so you never earn.
-  el('listMe').addEventListener('click', function () {
-    var s = state, me = s.players[0];
-    if (s.rules !== 'skills' || me.listed || s.over) return;
-    me.listed = true;
-    say(s, 'You add ' + me.skills.join(' and ') + ' to the <b>Directory</b>. People can find you now.');
-    render();
-    save();
-  });
-
-  el('bSkills').addEventListener('click', function () { start('skills', state ? state.seed : undefined); });
   el('bLandlord').addEventListener('click', function () { start('landlord', state ? state.seed : undefined); });
   el('bProsperity').addEventListener('click', function () { start('prosperity', state ? state.seed : undefined); });
   el('reset').addEventListener('click', function () { start(state.rules); });

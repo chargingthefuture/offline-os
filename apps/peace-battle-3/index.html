@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Peace-Battle 3</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Peace-Battle 3">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  [hidden]{display:none!important;}
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:2px;}
+  .back:hover,.back:focus-visible{color:var(--amber);}
+  .topline{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:6px 0 2px;}
+  .reach{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:34px;
+    line-height:1;color:var(--amber);font-variant-numeric:tabular-nums;}
+  .reach small{display:block;font-family:inherit;font-weight:400;font-size:11px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.09em;margin-top:3px;}
+  .counters{text-align:right;font-size:11px;color:var(--muted);line-height:1.7;white-space:nowrap;}
+  .counters b{color:var(--text);font-variant-numeric:tabular-nums;}
+  .counters .warn{color:#e5794b;}
+  svg.map{display:block;width:100%;height:auto;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:12px;margin:8px 0;touch-action:manipulation;}
+  svg.map .link{stroke:#2c2f36;stroke-width:1.1;}
+  svg.map .link.open{stroke:#3d424c;}
+  svg.map text{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-size:3.1px;fill:#8a8f99;
+    text-anchor:middle;pointer-events:none;}
+  svg.map .node{cursor:pointer;}
+  svg.map .ring{fill:none;stroke:var(--amber);stroke-width:.9;}
+  svg.map .who{font-size:2.9px;font-weight:700;fill:#16171b;text-anchor:middle;pointer-events:none;}
+  svg.map .reachable{stroke:var(--amber);stroke-width:.8;stroke-dasharray:1.6 1.4;fill:none;}
+  .team{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
+  .m{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 9px;
+    cursor:pointer;text-align:left;font:inherit;color:var(--text);}
+  .m[aria-pressed="true"]{border-color:var(--amber);}
+  .m .n{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);}
+  .m .s{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:15px;}
+  .m .w{font-size:11px;color:var(--muted);}
+  .status{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 11px;
+    font-size:12px;line-height:1.6;color:var(--muted);min-height:34px;margin-bottom:8px;}
+  .status b{color:var(--text);}
+  .actions{display:flex;gap:8px;margin-bottom:8px;}
+  .act{flex:1;background:var(--amber);border:1px solid var(--amber);border-radius:10px;color:#16171b;
+    padding:11px 8px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;}
+  .act.ghost{background:none;color:var(--text);border-color:var(--line);font-weight:400;}
+  .act[disabled]{opacity:.4;cursor:default;}
+  .act:focus-visible,.m:focus-visible,.reset:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+  .reset{width:100%;background:none;border:1px solid var(--line);border-radius:10px;color:var(--muted);
+    padding:9px 12px;font:inherit;font-size:12px;cursor:pointer;margin-bottom:14px;}
+  .over{background:var(--panel-2);border:1px solid var(--amber);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
+  .over .t{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:16px;
+    text-transform:uppercase;letter-spacing:.05em;color:var(--amber);margin-bottom:4px;}
+  .over p{margin:0;font-size:12px;color:var(--muted);line-height:1.7;}
+  details{border-top:1px solid var(--line);padding-top:10px;}
+  summary{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:13px;
+    text-transform:uppercase;letter-spacing:.06em;color:var(--muted);cursor:pointer;}
+  details p{font-size:11px;color:var(--muted);line-height:1.75;}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;}}
+</style>
+</head>
+<body>
+  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+
+  <div class="topline">
+    <div class="reach"><span id="reach">0</span><small>people covered</small></div>
+    <div class="counters">
+      Round <b id="round">1</b> &middot; actions <b id="acts">4</b><br>
+      Cut off <b id="cuts" class="warn">0</b> of 6
+    </div>
+  </div>
+
+  <svg class="map" id="map" viewBox="0 0 100 118" role="img" aria-label="Map of places"></svg>
+
+  <div id="overBox"></div>
+  <div class="status" id="status"></div>
+
+  <div class="team" id="team"></div>
+
+  <div class="actions">
+    <button type="button" class="act" id="help">Help here</button>
+    <button type="button" class="act ghost" id="wait">End round</button>
+  </div>
+
+  <button type="button" class="reset" id="reset">New map</button>
+
+  <details>
+    <summary>How this works</summary>
+    <p>
+      Four people, each with one skill, on a map of places that need something. Tap a person, then
+      tap a place next to them to move, or <b>Help here</b> to work where they stand. Four actions,
+      then the round ends.
+    </p>
+    <p>
+      What spreads on this board is isolation &mdash; a place where somebody needs something and
+      nobody findable can do it. Each round it grows in two more places. A place already at three
+      cuts off, and pushes its isolation into every place beside it. Six cut off and it is over.
+    </p>
+    <p>
+      Helping in a place whose need matches your skill clears twice as much, and clearing a place to
+      nothing puts it in the <b>Directory</b>: it is covered from then on, its people count, and
+      isolation never returns to it. Cover the whole map and every person on it is reachable.
+    </p>
+    <p>
+      Nobody wins this alone and nobody wins it against anybody. That is the difference between this
+      and Peace-Battle 2, where one board carries Lizzie Magie&rsquo;s 1932 rules and somebody has to
+      end up with everything.
+    </p>
+    <p>
+      The places are real cities and the figures are their rounded populations. Nothing else here is
+      a claim about them.
+    </p>
+  </details>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+(function () {
+  'use strict';
+  var KEY = 'peace-battle-3:state';
+  var ACTIONS = 4;      // per round
+  var SPREAD = 2;       // places that gain isolation each round
+  var MAX_ISO = 3;      // a place at this level cuts off when pushed further
+  var MAX_CUTS = 6;
+
+  var SKILLS = ['childcare', 'driving', 'repairs', 'tutoring'];
+
+  // Real cities, rounded populations, laid out roughly where they sit. The layout is
+  // schematic — close enough to read as a map, not a claim about geography.
+  var PLACES = [
+    { n: 'Seattle',      x: 10, y: 10, pop: 750000,  need: 2 },
+    { n: 'Denver',       x: 33, y: 40, pop: 710000,  need: 3 },
+    { n: 'Los Angeles',  x: 10, y: 52, pop: 3800000, need: 1 },
+    { n: 'San Diego',    x: 13, y: 63, pop: 1400000, need: 0 },
+    { n: 'Phoenix',      x: 25, y: 60, pop: 1600000, need: 2 },
+    { n: 'Dallas',       x: 48, y: 70, pop: 1300000, need: 3 },
+    { n: 'Austin',       x: 46, y: 80, pop: 970000,  need: 0 },
+    { n: 'San Antonio',  x: 41, y: 88, pop: 1500000, need: 1 },
+    { n: 'Houston',      x: 55, y: 84, pop: 2300000, need: 2 },
+    { n: 'Chicago',      x: 62, y: 32, pop: 2700000, need: 0 },
+    { n: 'Indianapolis', x: 66, y: 42, pop: 880000,  need: 3 },
+    { n: 'Columbus',     x: 74, y: 37, pop: 910000,  need: 1 },
+    { n: 'Charlotte',    x: 80, y: 58, pop: 880000,  need: 2 },
+    { n: 'Jacksonville', x: 83, y: 80, pop: 970000,  need: 0 },
+    { n: 'Philadelphia', x: 89, y: 34, pop: 1600000, need: 3 },
+    { n: 'New York',     x: 91, y: 24, pop: 8300000, need: 1 }
+  ];
+  var LINKS = [
+    [0,1],[0,2],[1,4],[1,9],[1,5],[1,2],[2,3],[2,4],[3,4],[4,5],
+    [5,8],[5,6],[5,9],[6,7],[6,8],[7,8],[8,13],[9,10],[9,11],[10,11],
+    [10,12],[11,14],[12,13],[12,14],[14,15]
+  ];
+  var NEIGHBOURS = (function () {
+    var m = PLACES.map(function () { return []; });
+    LINKS.forEach(function (l) { m[l[0]].push(l[1]); m[l[1]].push(l[0]); });
+    return m;
+  })();
+
+  var TEAM = [
+    { n: 'You',  skill: 0, at: 9 },
+    { n: 'Ada',  skill: 1, at: 2 },
+    { n: 'Bess', skill: 2, at: 5 },
+    { n: 'Cal',  skill: 3, at: 15 }
+  ];
+
+  var s = null;
+  var el = function (id) { return document.getElementById(id); };
+  var num = function (n) { return n.toLocaleString('en-US'); };
+
+  function rng(seed) {
+    var v = seed >>> 0;
+    return function () { v = (v * 1664525 + 1013904223) >>> 0; return v / 4294967296; };
+  }
+
+  function fresh(seed) {
+    var st = {
+      seed: seed, rand: null, round: 1, acts: ACTIONS, cuts: 0, sel: 0,
+      iso: PLACES.map(function () { return 0; }),
+      covered: PLACES.map(function () { return false; }),
+      team: TEAM.map(function (p) { return { n: p.n, skill: p.skill, at: p.at }; }),
+      status: 'Tap a person, then a place beside them to move. <b>Help here</b> works where they stand.',
+      over: null
+    };
+    st.rand = rng(seed);
+    // Three places start already struggling, none of them where somebody is standing.
+    var free = PLACES.map(function (_, i) { return i; }).filter(function (i) {
+      return st.team.every(function (p) { return p.at !== i; });
+    });
+    for (var k = 0; k < 3; k++) {
+      var pick = free.splice(Math.floor(st.rand() * free.length), 1)[0];
+      st.iso[pick] = 1 + Math.floor(st.rand() * 2);
+    }
+    return st;
+  }
+
+  function reached() {
+    var t = 0;
+    for (var i = 0; i < PLACES.length; i++) if (s.covered[i]) t += PLACES[i].pop;
+    return t;
+  }
+
+  function addIso(i, chain) {
+    if (s.covered[i]) return;                    // somebody findable lives here now
+    if (s.iso[i] < MAX_ISO) { s.iso[i] += 1; return; }
+    // Already at the top and pushed further: it cuts off, and what it was carrying goes
+    // into every place beside it. That is how one place going quiet takes its neighbours.
+    if (chain.indexOf(i) >= 0) return;
+    chain.push(i);
+    s.cuts += 1;
+    NEIGHBOURS[i].forEach(function (j) { addIso(j, chain); });
+  }
+
+  function spread() {
+    var open = [];
+    for (var i = 0; i < PLACES.length; i++) if (!s.covered[i]) open.push(i);
+    if (!open.length) return [];
+    var hit = [];
+    for (var k = 0; k < SPREAD && open.length; k++) {
+      var pick = open.splice(Math.floor(s.rand() * open.length), 1)[0];
+      hit.push(PLACES[pick].n);
+      addIso(pick, []);
+    }
+    return hit;
+  }
+
+  function checkOver() {
+    if (s.over) return;
+    if (s.cuts >= MAX_CUTS) {
+      s.over = { win: false, text: 'Six places cut off. ' + num(reached()) + ' people were covered ' +
+        'when it stopped, out of ' + num(PLACES.reduce(function (a, p) { return a + p.pop; }, 0)) + '.' };
+      return;
+    }
+    if (s.covered.every(Boolean)) {
+      s.over = { win: true, text: 'Every place is covered. ' + num(reached()) + ' people can find ' +
+        'somebody, and nobody had to lose anything for it.' };
+    }
+  }
+
+  function endRound() {
+    if (s.over) return;
+    var hit = spread();
+    s.round += 1;
+    s.acts = ACTIONS;
+    s.status = hit.length ? 'Isolation grows in <b>' + hit.join('</b> and <b>') + '</b>.'
+      : 'Nowhere left for it to grow.';
+    checkOver();
+    draw();
+    save();
+  }
+
+  function spend() {
+    s.acts -= 1;
+    if (s.acts <= 0) endRound(); else { draw(); save(); }
+  }
+
+  function move(to) {
+    var p = s.team[s.sel];
+    if (NEIGHBOURS[p.at].indexOf(to) < 0) {
+      s.status = '<b>' + PLACES[to].n + '</b> is not next to <b>' + PLACES[p.at].n + '</b>.';
+      draw();
+      return;
+    }
+    p.at = to;
+    s.status = p.n + ' &rarr; <b>' + PLACES[to].n + '</b>.';
+    spend();
+  }
+
+  function help() {
+    var p = s.team[s.sel], i = p.at;
+    if (s.covered[i]) { s.status = '<b>' + PLACES[i].n + '</b> is already covered.'; draw(); return; }
+    if (!s.iso[i]) { s.status = '<b>' + PLACES[i].n + '</b> needs nothing right now.'; draw(); return; }
+    // The right person being reachable is what makes the difference, so a matching skill
+    // clears twice as much.
+    var match = PLACES[i].need === p.skill;
+    s.iso[i] = Math.max(0, s.iso[i] - (match ? 2 : 1));
+    if (s.iso[i] === 0) {
+      s.covered[i] = true;
+      s.status = '<b>' + PLACES[i].n + '</b> is covered. ' + num(PLACES[i].pop) + ' people.';
+    } else {
+      s.status = p.n + ' works in <b>' + PLACES[i].n + '</b>' +
+        (match ? ', which needs ' + SKILLS[p.skill] + '.' : '. It needs ' + SKILLS[PLACES[i].need] + '.');
+    }
+    checkOver();
+    spend();
+  }
+
+  function draw() {
+    el('reach').textContent = num(reached());
+    el('round').textContent = s.round;
+    el('acts').textContent = s.acts;
+    el('cuts').textContent = s.cuts;
+
+    var here = s.team[s.sel].at;
+    var svg = '';
+    LINKS.forEach(function (l) {
+      var open = l.indexOf(here) >= 0;
+      svg += '<line class="link' + (open ? ' open' : '') + '" x1="' + PLACES[l[0]].x + '" y1="' +
+        PLACES[l[0]].y + '" x2="' + PLACES[l[1]].x + '" y2="' + PLACES[l[1]].y + '"/>';
+    });
+    PLACES.forEach(function (pl, i) {
+      // Size carries population, colour carries how bad it has got.
+      var r = 2.6 + Math.sqrt(pl.pop / 1000000) * 1.7;
+      var fill = s.covered[i] ? '#2f6b4f' : ['#3a3f48', '#6d5a32', '#8a5a2c', '#a2412c'][s.iso[i]];
+      svg += '<g class="node" data-i="' + i + '">';
+      svg += '<circle cx="' + pl.x + '" cy="' + pl.y + '" r="' + r.toFixed(2) + '" fill="' + fill + '"/>';
+      if (s.covered[i]) svg += '<circle class="ring" cx="' + pl.x + '" cy="' + pl.y + '" r="' + (r + 1.4).toFixed(2) + '"/>';
+      if (!s.covered[i] && NEIGHBOURS[here].indexOf(i) >= 0) {
+        svg += '<circle class="reachable" cx="' + pl.x + '" cy="' + pl.y + '" r="' + (r + 2.2).toFixed(2) + '"/>';
+      }
+      var on = s.team.filter(function (p) { return p.at === i; });
+      if (on.length) svg += '<text class="who" x="' + pl.x + '" y="' + (pl.y + 1.05) + '">' +
+        on.map(function (p) { return p.n.charAt(0); }).join('') + '</text>';
+      svg += '<text x="' + pl.x + '" y="' + (pl.y + r + 3.6).toFixed(2) + '">' + pl.n + '</text>';
+      svg += '</g>';
+    });
+    el('map').innerHTML = svg;
+
+    el('team').innerHTML = s.team.map(function (p, i) {
+      return '<button type="button" class="m" data-p="' + i + '" aria-pressed="' + (i === s.sel) + '">' +
+        '<div class="n">' + p.n + '</div><div class="s">' + SKILLS[p.skill] + '</div>' +
+        '<div class="w">in ' + PLACES[p.at].n + '</div></button>';
+    }).join('');
+
+    el('status').innerHTML = s.status;
+    el('overBox').innerHTML = s.over
+      ? '<div class="over"><div class="t">' + (s.over.win ? 'Covered' : 'Cut off') + '</div><p>' +
+        s.over.text + '</p></div>' : '';
+    el('help').disabled = !!s.over;
+    el('wait').disabled = !!s.over;
+  }
+
+  function save() {
+    if (!window.storage) return;
+    try { window.storage.set(KEY, JSON.stringify({ seed: s.seed })); } catch (e) {}
+  }
+
+  function start(seed) {
+    s = fresh(seed === undefined ? (Date.now() & 0xffff) : seed);
+    draw();
+    save();
+  }
+
+  el('map').addEventListener('click', function (e) {
+    var g = e.target.closest ? e.target.closest('.node') : null;
+    if (!g || s.over) return;
+    var i = +g.getAttribute('data-i');
+    if (i === s.team[s.sel].at) { help(); return; }
+    move(i);
+  });
+  el('team').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.m') : null;
+    if (!b) return;
+    s.sel = +b.getAttribute('data-p');
+    draw();
+  });
+  el('help').addEventListener('click', function () { if (!s.over) help(); });
+  el('wait').addEventListener('click', function () { if (!s.over) endRound(); });
+  el('reset').addEventListener('click', function () { start(); });
+
+  start();
+})();
+</script>
+</body>
+</html>
