@@ -539,7 +539,17 @@
     el('improve').disabled = !canImprove(s);
     el('improve').textContent = 'Improve ' + fmt(IMPROVE_COST);
     el('buyRow').hidden = s.pending === null;
-    if (s.pending !== null) el('buy').textContent = 'Buy ' + fmt(BOARD[s.pending].cost);
+    if (s.pending !== null) {
+      // Buy is disabled rather than clickable-and-refused when the money is not there, so
+      // the two ways out of the prompt are the two that actually do something. Pass is
+      // always available: declining a square is a move, and the other three players make
+      // it every turn they choose not to buy.
+      var can = s.players[0].money >= BOARD[s.pending].cost;
+      el('buy').disabled = !can;
+      el('buy').textContent = can ? 'Buy ' + fmt(BOARD[s.pending].cost)
+        : 'Need ' + fmt(BOARD[s.pending].cost - s.players[0].money) + ' more';
+      el('pass').textContent = can ? 'Pass' : 'Leave it';
+    }
     var sw = el('switchRules');
     sw.hidden = s.rules !== 'landlord';
     sw.disabled = !!s.over;
@@ -563,10 +573,9 @@
     var s = state, at = s.pending, me = s.players[0];
     if (at === null) return;
     var sq = BOARD[at];
-    if (me.money >= sq.cost) {
-      me.money -= sq.cost; s.owned[at] = 0;
-      s.log = 'You take <b>' + sq.n + '</b> for ' + fmt(sq.cost) + '.';
-    } else { s.log = 'Not enough for <b>' + sq.n + '</b>.'; }
+    if (me.money < sq.cost) return;
+    me.money -= sq.cost; s.owned[at] = 0;
+    s.log = 'You take <b>' + sq.n + '</b> for ' + fmt(sq.cost) + '.';
     s.pending = null;
     finishRound();
   });
