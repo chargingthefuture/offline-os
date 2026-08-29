@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Peace-Battle</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Peace-Battle">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back:hover,.back:focus-visible{color:var(--amber);}
+  .presets{display:flex;gap:8px;margin:14px 0 6px;}
+  .presets button{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    color:var(--text);padding:9px 10px;font:inherit;font-size:13px;cursor:pointer;}
+  .presets button[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);}
+  .presets button:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+  .startline{color:var(--muted);font-size:12px;margin:2px 0 14px;}
+  .round{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+  .round h2{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:15px;
+    text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px;color:var(--text);}
+  .round .beyond{color:var(--muted);font-size:11px;margin:0 0 8px;}
+  .split{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:2px;}
+  .split b{color:var(--amber);font-variant-numeric:tabular-nums;}
+  input[type=range]{width:100%;accent-color:var(--amber);}
+  input[type=range]:focus-visible{outline:2px solid var(--amber);outline-offset:4px;}
+  .out{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6;}
+  .out b{color:var(--text);font-variant-numeric:tabular-nums;}
+  .total{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;margin:4px 0 12px;}
+  .total .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .total .v{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:30px;
+    color:var(--amber);font-variant-numeric:tabular-nums;line-height:1.15;}
+  .total .cmp{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6;}
+  .reset{background:none;border:1px solid var(--line);border-radius:10px;color:var(--muted);
+    padding:8px 12px;font:inherit;font-size:12px;cursor:pointer;}
+  .reset:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+  blockquote{border-left:2px solid var(--line);margin:0 0 10px;padding:0 0 0 12px;color:var(--muted);
+    font-size:12px;line-height:1.7;}
+  .src{font-size:11px;color:var(--muted);line-height:1.7;}
+  .src a{color:var(--amber-dim,var(--amber));}
+  h3{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:13px;
+    text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:18px 0 8px;}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;}}
+</style>
+</head>
+<body>
+  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+  <div class="header" style="margin-top:2px">
+    <div><h1>Peace-Battle</h1><p class="sub">Teach, or work. The split is the whole argument.</p></div>
+  </div>
+
+  <div class="presets" role="group" aria-label="Starting position">
+    <button type="button" id="p1903" aria-pressed="true">1903 &middot; start 2,000</button>
+    <button type="button" id="pToday" aria-pressed="false">Today &middot; start 101</button>
+  </div>
+  <p class="startline" id="startline"></p>
+
+  <div class="round">
+    <h2>First round</h2>
+    <div class="split"><span>Teaching <b id="t1pct">100%</b></span><span>Working <b id="w1pct">0%</b></span></div>
+    <input type="range" id="r1" min="0" max="100" step="5" value="100"
+           aria-label="First round: percent of people teaching">
+    <p class="out" id="o1"></p>
+  </div>
+
+  <div class="round">
+    <h2>Second round</h2>
+    <div class="split"><span>Teaching <b id="t2pct">0%</b></span><span>Working <b id="w2pct">100%</b></span></div>
+    <input type="range" id="r2" min="0" max="100" step="5" value="0"
+           aria-label="Second round: percent of people teaching">
+    <p class="out" id="o2"></p>
+  </div>
+
+  <div class="round">
+    <h2>Third round</h2>
+    <p class="beyond">Past the record. Arithmetic on the same two rates, not something that happened.</p>
+    <div class="split"><span>Teaching <b id="t3pct">0%</b></span><span>Working <b id="w3pct">100%</b></span></div>
+    <input type="range" id="r3" min="0" max="100" step="5" value="0"
+           aria-label="Third round: percent of people teaching">
+    <p class="out" id="o3"></p>
+  </div>
+
+  <div class="total">
+    <div class="k">People reached</div>
+    <div class="v" id="reached">0</div>
+    <div class="cmp" id="cmp"></div>
+  </div>
+
+  <button type="button" class="reset" id="reset">Reset to the 1903 split</button>
+
+  <h3>Where the numbers come from</h3>
+  <blockquote>
+    the college trained in Greek and Latin and mathematics, 2,000 men; and these men trained
+    full 50,000 others in morals and manners, and they in turn taught thrift and the alphabet
+    to nine millions of men &hellip; It was a miracle&mdash;the most wonderful peace-battle of
+    the 19th century
+  </blockquote>
+  <p class="src">
+    W. E. B. Du Bois, <i>The Talented Tenth</i>, in <i>The Negro Problem</i> (1903).
+    Two thousand to fifty thousand is twenty-five times over; fifty thousand to nine million is
+    a hundred and eighty times over. Those two rates are the only numbers this game runs on.
+    <br><br>
+    They are Du Bois&rsquo;s figures, written in 1903 to make an argument, not an audit. The full
+    book is committed alongside this game at <code>sources/peace-battle/</code> so they can be
+    checked, and is public domain at
+    <a href="https://www.gutenberg.org/ebooks/15041">gutenberg.org/ebooks/15041</a>.
+    <br><br>
+    The Today figures are from the Skills Economy workforce screen on August 28 2026:
+    101 people recruited, 160 of 657 skills covered.
+  </p>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+(function () {
+  'use strict';
+  var TEACH = 25, WORK = 180;
+  var PRESETS = {
+    '1903': { start: 2000, line: 'Du Bois counted 2,000 college-trained people at the top of the chain.' },
+    'today': { start: 101, line: '101 people recruited so far, covering 160 of 657 skills. About a twentieth of where 1903 started.' }
+  };
+  var KEY = 'peace-battle:state';
+  var state = { preset: '1903', splits: [100, 0, 0] };
+
+  var el = function (id) { return document.getElementById(id); };
+  var ranges = [el('r1'), el('r2'), el('r3')];
+  var outs = [el('o1'), el('o2'), el('o3')];
+  var tPct = [el('t1pct'), el('t2pct'), el('t3pct')];
+  var wPct = [el('w1pct'), el('w2pct'), el('w3pct')];
+
+  function fmt(n) { return Math.round(n).toLocaleString('en-US'); }
+
+  function run() {
+    var pool = PRESETS[state.preset].start;
+    var reached = 0;
+    var rounds = [];
+    for (var i = 0; i < 3; i++) {
+      var teachers = pool * (state.splits[i] / 100);
+      var workers = pool - teachers;
+      var taught = teachers * TEACH;
+      var got = workers * WORK;
+      reached += got;
+      rounds.push({ pool: pool, teachers: teachers, workers: workers, taught: taught, got: got });
+      pool = taught;
+    }
+    return { rounds: rounds, reached: reached, left: pool };
+  }
+
+  function render() {
+    var r = run();
+    el('startline').textContent = PRESETS[state.preset].line;
+    for (var i = 0; i < 3; i++) {
+      var p = state.splits[i];
+      tPct[i].textContent = p + '%';
+      wPct[i].textContent = (100 - p) + '%';
+      if (ranges[i].value !== String(p)) ranges[i].value = p;
+      var d = r.rounds[i];
+      if (d.pool < 1) {
+        outs[i].textContent = 'Nobody left to send. The round before taught no one.';
+      } else {
+        outs[i].innerHTML = fmt(d.pool) + ' available &middot; <b>' + fmt(d.teachers) +
+          '</b> teaching, which trains <b>' + fmt(d.taught) + '</b> &middot; <b>' + fmt(d.workers) +
+          '</b> working, which reaches <b>' + fmt(d.got) + '</b>';
+      }
+    }
+    el('reached').textContent = fmt(r.reached);
+
+    var cmp = '';
+    if (state.preset === '1903') {
+      if (Math.round(r.reached) === 9000000) {
+        cmp = 'That is what happened. Teach first, then work: the split Du Bois recorded.';
+      } else if (r.reached < 9000000) {
+        cmp = fmt(9000000 - r.reached) + ' short of the nine million Du Bois recorded. ' +
+          'Working sooner pays sooner and stops sooner.';
+      } else {
+        cmp = 'Past the nine million on record, by teaching for longer than the two rounds he described.';
+      }
+    } else {
+      cmp = 'Starting at 101 instead of 2,000 — about a twentieth. The rates are unchanged; ' +
+        'only the number at the top is different.';
+    }
+    el('cmp').textContent = cmp;
+    save();
+  }
+
+  function save() {
+    if (!window.storage) return;
+    try { window.storage.set(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function load() {
+    if (!window.storage) { render(); return; }
+    Promise.resolve(window.storage.get(KEY)).then(function (hit) {
+      if (hit && hit.value) {
+        try {
+          var v = JSON.parse(hit.value);
+          if (v && PRESETS[v.preset] && Array.isArray(v.splits) && v.splits.length === 3) state = v;
+        } catch (e) {}
+      }
+      setPreset(state.preset, true);
+    }).catch(function () { render(); });
+  }
+
+  function setPreset(name, keepSplits) {
+    state.preset = name;
+    if (!keepSplits) state.splits = [100, 0, 0];
+    el('p1903').setAttribute('aria-pressed', String(name === '1903'));
+    el('pToday').setAttribute('aria-pressed', String(name === 'today'));
+    render();
+  }
+
+  ranges.forEach(function (input, i) {
+    input.addEventListener('input', function () {
+      state.splits[i] = Number(input.value);
+      render();
+    });
+  });
+  el('p1903').addEventListener('click', function () { setPreset('1903', true); });
+  el('pToday').addEventListener('click', function () { setPreset('today', true); });
+  el('reset').addEventListener('click', function () { setPreset(state.preset, false); });
+
+  load();
+})();
+</script>
+</body>
+</html>
