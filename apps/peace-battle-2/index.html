@@ -133,7 +133,7 @@
     or a repair, or an hour of childcare. Anyone in the <b>Directory</b> who has that skill can
     meet it, and a player who is not in the Directory cannot be found, so nobody can ask them
     for anything and they never earn. Holding a skill costs nobody anything, so there is no rent
-    and nobody is bled. Nothing is taxed, nothing is a trespass, and the Jail is not used.
+    and nobody is bled. Nothing here is a trespass, and the Jail is not used.
   </p>
   <p class="src">
     <b>ServiceCredits</b> are an internal unit for exchanging services between members. They are
@@ -441,7 +441,9 @@
       if (sq.t === 'jail') {
         say(s, p.name + ' ' + vb(p, 'passes', 'pass') + ' the old <b>Jail</b>. Nothing here is a trespass.');
       } else if (sq.t === 'tax') {
-        say(s, p.name + ' ' + vb(p, 'passes', 'pass') + ' the <b>Tax Office</b>. Nothing is taxed.');
+        // This square belongs to Magie's two rule sets. Skills Economy makes no statement
+        // about tax of any kind, so it passes over it without naming it.
+        say(s, p.name + ' ' + vb(p, 'moves', 'move') + ' on.');
       } else if (sq.t === 'blueblood') {
         say(s, 'Nobody holds <b>Lord Blueblood’s Estate</b>, so nobody is kept off it.');
       } else if (sq.t === 'wages') {
