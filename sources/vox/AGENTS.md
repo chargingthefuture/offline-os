@@ -6,8 +6,8 @@ from a larger codebase's agent rules with all project-specific rules removed. Co
 new repo, fill in the one placeholder at the bottom with that repo's own rules, and wire up
 the enforcement hook (see `README.md` in this folder).
 
-> Keep the wording below as-is. The voice and dictionary sections are the whole point of this
-> template; they are also what the enforcement hook checks. If you change a banned term here,
+> Keep the wording below as-is. The voice and dictionary sections are what this template exists
+> for, and they are also what the enforcement hook checks. If you change a banned term here,
 > change it in `hooks/check-no-pleasantries.mjs` too — the hook is the source of truth.
 
 ---
@@ -55,6 +55,12 @@ quotes, so do not reach for a banned word even to talk about it; use the replace
 - punch list → list
 - (the word for out-of-date) → drop it; if you mean something specific, name it (out-of-date, superseded, no longer current)
 - console → dashboard (the code identifiers `console.log` / `console.error` / `console.info` are exempt)
+- whole point → say the point plainly, without announcing that it is the point
+- whole argument → state the argument itself, without labeling it the argument
+
+Those last two are one habit: the sentence that arrives after the facts to tell the reader which of
+them mattered. Write the point as a plain statement and stop; if a sentence does nothing but label
+what came before it, delete it.
 
 When the hook blocks a reply, restate the result in plain, factual language — none of the terms
 above, no jargon, no first-person feeling words — then stop.
