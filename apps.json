@@ -5,14 +5,16 @@
       "blurb": "No-gym workouts, routines & timers",
       "url": "apps/roadwork/",
       "icon": "🏋️",
-      "status": "active"
+      "status": "active",
+      "pinned": true
     },
     {
       "name": "Plaintext",
       "blurb": "Plain-text notes — no auto-formatting, .txt export",
       "url": "apps/plaintext/",
       "icon": "📝",
-      "status": "active"
+      "status": "active",
+      "pinned": true
     },
     {
       "name": "Peace-Battle",

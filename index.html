@@ -73,6 +73,10 @@ async function renderApps(){
     var data=await res.json();
     var apps=(data&&data.apps)||[];
     if(!apps.length){ box.innerHTML='<div class="empty">No apps yet. Add one to apps.json.</div>'; return; }
+    // Pinned apps come first, then everything else. Both groups keep the order they
+    // are written in apps.json. Without this a new app added at the top of the file
+    // silently unpins whatever was there, which is how it went wrong before.
+    apps=apps.filter(function(a){return a.pinned;}).concat(apps.filter(function(a){return !a.pinned;}));
     box.innerHTML='<div class="app-grid">'+apps.map(function(a){
       var ext=/^https?:\/\//.test(a.url);
       var attrs=ext?' target="_blank" rel="noopener"':'';
