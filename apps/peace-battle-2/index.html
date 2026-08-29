@@ -14,6 +14,9 @@
 <link rel="stylesheet" href="../../shared/fonts.css">
 <link rel="stylesheet" href="../../shared/theme.css">
 <style>
+  /* An author rule that sets display beats the browser's own [hidden]{display:none}, and
+     .actions below sets display:flex. Without this, hiding a row does nothing. */
+  [hidden]{display:none!important;}
   .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
   .back:hover,.back:focus-visible{color:var(--amber);}
   .rules{display:flex;gap:8px;margin:14px 0 4px;}
@@ -268,6 +271,9 @@
   // passes/pass, has/have). own() does the same for the possessive.
   function vb(p, third, second) { return p.me ? second : third; }
   function own(p, third) { return p.me ? 'yours' : third; }
+  // A square name can already end in a period — "Gee Whiz R.R." — and a sentence that ends
+  // on one printed two.
+  function stop(text) { return /\.$/.test(text) ? text : text + '.'; }
 
   // The log holds the lines for the round just played, not one line. It used to be a single
   // string, so each of the three other players overwrote it in turn and your own move was gone
@@ -455,8 +461,8 @@
 
     if (!able.length) {
       s.waiting += SERVICE_COST;
-      say(s, p.name + ' ' + vb(p, 'needs', 'need') + ' ' + need +
-        '. Nobody findable can do it, so it stays open — value waiting to happen, not value.');
+      say(s, stop(p.name + ' ' + vb(p, 'needs', 'need') + ' ' + need) +
+        ' Nobody findable can do it, so it stays open — value waiting to happen, not value.');
       return;
     }
 
@@ -551,7 +557,7 @@
         p.money -= sq.cost; s.owned[p.at] = me;
         say(s, p.name + ' takes <b>' + sq.n + '</b> for ' + fmt(sq.cost) + '.');
         aiImprove(s, p);
-      } else { say(s, p.name + ' passes on <b>' + sq.n + '</b>.'); }
+      } else { say(s, stop(p.name + ' passes on <b>' + sq.n + '</b>')); }
       return;
     }
 
