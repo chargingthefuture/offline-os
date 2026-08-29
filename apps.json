@@ -25,15 +25,8 @@
     },
     {
       "name": "Peace-Battle 2",
-      "blurb": "Lizzie Magie's board, played by its 1932 rules — both sets",
-      "url": "apps/peace-battle-2/",
-      "icon": "🎲",
-      "status": "active"
-    },
-    {
-      "name": "Peace-Battle 3",
       "blurb": "A map where isolation spreads and four people spread against it",
-      "url": "apps/peace-battle-3/",
+      "url": "apps/peace-battle-2/",
       "icon": "🗺️",
       "status": "active"
     },
