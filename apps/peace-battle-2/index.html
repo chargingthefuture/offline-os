@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Peace-Battle 2</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Peace-Battle 2">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back:hover,.back:focus-visible{color:var(--amber);}
+  .rules{display:flex;gap:8px;margin:14px 0 4px;}
+  .rules button{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    color:var(--text);padding:9px 8px;font:inherit;font-size:13px;cursor:pointer;}
+  .rules button[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);}
+  .rules button:focus-visible,.act:focus-visible,.reset:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+  .ruleline{color:var(--muted);font-size:12px;line-height:1.6;margin:2px 0 12px;}
+  .players{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+  .p{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;}
+  .p.me{border-color:var(--amber);}
+  .p.out{opacity:.45;}
+  .p .n{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  .p .m{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:20px;
+    color:var(--text);font-variant-numeric:tabular-nums;}
+  .p .h{font-size:11px;color:var(--muted);}
+  .board{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;}
+  .sq{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:3px 4px;border-radius:6px;color:var(--muted);}
+  .sq.here{background:rgba(255,255,255,.06);color:var(--text);}
+  .sq .o{color:var(--amber);font-size:11px;}
+  .log{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;
+    font-size:12px;line-height:1.7;color:var(--muted);min-height:66px;margin-bottom:10px;}
+  .log b{color:var(--text);}
+  .actions{display:flex;gap:8px;margin-bottom:10px;}
+  .act{flex:1;background:var(--amber);border:1px solid var(--amber);border-radius:10px;color:#16171b;
+    padding:11px 10px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;}
+  .act.ghost{background:none;color:var(--text);border-color:var(--line);font-weight:400;}
+  .act[disabled]{opacity:.4;cursor:default;}
+  .reset{width:100%;background:none;border:1px solid var(--line);border-radius:10px;color:var(--muted);
+    padding:9px 12px;font:inherit;font-size:12px;cursor:pointer;margin-bottom:16px;}
+  .over{background:var(--panel-2);border:1px solid var(--amber);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+  .over .t{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:16px;
+    text-transform:uppercase;letter-spacing:.05em;color:var(--amber);margin-bottom:4px;}
+  .over p{margin:0;font-size:12px;color:var(--muted);line-height:1.7;}
+  h3{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:13px;
+    text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:18px 0 8px;}
+  blockquote{border-left:2px solid var(--line);margin:0 0 10px;padding:0 0 0 12px;color:var(--muted);
+    font-size:12px;line-height:1.7;}
+  .src{font-size:11px;color:var(--muted);line-height:1.7;}
+  .src a{color:var(--amber-dim,var(--amber));}
+  .caveat{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:11px;
+    color:var(--muted);line-height:1.7;margin-top:10px;}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;}}
+</style>
+</head>
+<body>
+  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+  <div class="header" style="margin-top:2px">
+    <div><h1>Peace-Battle 2</h1><p class="sub">One board. Two rule sets. Lizzie Magie wrote both.</p></div>
+  </div>
+
+  <div class="rules" role="group" aria-label="Rule set">
+    <button type="button" id="bLandlord" aria-pressed="true">Landlord&rsquo;s Game</button>
+    <button type="button" id="bProsperity" aria-pressed="false">Prosperity</button>
+  </div>
+  <p class="ruleline" id="ruleline"></p>
+
+  <div class="players" id="players"></div>
+
+  <div id="overBox"></div>
+
+  <div class="log" id="log"></div>
+
+  <div class="actions">
+    <button type="button" class="act" id="roll">Roll</button>
+    <button type="button" class="act ghost" id="buy" disabled>Buy</button>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <button type="button" class="reset" id="reset">New board, same rules</button>
+
+  <h3>Whose game this is</h3>
+  <p class="src">
+    Lizzie Magie patented <i>The Landlord&rsquo;s Game</i> in 1904 to teach Henry George&rsquo;s
+    argument about land. She said so herself in the 1924 patent application:
+  </p>
+  <blockquote>
+    the object of the game is not only to afford amusement to the players, but to illustrate to
+    them how under the present or prevailing system of land tenure, the landlord has an advantage
+    over other enterprises and also how the single tax would discourage land speculation.
+  </blockquote>
+  <p class="src">
+    The squares here carry her names. She sold the patent to Parker Brothers in November 1935 for
+    $500 and no royalties; Charles Darrow patented Monopoly a month later and was sold to the
+    world as its inventor. She died in obscurity in 1948. Asked how she felt about it, she said
+    that if the idea reached the people shaking the dice, the whole business would not have been
+    in vain.
+    <br><br>
+    Source committed alongside this game at <code>sources/peace-battle-2/</code>:
+    <a href="https://invention.si.edu/invention-stories/woman-inventor-behind-monopoly">The Woman
+    Inventor Behind &ldquo;Monopoly&rdquo;</a>, Monica M. Smith, Smithsonian Lemelson Center, 2015.
+  </p>
+  <div class="caveat">
+    Being straight about the sourcing, because the two rule sets are the whole point of this game
+    and they are the part I could verify least. Magie&rsquo;s authorship, both patents, her stated
+    object and the $500 are all in the Smithsonian article. The two rule sets are not — they come
+    from the 1932 Adgame edition, <i>The Landlord&rsquo;s Game and Prosperity</i>, attested by
+    several accounts that agree with each other but whose original rules sheet could not be opened
+    from where this was built. She did not patent two rule sets; the patents describe one game.
+  </div>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+(function () {
+  'use strict';
+  var START = 300, WAGES = 100, KEY = 'peace-battle-2:state';
+
+  // Square names are Magie's, from the 1904 and 1924 boards.
+  var BOARD = [
+    { n: 'Labor Upon Mother Earth', corner: true },
+    { n: 'Poverty Place', cost: 60, rent: 12 },
+    { n: 'Goat Alley', cost: 60, rent: 12 },
+    { n: 'Rickety Row', cost: 80, rent: 16 },
+    { n: 'Poor House', corner: true },
+    { n: "Hell's Half Acre", cost: 80, rent: 16 },
+    { n: 'Gee-Whiz R.R.', cost: 100, rent: 20 },
+    { n: 'The Bowery', cost: 100, rent: 20 },
+    { n: 'Public Park', corner: true },
+    { n: 'George Street', cost: 120, rent: 24 },
+    { n: 'Soakum Lighting', cost: 120, rent: 24 },
+    { n: 'Fels Avenue', cost: 140, rent: 28 },
+    { n: "Lord Blueblood's Estate", corner: true },
+    { n: 'Johnson Road', cost: 140, rent: 28 },
+    { n: 'The Public Highway', cost: 160, rent: 32 },
+    { n: 'Easy Street', cost: 160, rent: 32 },
+    { n: 'Progress Park', cost: 180, rent: 36 },
+    { n: 'Lake Shore Drive', cost: 200, rent: 40 }
+  ];
+  var NAMES = ['You', 'Ada', 'Bess', 'Cal'];
+
+  var state = null;
+  var el = function (id) { return document.getElementById(id); };
+  var fmt = function (n) { return '$' + Math.round(n).toLocaleString('en-US'); };
+
+  function rng(seed) {
+    var s = seed >>> 0;
+    return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  }
+
+  function fresh(rules, seed) {
+    return {
+      rules: rules,
+      seed: seed,
+      rand: null,
+      turn: 0,
+      players: NAMES.map(function (n, i) { return { name: n, money: START, at: 0, out: false, me: i === 0 }; }),
+      owned: {},
+      treasury: 0,
+      log: 'Everyone starts with ' + fmt(START) + '. Roll to move.',
+      over: null,
+      pending: null
+    };
+  }
+
+  function alive(s) { return s.players.filter(function (p) { return !p.out; }); }
+
+  function checkOver(s) {
+    if (s.over) return;
+    var live = alive(s);
+    if (s.rules === 'landlord') {
+      if (live.length <= 1) {
+        s.over = live.length ? live[0].name + ' owns everything. Everyone else is bankrupt.'
+          : 'Everybody went bankrupt.';
+      }
+    } else {
+      var poorest = live.reduce(function (a, b) { return a.money <= b.money ? a : b; }, live[0]);
+      if (poorest && poorest.money >= START * 2) {
+        var lost = s.players.length - live.length;
+        s.over = 'The player with the least, ' + poorest.name + ', has doubled ' + fmt(START) +
+          '. Under Prosperity that ends the game.' +
+          (lost ? ' ' + lost + ' player' + (lost > 1 ? 's' : '') + ' still went out along the way.'
+                : ' Nobody had to lose for it to end.');
+      }
+    }
+  }
+
+  function land(s, p) {
+    var sq = BOARD[p.at];
+    if (sq.corner) {
+      if (sq.n === 'Poor House') { s.log = p.name + ' reaches the <b>Poor House</b>.'; }
+      else if (sq.n === "Lord Blueblood's Estate") {
+        s.log = p.name + ' is turned off <b>Lord Blueblood\'s Estate</b>. No trespassing.';
+      } else { s.log = p.name + ' passes <b>' + sq.n + '</b>.'; }
+      return;
+    }
+    var owner = s.owned[p.at];
+    if (owner === undefined) {
+      if (p.me) { s.pending = p.at; s.log = '<b>' + sq.n + '</b> is unclaimed. ' + fmt(sq.cost) + ' to take it.'; }
+      else if (p.money >= sq.cost + 40) {
+        p.money -= sq.cost; s.owned[p.at] = s.players.indexOf(p);
+        s.log = p.name + ' takes <b>' + sq.n + '</b> for ' + fmt(sq.cost) + '.';
+      } else { s.log = p.name + ' passes on <b>' + sq.n + '</b>.'; }
+      return;
+    }
+    var me = s.players.indexOf(p);
+    if (owner === me) { s.log = p.name + ' is standing on <b>' + sq.n + '</b>, already theirs.'; return; }
+    // Under the Landlord's Game the charge scales with how much land the owner has piled
+    // up — that concentration is exactly the advantage Magie was arguing about, and
+    // without it wages outrun rents and the game never ends. Under Prosperity the charge
+    // is a tax on the land itself, so holding more of it confers no advantage and the
+    // amount does not compound.
+    var held = 0;
+    for (var k in s.owned) { if (s.owned[k] === owner) held++; }
+    var rent = s.rules === 'landlord' ? sq.rent * held : sq.rent;
+    p.money -= rent;
+    if (s.rules === 'landlord') {
+      s.players[owner].money += rent;
+      s.log = p.name + ' pays ' + fmt(rent) + ' rent on <b>' + sq.n + '</b> to ' + s.players[owner].name + '.';
+    } else {
+      s.treasury += rent;
+      s.log = p.name + ' pays ' + fmt(rent) + ' land tax on <b>' + sq.n + '</b> into the public treasury.';
+    }
+    if (p.money < 0) {
+      p.out = true; p.money = 0;
+      // Their land goes back to nobody. Without this a bankrupt player keeps collecting
+      // rent forever, which is how a player ended a test out of the game and richer.
+      for (var j in s.owned) { if (s.owned[j] === me) delete s.owned[j]; }
+      s.log += ' ' + p.name + ' is out, and their land is back on the board.';
+    }
+  }
+
+  function payout(s) {
+    if (s.rules !== 'prosperity' || s.treasury <= 0) return;
+    var live = alive(s);
+    if (!live.length) return;
+    var each = Math.floor(s.treasury / live.length);
+    if (each <= 0) return;
+    live.forEach(function (p) { p.money += each; });
+    s.treasury -= each * live.length;
+    s.log += ' The treasury pays out ' + fmt(each) + ' to each of the ' + live.length + '.';
+  }
+
+  function step(s, p) {
+    if (p.out) return;
+    var d = 1 + Math.floor(s.rand() * 6);
+    var before = p.at;
+    p.at = (p.at + d) % BOARD.length;
+    if (p.at < before) { p.money += WAGES; }
+    land(s, p);
+  }
+
+  function advance() {
+    var s = state;
+    if (s.over || s.pending !== null) return;
+    // Your turn, then the others.
+    step(s, s.players[0]);
+    if (s.pending !== null) { render(); return; }
+    finishRound();
+  }
+
+  function finishRound() {
+    var s = state;
+    for (var i = 1; i < s.players.length; i++) step(s, s.players[i]);
+    payout(s);
+    s.turn++;
+    checkOver(s);
+    render();
+    save();
+  }
+
+  function render() {
+    var s = state;
+    el('bLandlord').setAttribute('aria-pressed', String(s.rules === 'landlord'));
+    el('bProsperity').setAttribute('aria-pressed', String(s.rules === 'prosperity'));
+    el('ruleline').textContent = s.rules === 'landlord'
+      ? 'Rent goes to whoever owns the square. It ends when everyone but one is bankrupt.'
+      : 'Land value is taxed into a public treasury and paid back out to every player still in. It ends when the player with the least has doubled their ' + fmt(START) + '.';
+
+    el('players').innerHTML = s.players.map(function (p) {
+      var held = Object.keys(s.owned).filter(function (k) { return s.owned[k] === s.players.indexOf(p); }).length;
+      return '<div class="p' + (p.me ? ' me' : '') + (p.out ? ' out' : '') + '">' +
+        '<div class="n">' + p.name + (p.out ? ' — out' : '') + '</div>' +
+        '<div class="m">' + fmt(p.money) + '</div>' +
+        '<div class="h">' + held + ' held &middot; ' + BOARD[p.at].n + '</div></div>';
+    }).join('');
+
+    el('board').innerHTML = BOARD.map(function (sq, i) {
+      var who = s.players.filter(function (p) { return p.at === i && !p.out; }).map(function (p) { return p.name; });
+      var owner = s.owned[i] !== undefined ? s.players[s.owned[i]].name : '';
+      return '<div class="sq' + (who.length ? ' here' : '') + '"><span>' + sq.n +
+        (who.length ? ' &middot; ' + who.join(', ') : '') + '</span><span class="o">' +
+        (owner ? owner : (sq.cost ? fmt(sq.cost) : '')) + '</span></div>';
+    }).join('');
+
+    el('log').innerHTML = s.log + (s.rules === 'prosperity' && s.treasury > 0
+      ? ' <br>Treasury holds ' + fmt(s.treasury) + '.' : '');
+
+    el('overBox').innerHTML = s.over
+      ? '<div class="over"><div class="t">Game over</div><p>' + s.over + '</p></div>' : '';
+
+    el('roll').disabled = !!s.over || s.pending !== null;
+    el('buy').disabled = s.pending === null;
+    el('buy').textContent = s.pending === null ? 'Buy'
+      : 'Buy ' + fmt(BOARD[s.pending].cost);
+  }
+
+  function save() {
+    if (!window.storage) return;
+    try { window.storage.set(KEY, JSON.stringify({ rules: state.rules })); } catch (e) {}
+  }
+
+  function start(rules, seed) {
+    state = fresh(rules, seed === undefined ? (Date.now() & 0xffff) : seed);
+    state.rand = rng(state.seed);
+    render();
+    save();
+  }
+
+  el('roll').addEventListener('click', advance);
+  el('buy').addEventListener('click', function () {
+    var s = state, at = s.pending, sq = BOARD[at], me = s.players[0];
+    if (at === null) return;
+    if (me.money >= sq.cost) {
+      me.money -= sq.cost; s.owned[at] = 0;
+      s.log = 'You take <b>' + sq.n + '</b> for ' + fmt(sq.cost) + '.';
+    } else { s.log = 'Not enough for <b>' + sq.n + '</b>.'; }
+    s.pending = null;
+    finishRound();
+  });
+  el('bLandlord').addEventListener('click', function () { start('landlord', state ? state.seed : undefined); });
+  el('bProsperity').addEventListener('click', function () { start('prosperity', state ? state.seed : undefined); });
+  el('reset').addEventListener('click', function () { start(state.rules); });
+
+  if (window.storage) {
+    Promise.resolve(window.storage.get(KEY)).then(function (hit) {
+      var r = 'landlord';
+      try { if (hit && hit.value) { var v = JSON.parse(hit.value); if (v.rules) r = v.rules; } } catch (e) {}
+      start(r);
+    }).catch(function () { start('landlord'); });
+  } else { start('landlord'); }
+})();
+</script>
+</body>
+</html>

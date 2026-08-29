@@ -1,10 +1,10 @@
-/* Peace-Battle — service worker. Precaches the shell (incl. shared assets) so it
+/* Peace-Battle 2 — service worker. Precaches the shell (incl. shared assets) so it
  * runs fully offline. Bump VERSION to push updates.
  *
- * The book in sources/peace-battle/ is deliberately NOT listed here. It is committed so
- * the numbers can be checked, not shipped — precaching 232K of text would make every
- * install pay for something the game only quotes four lines of. */
-var VERSION = 'peace-battle-v2';
+ * The source article in sources/peace-battle-2/ is deliberately NOT listed here. It is
+ * committed so the history can be checked, not shipped — no app in this repo ships its
+ * sources/ folder. */
+var VERSION = 'peace-battle-2-v1';
 var SHELL = [
   './',
   './index.html',
@@ -27,13 +27,11 @@ self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(SHELL); }));
 });
 self.addEventListener('activate', function (e) {
-  // Only this app's own caches, matched on the full 'peace-battle-v' prefix. Every app
-  // here shares one origin, so an unscoped sweep would delete the other apps' shells —
-  // and a bare 'peace-battle' prefix also matches 'peace-battle-2-v1', which would have
-  // wiped Peace-Battle 2's cache every time this one activated.
+  // Only this app's own caches. Every app here shares one origin, so an unscoped
+  // sweep would delete the other apps' offline shells.
   e.waitUntil(caches.keys().then(function (names) {
     return Promise.all(names.map(function (n) {
-      if (n !== VERSION && n.indexOf('peace-battle-v') === 0) return caches.delete(n);
+      if (n !== VERSION && n.indexOf('peace-battle-2-v') === 0) return caches.delete(n);
     }));
   }).then(function () { return self.clients.claim(); }));
 });

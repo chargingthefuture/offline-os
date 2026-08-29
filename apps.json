@@ -24,6 +24,13 @@
       "status": "active"
     },
     {
+      "name": "Peace-Battle 2",
+      "blurb": "One board, two rule sets — Lizzie Magie wrote both",
+      "url": "apps/peace-battle-2/",
+      "icon": "🎲",
+      "status": "active"
+    },
+    {
       "name": "Gamepad Signal Path",
       "blurb": "Controller input detection reference",
       "url": "apps/gamepad-signal-path/",

@@ -1,0 +1,16 @@
+{
+  "name": "Peace-Battle 2",
+  "short_name": "Peace-Battle 2",
+  "description": "Peace-Battle 2 — one board, two rule sets, and only one of them can end well for everybody",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#16171b",
+  "theme_color": "#16171b",
+  "icons": [
+    { "src": "../../shared/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "../../shared/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "../../shared/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
