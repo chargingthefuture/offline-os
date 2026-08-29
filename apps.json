@@ -31,6 +31,13 @@
       "status": "active"
     },
     {
+      "name": "Peace-Battle 3",
+      "blurb": "A map where isolation spreads and four people spread against it",
+      "url": "apps/peace-battle-3/",
+      "icon": "🗺️",
+      "status": "active"
+    },
+    {
       "name": "Gamepad Signal Path",
       "blurb": "Controller input detection reference",
       "url": "apps/gamepad-signal-path/",

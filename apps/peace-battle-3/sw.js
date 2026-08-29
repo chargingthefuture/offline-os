@@ -1,10 +1,6 @@
-/* Peace-Battle 2 — service worker. Precaches the shell (incl. shared assets) so it
- * runs fully offline. Bump VERSION to push updates.
- *
- * The source article in sources/peace-battle-2/ is deliberately NOT listed here. It is
- * committed so the history can be checked, not shipped — no app in this repo ships its
- * sources/ folder. */
-var VERSION = 'peace-battle-2-v8';
+/* Peace-Battle 3 — service worker. Precaches the shell (incl. shared assets) so it
+ * runs fully offline. Bump VERSION to push updates. */
+var VERSION = 'peace-battle-3-v1';
 var SHELL = [
   './',
   './index.html',
@@ -31,7 +27,7 @@ self.addEventListener('activate', function (e) {
   // sweep would delete the other apps' offline shells.
   e.waitUntil(caches.keys().then(function (names) {
     return Promise.all(names.map(function (n) {
-      if (n !== VERSION && n.indexOf('peace-battle-2-v') === 0) return caches.delete(n);
+      if (n !== VERSION && n.indexOf('peace-battle-3-v') === 0) return caches.delete(n);
     }));
   }).then(function () { return self.clients.claim(); }));
 });
