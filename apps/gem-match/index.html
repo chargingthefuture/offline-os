@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
   <title>Gem Match</title>
 
@@ -48,11 +48,11 @@
 
     .back {
       display: inline-block;
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 13px;
-      margin-bottom: 5px;
       padding: 5px 0;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      text-decoration: none;
     }
 
     .back:hover {
@@ -68,7 +68,7 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(24px, 7vw, 36px);
+      font-size: clamp(25px, 7vw, 36px);
       line-height: 1;
     }
 
@@ -80,8 +80,8 @@
 
     .scores {
       display: flex;
-      gap: 5px;
       flex-shrink: 0;
+      gap: 5px;
     }
 
     .score {
@@ -105,8 +105,8 @@
       font-family: "Barlow Semi Condensed", "Inter", sans-serif;
       font-size: clamp(18px, 5vw, 23px);
       font-weight: 700;
-      font-variant-numeric: tabular-nums;
       line-height: 1.1;
+      font-variant-numeric: tabular-nums;
     }
 
     .goal {
@@ -142,7 +142,7 @@
 
     .boardwrap {
       position: relative;
-      width: min(92vw, 580px);
+      width: min(94vw, 580px);
       margin: 14px auto 12px;
     }
 
@@ -166,7 +166,14 @@
       min-width: 0;
       min-height: 0;
       border-radius: clamp(5px, 1.8vw, 11px);
+      color: rgba(255, 255, 255, .95);
       cursor: pointer;
+      font-family: Arial, sans-serif;
+      font-size: clamp(17px, 5vw, 31px);
+      line-height: 1;
+      text-shadow:
+        0 1px 2px rgba(0, 0, 0, .7),
+        0 0 4px rgba(0, 0, 0, .4);
       transition:
         transform .08s ease,
         filter .12s ease,
@@ -174,14 +181,20 @@
     }
 
     .gem:active {
-      transform: scale(.88);
+      transform: scale(.87);
     }
 
     .gem.sel {
       outline: 3px solid var(--text);
       outline-offset: -3px;
       filter: brightness(1.3);
-      box-shadow: 0 0 10px rgba(255, 255, 255, .55);
+      box-shadow: 0 0 12px rgba(255, 255, 255, .55);
+    }
+
+    .gem.special {
+      box-shadow:
+        inset 0 0 0 2px rgba(255, 255, 255, .65),
+        0 0 8px rgba(255, 255, 255, .3);
     }
 
     .gem.clear {
@@ -195,7 +208,7 @@
       }
 
       60% {
-        transform: scale(.35);
+        transform: scale(.3);
         opacity: .25;
       }
 
@@ -221,7 +234,7 @@
     }
 
     .notice span {
-      max-width: 85%;
+      max-width: 86%;
       padding: 11px 18px;
       color: var(--amber);
       text-align: center;
@@ -315,7 +328,7 @@
 
     <div class="goal">
       <div id="rule" class="need">Match 3 or more</div>
-      <div id="progress">0 / 600</div>
+      <div id="progress">0 / 900</div>
     </div>
 
     <div class="track">
@@ -335,7 +348,7 @@
     </div>
 
     <div class="hint" id="hint">
-      Tap a gem, then an adjacent gem to swap.
+      Match 3 normally. Match 4+ to create a special gem.
     </div>
   </main>
 
@@ -370,22 +383,22 @@
       "#e0668f"
     ];
 
-    /*
-      Each level defines:
+    var EMOJI = {
+      bomb: "💣",
+      rainbow: "🌈",
+      changer: "🌀",
+      line: "⚡"
+    };
 
-      need   = minimum number required for a match
-      colors = number of colors in play
-      goal   = score required to advance
-    */
     var LEVELS = [
-      { need: 3, colors: 5, goal: 600 },
-      { need: 3, colors: 6, goal: 1200 },
-      { need: 3, colors: 7, goal: 1800 },
-      { need: 4, colors: 4, goal: 2700 },
-      { need: 4, colors: 5, goal: 3800 }
+      { need: 3, colors: 5, goal: 900 },
+      { need: 3, colors: 6, goal: 2200 },
+      { need: 3, colors: 7, goal: 4200 },
+      { need: 4, colors: 5, goal: 7000 },
+      { need: 4, colors: 6, goal: 10500 }
     ];
 
-    var TAIL = 1200;
+    var TAIL = 3500;
 
     var board = [];
     var score = 0;
@@ -428,6 +441,21 @@
       return row * N + col;
     }
 
+    function rowOf(index) {
+      return Math.floor(index / N);
+    }
+
+    function colOf(index) {
+      return index % N;
+    }
+
+    function newGem(color, special) {
+      return {
+        color: color,
+        special: special || null
+      };
+    }
+
     function delay(milliseconds) {
       return new Promise(function(resolve) {
         setTimeout(resolve, milliseconds);
@@ -459,12 +487,12 @@
             JSON.stringify({ best: best })
           );
         } catch (error) {
-          // Storage may be unavailable; the game can still continue.
+          // The game continues if storage is unavailable.
         }
       }
     }
 
-    function notice(text) {
+    function showNotice(text) {
       document.getElementById("noticeText").textContent = text;
       document.getElementById("notice").classList.add("on");
     }
@@ -485,11 +513,11 @@
         "Swap to match " + minimum + " or more";
 
       document.getElementById("rule").textContent =
-        "Match " + minimum + "+ — 4+ clears that color";
+        "Match " + minimum + "+ — 4+ creates a special";
 
       document.getElementById("hint").textContent =
-        "Tap a gem, then an adjacent gem to swap. " +
-        "Match " + minimum + "+. Match 4+ to clear every gem of that color.";
+        "Match 3 normally. Match 4+ creates a random special gem. " +
+        "Tap or swap special gems to activate them.";
 
       document.getElementById("progress").textContent =
         Math.min(score, high) + " / " + high;
@@ -503,6 +531,20 @@
         percentage.toFixed(1) + "%";
     }
 
+    function getColor(row, col) {
+      if (
+        row < 0 ||
+        row >= N ||
+        col < 0 ||
+        col >= N ||
+        !board[row][col]
+      ) {
+        return -1;
+      }
+
+      return board[row][col].color;
+    }
+
     function runLength(row, col, color, rowDirection, colDirection) {
       var length = 1;
 
@@ -514,7 +556,7 @@
         r < N &&
         c >= 0 &&
         c < N &&
-        board[r][c] === color;
+        getColor(r, c) === color;
 
         r -= rowDirection,
         c -= colDirection
@@ -544,7 +586,7 @@
             runLength(r, c, color, 1, 0) >= minimum
           );
 
-          board[r].push(color);
+          board[r].push(newGem(color));
         }
       }
     }
@@ -572,13 +614,13 @@
         for (var c = 1; c <= N; c++) {
           if (
             c < N &&
-            board[r][c] >= 0 &&
-            board[r][c] === board[r][c - 1]
+            getColor(r, c) >= 0 &&
+            getColor(r, c) === getColor(r, c - 1)
           ) {
             run++;
           } else {
             if (
-              board[r][c - run] >= 0 &&
+              getColor(r, c - run) >= 0 &&
               run >= minimum
             ) {
               for (var x = 0; x < run; x++) {
@@ -598,13 +640,13 @@
         for (var r2 = 1; r2 <= N; r2++) {
           if (
             r2 < N &&
-            board[r2][c2] >= 0 &&
-            board[r2][c2] === board[r2 - 1][c2]
+            getColor(r2, c2) >= 0 &&
+            getColor(r2, c2) === getColor(r2 - 1, c2)
           ) {
             run2++;
           } else {
             if (
-              board[r2 - run2][c2] >= 0 &&
+              getColor(r2 - run2, c2) >= 0 &&
               run2 >= minimum
             ) {
               for (var y = 0; y < run2; y++) {
@@ -631,14 +673,14 @@
         for (var c = 1; c <= N; c++) {
           var same =
             c < N &&
-            board[r][c] >= 0 &&
-            board[r][c] === board[r][c - 1];
+            getColor(r, c) >= 0 &&
+            getColor(r, c) === getColor(r, c - 1);
 
           if (!same) {
             var length = c - start;
 
             if (
-              board[r][start] >= 0 &&
+              getColor(r, start) >= 0 &&
               length >= minimum
             ) {
               var cells = [];
@@ -649,7 +691,7 @@
 
               runs.push({
                 cells: cells,
-                color: board[r][start],
+                color: getColor(r, start),
                 length: length
               });
             }
@@ -666,14 +708,14 @@
         for (var r2 = 1; r2 <= N; r2++) {
           var same2 =
             r2 < N &&
-            board[r2][c2] >= 0 &&
-            board[r2][c2] === board[r2 - 1][c2];
+            getColor(r2, c2) >= 0 &&
+            getColor(r2, c2) === getColor(r2 - 1, c2);
 
           if (!same2) {
             var length2 = r2 - start2;
 
             if (
-              board[start2][c2] >= 0 &&
+              getColor(start2, c2) >= 0 &&
               length2 >= minimum
             ) {
               var cells2 = [];
@@ -684,7 +726,7 @@
 
               runs.push({
                 cells: cells2,
-                color: board[start2][c2],
+                color: getColor(start2, c2),
                 length: length2
               });
             }
@@ -736,6 +778,146 @@
       return false;
     }
 
+    function randomSpecial(length) {
+      if (length >= 5) {
+        var stronger = ["rainbow", "line"];
+
+        return stronger[
+          Math.floor(Math.random() * stronger.length)
+        ];
+      }
+
+      var normal = ["bomb", "changer", "line"];
+
+      return normal[
+        Math.floor(Math.random() * normal.length)
+      ];
+    }
+
+    function adjacentColors(row, col) {
+      var colors = [];
+
+      if (row > 0 && getColor(row - 1, col) >= 0) {
+        colors.push(getColor(row - 1, col));
+      }
+
+      if (row < N - 1 && getColor(row + 1, col) >= 0) {
+        colors.push(getColor(row + 1, col));
+      }
+
+      if (col > 0 && getColor(row, col - 1) >= 0) {
+        colors.push(getColor(row, col - 1));
+      }
+
+      if (col < N - 1 && getColor(row, col + 1) >= 0) {
+        colors.push(getColor(row, col + 1));
+      }
+
+      return colors;
+    }
+
+    function activateSpecial(row, col, clearSet) {
+      var gem = board[row][col];
+
+      if (!gem || !gem.special) {
+        return;
+      }
+
+      if (gem.special === "bomb") {
+        for (var r = row - 1; r <= row + 1; r++) {
+          for (var c = col - 1; c <= col + 1; c++) {
+            if (r >= 0 && r < N && c >= 0 && c < N) {
+              clearSet[rc(r, c)] = true;
+            }
+          }
+        }
+      }
+
+      if (gem.special === "line") {
+        for (var c2 = 0; c2 < N; c2++) {
+          clearSet[rc(row, c2)] = true;
+        }
+
+        for (var r2 = 0; r2 < N; r2++) {
+          clearSet[rc(r2, col)] = true;
+        }
+      }
+
+      if (gem.special === "rainbow") {
+        var colors = adjacentColors(row, col);
+
+        if (colors.length) {
+          var target =
+            colors[Math.floor(Math.random() * colors.length)];
+
+          for (var r3 = 0; r3 < N; r3++) {
+            for (var c3 = 0; c3 < N; c3++) {
+              if (getColor(r3, c3) === target) {
+                clearSet[rc(r3, c3)] = true;
+              }
+            }
+          }
+        }
+      }
+
+      if (gem.special === "changer") {
+        var nearby = adjacentColors(row, col);
+
+        if (nearby.length) {
+          gem.color =
+            nearby[Math.floor(Math.random() * nearby.length)];
+
+          gem.special = null;
+        }
+      }
+    }
+
+    function activateSpecialsInSet(clearSet) {
+      var activated = {};
+
+      function activateAt(index) {
+        if (activated[index]) {
+          return;
+        }
+
+        activated[index] = true;
+
+        var row = rowOf(index);
+        var col = colOf(index);
+        var gem = board[row][col];
+
+        if (!gem || !gem.special) {
+          return;
+        }
+
+        var before = Object.keys(clearSet).length;
+
+        activateSpecial(row, col, clearSet);
+
+        var after = Object.keys(clearSet).length;
+
+        // Prevent endless activation loops
+        if (after > before) {
+          Object.keys(clearSet).forEach(function(newIndex) {
+            var n = Number(newIndex);
+            var nr = rowOf(n);
+            var nc = colOf(n);
+
+            if (
+              board[nr][nc] &&
+              board[nr][nc].special
+            ) {
+              activateAt(n);
+            }
+          });
+        }
+      }
+
+      Object.keys(clearSet).forEach(function(index) {
+        activateAt(Number(index));
+      });
+    }
+
     function collapse() {
       var colorCount = levelCfg(level).colors;
 
@@ -743,7 +925,7 @@
         var remaining = [];
 
         for (var r = N - 1; r >= 0; r--) {
-          if (board[r][c] >= 0) {
+          if (board[r][c]) {
             remaining.push(board[r][c]);
           }
         }
@@ -754,9 +936,25 @@
           board[r2][c] =
             index < remaining.length
               ? remaining[index]
-              : Math.floor(Math.random() * colorCount);
+              : newGem(Math.floor(Math.random() * colorCount));
         }
       }
+    }
+
+    function matchPoints(length, chain) {
+      var base;
+
+      if (length === 3) {
+        base = 30;
+      } else if (length === 4) {
+        base = 55;
+      } else if (length === 5) {
+        base = 85;
+      } else {
+        base = 100 + ((length - 5) * 15);
+      }
+
+      return base * Math.min(chain, 3);
     }
 
     function resolve() {
@@ -782,56 +980,54 @@
 
           var runs = getRuns();
           var clearSet = {};
-          var bonusColors = {};
+          var specialIndex = null;
+          var specialLength = 0;
+          var specialColor = -1;
+          var points = 0;
 
-          // Add the regular matched gems
           matches.forEach(function(index) {
             clearSet[index] = true;
           });
 
-          /*
-            Four or more creates a color-bomb effect.
-            The entire color used in that linked run is cleared.
-          */
           runs.forEach(function(run) {
-            if (run.length >= 4) {
-              bonusColors[run.color] = true;
+            points += matchPoints(run.length, chain);
+
+            if (run.length >= 4 && run.length > specialLength) {
+              specialLength = run.length;
+              specialIndex = run.cells[Math.floor(run.cells.length / 2)];
+              specialColor = run.color;
             }
           });
 
-          Object.keys(bonusColors).forEach(function(colorKey) {
-            var color = Number(colorKey);
+          /*
+            Preserve one gem from the longest 4+ match and turn it
+            into a special gem instead of clearing it.
+          */
+          if (specialIndex !== null) {
+            delete clearSet[specialIndex];
 
-            for (var r = 0; r < N; r++) {
-              for (var c = 0; c < N; c++) {
-                if (board[r][c] === color) {
-                  clearSet[rc(r, c)] = true;
-                }
-              }
-            }
-          });
+            var specialRow = rowOf(specialIndex);
+            var specialCol = colOf(specialIndex);
+
+            board[specialRow][specialCol] = newGem(
+              specialColor,
+              randomSpecial(specialLength)
+            );
+          }
+
+          activateSpecialsInSet(clearSet);
 
           var cleared = Object.keys(clearSet).map(Number);
-          var movePoints = 0;
 
-          // Longer matches score more
-          runs.forEach(function(run) {
-            movePoints += run.length * run.length * 10;
+          points += Math.max(
+            0,
+            cleared.length - matches.length
+          ) * 3;
 
-            if (run.length >= 4) {
-              movePoints += 100 + ((run.length - 4) * 50);
-            }
-          });
-
-          // Small reward for gems removed by the color bonus
-          movePoints +=
-            Math.max(0, cleared.length - matches.length) * 5;
-
-          // Chain reactions multiply the score
-          total += movePoints * chain;
+          total += Math.min(points, 500) * Math.min(chain, 3);
 
           cleared.forEach(function(index) {
-            board[Math.floor(index / N)][index % N] = -1;
+            board[rowOf(index)][colOf(index)] = null;
           });
 
           render(cleared);
@@ -840,8 +1036,8 @@
             collapse();
             render();
 
-            setTimeout(stepOnce, 100);
-          }, 180);
+            setTimeout(stepOnce, 120);
+          }, 210);
         }
 
         stepOnce();
@@ -853,20 +1049,21 @@
         level++;
 
         paint();
-        notice("Level " + level + " — match " + need() + "+");
+        showNotice(
+          "Level " + level + " — match " + need() + "+"
+        );
 
         dealBoard();
         render();
 
-        await delay(900);
+        await delay(850);
 
         clearNotice();
-
         await delay(180);
       }
 
       if (!hasMove()) {
-        notice("No moves left — new board");
+        showNotice("No moves left — new board");
 
         await delay(800);
 
@@ -876,7 +1073,6 @@
         await delay(400);
 
         clearNotice();
-
         await delay(180);
       }
 
@@ -893,9 +1089,50 @@
     async function trySwap(a, b) {
       busy = true;
 
+      var firstGem = board[a[0]][a[1]];
+      var secondGem = board[b[0]][b[1]];
+
       swapCells(a, b);
 
-      if (getMatches().length) {
+      var swappedSpecial =
+        (firstGem && firstGem.special) ||
+        (secondGem && secondGem.special);
+
+      if (swappedSpecial) {
+        var effectSet = {};
+
+        var firstAfter = board[a[0]][a[1]];
+        var secondAfter = board[b[0]][b[1]];
+
+        if (firstAfter && firstAfter.special) {
+          effectSet[rc(a[0], a[1])] = true;
+        }
+
+        if (secondAfter && secondAfter.special) {
+          effectSet[rc(b[0], b[1])] = true;
+        }
+
+        activateSpecialsInSet(effectSet);
+
+        Object.keys(effectSet).forEach(function(index) {
+          var number = Number(index);
+          board[rowOf(number)][colOf(number)] = null;
+        });
+
+        var activated = Object.keys(effectSet).map(Number);
+
+        render(activated);
+
+        await delay(220);
+
+        collapse();
+        render();
+
+        await delay(100);
+
+        await resolve();
+        await settle();
+      } else if (getMatches().length) {
         render();
 
         await resolve();
@@ -903,7 +1140,7 @@
       } else {
         render();
 
-        await delay(120);
+        await delay(130);
 
         swapCells(a, b);
         render();
@@ -951,7 +1188,7 @@
 
       for (var r = 0; r < N; r++) {
         for (var c = 0; c < N; c++) {
-          var value = board[r][c];
+          var gemData = board[r][c];
           var gem = document.createElement("div");
 
           gem.className = "gem";
@@ -964,14 +1201,27 @@
             gem.classList.add("sel");
           }
 
+          if (
+            gemData &&
+            gemData.special
+          ) {
+            gem.classList.add("special");
+          }
+
           if (cleared.indexOf(rc(r, c)) >= 0) {
             gem.classList.add("clear");
           }
 
-          gem.style.background =
-            value >= 0
-              ? COLORS[value]
-              : "transparent";
+          if (gemData) {
+            gem.style.background = COLORS[gemData.color];
+            gem.textContent =
+              gemData.special
+                ? EMOJI[gemData.special]
+                : "";
+          } else {
+            gem.style.background = "transparent";
+            gem.textContent = "";
+          }
 
           (function(row, col) {
             gem.onclick = function() {
