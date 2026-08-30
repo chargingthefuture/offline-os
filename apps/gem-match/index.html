@@ -1,211 +1,1012 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Gem Match</title>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#16171b">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Gem Match">
-<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
-<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="../../shared/fonts.css">
-<link rel="stylesheet" href="../../shared/theme.css">
-<style>
-  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
-  .back:hover{color:var(--amber);}
-  .scores{display:flex;gap:10px;}
-  .score{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 14px;text-align:center;min-width:74px;}
-  .score .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
-  .score .v{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:22px;color:var(--amber);font-variant-numeric:tabular-nums;}
-  .goal{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12px;color:var(--muted);margin-top:10px;}
-  .goal .need{color:var(--text);}
-  .track{height:6px;background:var(--panel);border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:5px;}
-  .track .bar{height:100%;width:0;background:var(--amber);border-radius:99px;transition:width .25s ease;}
-  .boardwrap{position:relative;margin:12px 0;}
-  .board{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:6px;
-    display:grid;gap:4px;aspect-ratio:1;touch-action:manipulation;user-select:none;}
-  .gem{border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .08s;}
-  .gem:active{transform:scale(.9);}
-  .gem.sel{outline:3px solid var(--text);outline-offset:-3px;}
-  .gem.clear{animation:pop .18s ease;}
-  @keyframes pop{0%{transform:scale(1)}60%{transform:scale(.4);opacity:.4}100%{transform:scale(1)}}
-  .notice{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .18s ease;}
-  .notice.on{opacity:1;}
-  .notice span{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 18px;
-    font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:20px;color:var(--amber);
-    text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.45);}
-  .hint{color:var(--muted);font-size:12px;text-align:center;margin-top:2px;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>Gem Match</title>
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#16171b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Gem Match">
+
+  <link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+  <link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+
+  <link rel="stylesheet" href="../../shared/fonts.css">
+  <link rel="stylesheet" href="../../shared/theme.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg, #16171b);
+    }
+
+    body {
+      padding:
+        max(10px, env(safe-area-inset-top))
+        max(10px, env(safe-area-inset-right))
+        max(14px, env(safe-area-inset-bottom))
+        max(10px, env(safe-area-inset-left));
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .game {
+      width: min(100%, 620px);
+      margin: 0 auto;
+    }
+
+    .back {
+      display: inline-block;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      margin-bottom: 5px;
+      padding: 5px 0;
+    }
+
+    .back:hover {
+      color: var(--amber);
+    }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 7vw, 36px);
+      line-height: 1;
+    }
+
+    .sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .scores {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .score {
+      min-width: 58px;
+      padding: 5px 6px;
+      text-align: center;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+    }
+
+    .score .k {
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .score .v {
+      color: var(--amber);
+      font-family: "Barlow Semi Condensed", "Inter", sans-serif;
+      font-size: clamp(18px, 5vw, 23px);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    .goal {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .goal .need {
+      color: var(--text);
+    }
+
+    .track {
+      height: 7px;
+      margin-top: 5px;
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 99px;
+    }
+
+    .track .bar {
+      width: 0;
+      height: 100%;
+      background: var(--amber);
+      border-radius: 99px;
+      transition: width .25s ease;
+    }
+
+    .boardwrap {
+      position: relative;
+      width: min(92vw, 580px);
+      margin: 14px auto 12px;
+    }
+
+    .board {
+      display: grid;
+      width: 100%;
+      aspect-ratio: 1;
+      gap: clamp(3px, .9vw, 6px);
+      padding: clamp(4px, 1.5vw, 8px);
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: clamp(10px, 3vw, 16px);
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .gem {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      min-height: 0;
+      border-radius: clamp(5px, 1.8vw, 11px);
+      cursor: pointer;
+      transition:
+        transform .08s ease,
+        filter .12s ease,
+        box-shadow .12s ease;
+    }
+
+    .gem:active {
+      transform: scale(.88);
+    }
+
+    .gem.sel {
+      outline: 3px solid var(--text);
+      outline-offset: -3px;
+      filter: brightness(1.3);
+      box-shadow: 0 0 10px rgba(255, 255, 255, .55);
+    }
+
+    .gem.clear {
+      animation: pop .22s ease;
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      60% {
+        transform: scale(.35);
+        opacity: .25;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .notice {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .18s ease;
+    }
+
+    .notice.on {
+      opacity: 1;
+    }
+
+    .notice span {
+      max-width: 85%;
+      padding: 11px 18px;
+      color: var(--amber);
+      text-align: center;
+      font-family: "Barlow Semi Condensed", "Inter", sans-serif;
+      font-size: clamp(18px, 5vw, 24px);
+      font-weight: 700;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, .45);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .btn {
+      min-height: 44px;
+      padding: 9px 18px;
+      font-size: 15px;
+      touch-action: manipulation;
+    }
+
+    .hint {
+      margin-top: 8px;
+      padding: 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    @media (max-width: 430px) {
+      .header {
+        display: block;
+      }
+
+      .scores {
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 12px;
+      }
+
+      .score {
+        flex: 1;
+      }
+
+      .boardwrap {
+        width: min(96vw, 580px);
+        margin-top: 12px;
+      }
+    }
+
+    @media (min-width: 431px) {
+      .controls {
+        justify-content: flex-start;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
-  <div class="header" style="margin-top:2px">
-    <div><h1>Gem Match</h1><p class="sub" id="sub">Swap to match three</p></div>
-    <div class="scores">
-      <div class="score"><div class="k">Level</div><div class="v" id="level">1</div></div>
-      <div class="score"><div class="k">Score</div><div class="v" id="score">0</div></div>
-      <div class="score"><div class="k">Best</div><div class="v" id="best">0</div></div>
+  <main class="game">
+    <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+
+    <div class="header">
+      <div>
+        <h1>Gem Match</h1>
+        <p class="sub" id="sub">Swap to match three or more</p>
+      </div>
+
+      <div class="scores">
+        <div class="score">
+          <div class="k">Level</div>
+          <div class="v" id="level">1</div>
+        </div>
+
+        <div class="score">
+          <div class="k">Score</div>
+          <div class="v" id="score">0</div>
+        </div>
+
+        <div class="score">
+          <div class="k">Best</div>
+          <div class="v" id="best">0</div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="goal"><div id="rule" class="need">Match 3 in a row</div><div id="progress">0 / 600</div></div>
-  <div class="track"><div class="bar" id="bar"></div></div>
-  <div class="boardwrap">
-    <div class="board" id="board"></div>
-    <div class="notice" id="notice"><span id="noticeText"></span></div>
-  </div>
-  <div class="row" style="display:flex"><button class="btn" onclick="newGame()">New game</button></div>
-  <div class="hint" id="hint">Tap a gem, then an adjacent gem to swap. Line up 3+ of a color.</div>
 
-<script src="../../shared/storage.js"></script>
-<script src="../../shared/pwa.js"></script>
-<script>
-registerPWA('sw.js');
-(function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
+    <div class="goal">
+      <div id="rule" class="need">Match 3 or more</div>
+      <div id="progress">0 / 600</div>
+    </div>
 
-var SKEY='game-gem-match', N=8;
-var COLORS=['#ffb000','#4caf7d','#d96a5a','#5aa0e0','#b07de0','#3ec8c0','#e0668f'];
-// Each level sets the run length that clears, how many gem colors are in play,
-// and the cumulative score that unlocks the next level. Colors thin out when the
-// run length grows — four-in-a-row across seven colors deadlocks constantly.
-var LEVELS=[
-  {need:3,colors:5,goal:600},
-  {need:3,colors:6,goal:1200},
-  {need:3,colors:7,goal:1800},
-  {need:4,colors:4,goal:2700},
-  {need:4,colors:5,goal:3800}
-];
-var TAIL=1200; // goal step for levels past the table
+    <div class="track">
+      <div class="bar" id="bar"></div>
+    </div>
 
-var board=[], score=0, best=0, level=1, sel=null, busy=false;
-var boardEl=document.getElementById('board');
-boardEl.style.gridTemplateColumns='repeat('+N+',1fr)';
+    <div class="boardwrap">
+      <div class="board" id="board"></div>
 
-function levelCfg(l){
-  if(l<=LEVELS.length) return LEVELS[l-1];
-  var last=LEVELS[LEVELS.length-1];
-  return {need:last.need,colors:last.colors,goal:last.goal+(l-LEVELS.length)*TAIL};
-}
-function need(){ return levelCfg(level).need; }
-function goal(){ return levelCfg(level).goal; }
-function floorScore(){ return level>1?levelCfg(level-1).goal:0; }
+      <div class="notice" id="notice">
+        <span id="noticeText"></span>
+      </div>
+    </div>
 
-async function loadBest(){ try{var r=await window.storage.get(SKEY); if(r&&r.value) best=JSON.parse(r.value).best||0;}catch(e){} document.getElementById('best').textContent=best; }
-async function saveBest(){ if(score>best){ best=score; document.getElementById('best').textContent=best; try{await window.storage.set(SKEY,JSON.stringify({best:best}));}catch(e){} } }
+    <div class="controls">
+      <button class="btn" id="newGameButton">New game</button>
+    </div>
 
-function delay(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
-function notice(text){ var n=document.getElementById('notice'); document.getElementById('noticeText').textContent=text; n.classList.add('on'); }
-function clearNotice(){ document.getElementById('notice').classList.remove('on'); }
+    <div class="hint" id="hint">
+      Tap a gem, then an adjacent gem to swap.
+    </div>
+  </main>
 
-function rc(r,c){ return r*N+c; }
-function paint(){
-  var n=need();
-  document.getElementById('level').textContent=level;
-  document.getElementById('score').textContent=score;
-  document.getElementById('sub').textContent='Swap to match '+(n===3?'three':'four');
-  document.getElementById('rule').textContent='Match '+n+' in a row';
-  document.getElementById('hint').textContent='Tap a gem, then an adjacent gem to swap. Line up '+n+'+ of a color.';
-  var lo=floorScore(), hi=goal();
-  document.getElementById('progress').textContent=Math.min(score,hi)+' / '+hi;
-  var pct=Math.max(0,Math.min(1,(score-lo)/(hi-lo)))*100;
-  document.getElementById('bar').style.width=pct.toFixed(1)+'%';
-}
+  <script src="../../shared/storage.js"></script>
+  <script src="../../shared/pwa.js"></script>
 
-function runLen(r,c,col,dr,dc){ var k=1; for(var i=r-dr,j=c-dc; i>=0&&j>=0&&board[i][j]===col; i-=dr,j-=dc) k++; return k; }
-function makeBoard(){
-  var n=need(), colors=levelCfg(level).colors;
-  board=[];
-  for(var r=0;r<N;r++){ board.push([]);
-    for(var c=0;c<N;c++){ var col;
-      do{ col=Math.floor(Math.random()*colors); }
-      while(runLen(r,c,col,0,1)>=n||runLen(r,c,col,1,0)>=n);
-      board[r].push(col);
+  <script>
+    registerPWA("sw.js");
+
+    (function() {
+      var back = document.getElementById("backOS");
+
+      if (back) {
+        var match = location.pathname.match(/^(.*?\/)apps\//);
+
+        if (match) {
+          back.href = match[1];
+        }
+      }
+    })();
+
+    var SKEY = "game-gem-match";
+    var N = 8;
+
+    var COLORS = [
+      "#ffb000",
+      "#4caf7d",
+      "#d96a5a",
+      "#5aa0e0",
+      "#b07de0",
+      "#3ec8c0",
+      "#e0668f"
+    ];
+
+    /*
+      Each level defines:
+
+      need   = minimum number required for a match
+      colors = number of colors in play
+      goal   = score required to advance
+    */
+    var LEVELS = [
+      { need: 3, colors: 5, goal: 600 },
+      { need: 3, colors: 6, goal: 1200 },
+      { need: 3, colors: 7, goal: 1800 },
+      { need: 4, colors: 4, goal: 2700 },
+      { need: 4, colors: 5, goal: 3800 }
+    ];
+
+    var TAIL = 1200;
+
+    var board = [];
+    var score = 0;
+    var best = 0;
+    var level = 1;
+    var selected = null;
+    var busy = false;
+
+    var boardEl = document.getElementById("board");
+
+    boardEl.style.gridTemplateColumns = "repeat(" + N + ", 1fr)";
+
+    function levelCfg(currentLevel) {
+      if (currentLevel <= LEVELS.length) {
+        return LEVELS[currentLevel - 1];
+      }
+
+      var last = LEVELS[LEVELS.length - 1];
+
+      return {
+        need: last.need,
+        colors: last.colors,
+        goal: last.goal + (currentLevel - LEVELS.length) * TAIL
+      };
     }
-  }
-}
-// A fresh board is only worth playing if some swap can still clear a run.
-function dealBoard(){ for(var i=0;i<200;i++){ makeBoard(); if(hasMove()) return; } }
 
-function getMatches(){ var n=need(), m={};
-  for(var r=0;r<N;r++){ var run=1; for(var c=1;c<=N;c++){ if(c<N&&board[r][c]===board[r][c-1]&&board[r][c]>=0) run++; else { if(run>=n) for(var k=1;k<=run;k++) m[rc(r,c-k)]=1; run=1; } } }
-  for(var c2=0;c2<N;c2++){ var run2=1; for(var r2=1;r2<=N;r2++){ if(r2<N&&board[r2][c2]===board[r2-1][c2]&&board[r2][c2]>=0) run2++; else { if(run2>=n) for(var k2=1;k2<=run2;k2++) m[rc(r2-k2,c2)]=1; run2=1; } } }
-  return Object.keys(m).map(Number);
-}
-function swapCells(a,b){ var t=board[a[0]][a[1]]; board[a[0]][a[1]]=board[b[0]][b[1]]; board[b[0]][b[1]]=t; }
-function clearsSomething(a,b){ swapCells(a,b); var ok=getMatches().length>0; swapCells(a,b); return ok; }
-function hasMove(){
-  for(var r=0;r<N;r++)for(var c=0;c<N;c++){
-    if(c+1<N&&clearsSomething([r,c],[r,c+1])) return true;
-    if(r+1<N&&clearsSomething([r,c],[r+1,c])) return true;
-  }
-  return false;
-}
-
-function collapse(){ var colors=levelCfg(level).colors;
-  for(var c=0;c<N;c++){ var col=[]; for(var r=N-1;r>=0;r--) if(board[r][c]>=0) col.push(board[r][c]);
-  for(var r2=N-1;r2>=0;r2--) board[r2][c]= (N-1-r2)<col.length ? col[N-1-r2] : Math.floor(Math.random()*colors); } }
-
-function resolve(){ var total=0, chain=0;
-  return new Promise(function(done){
-    function stepOnce(){ var m=getMatches(); if(!m.length){ if(total>0){ score+=total; paint(); saveBest(); } done(total>0); return; }
-      chain++; total+= m.length*10*chain;
-      // mark cleared
-      m.forEach(function(i){ board[Math.floor(i/N)][i%N]=-1; });
-      render(m);
-      setTimeout(function(){ collapse(); render(); setTimeout(stepOnce,90); },150);
+    function need() {
+      return levelCfg(level).need;
     }
-    stepOnce();
-  });
-}
 
-// Level up on the score target, and deal a fresh board whenever the current one
-// is dead — no swap left that clears a run.
-async function settle(){
-  while(score>=goal()){
-    level++;
-    paint();
-    notice('Level '+level+' — match '+need());
-    dealBoard(); render();
-    await delay(900); clearNotice(); await delay(180);
-  }
-  if(!hasMove()){
-    notice('No moves left — new board');
-    await delay(800);
-    dealBoard(); render();
-    await delay(400); clearNotice(); await delay(180);
-  }
-  paint();
-}
+    function goal() {
+      return levelCfg(level).goal;
+    }
 
-function adjacent(a,b){ return (Math.abs(a[0]-b[0])+Math.abs(a[1]-b[1]))===1; }
-async function trySwap(a,b){ busy=true;
-  swapCells(a,b);
-  if(getMatches().length){ render(); await resolve(); await settle(); }
-  else { render(); await delay(120); swapCells(a,b); render(); }
-  busy=false;
-}
-function onCell(r,c){ if(busy) return;
-  if(!sel){ sel=[r,c]; render(); return; }
-  if(sel[0]===r&&sel[1]===c){ sel=null; render(); return; }
-  if(adjacent(sel,[r,c])){ var a=sel; sel=null; trySwap(a,[r,c]); }
-  else { sel=[r,c]; render(); }
-}
-function render(cleared){
-  cleared=cleared||[];
-  boardEl.innerHTML='';
-  for(var r=0;r<N;r++)for(var c=0;c<N;c++){
-    var v=board[r][c]; var d=document.createElement('div');
-    d.className='gem'+((sel&&sel[0]===r&&sel[1]===c)?' sel':'')+(cleared.indexOf(rc(r,c))>=0?' clear':'');
-    d.style.background=v>=0?COLORS[v]:'transparent';
-    (function(rr,cc){ d.onclick=function(){ onCell(rr,cc); }; })(r,c);
-    boardEl.appendChild(d);
-  }
-}
-function newGame(){ if(busy) return; score=0; level=1; sel=null; clearNotice(); dealBoard(); paint(); render(); }
+    function floorScore() {
+      return level > 1 ? levelCfg(level - 1).goal : 0;
+    }
 
-(async function(){ await loadBest(); newGame(); })();
-</script>
+    function rc(row, col) {
+      return row * N + col;
+    }
+
+    function delay(milliseconds) {
+      return new Promise(function(resolve) {
+        setTimeout(resolve, milliseconds);
+      });
+    }
+
+    async function loadBest() {
+      try {
+        var result = await window.storage.get(SKEY);
+
+        if (result && result.value) {
+          best = JSON.parse(result.value).best || 0;
+        }
+      } catch (error) {
+        best = 0;
+      }
+
+      document.getElementById("best").textContent = best;
+    }
+
+    async function saveBest() {
+      if (score > best) {
+        best = score;
+        document.getElementById("best").textContent = best;
+
+        try {
+          await window.storage.set(
+            SKEY,
+            JSON.stringify({ best: best })
+          );
+        } catch (error) {
+          // Storage may be unavailable; the game can still continue.
+        }
+      }
+    }
+
+    function notice(text) {
+      document.getElementById("noticeText").textContent = text;
+      document.getElementById("notice").classList.add("on");
+    }
+
+    function clearNotice() {
+      document.getElementById("notice").classList.remove("on");
+    }
+
+    function paint() {
+      var minimum = need();
+      var low = floorScore();
+      var high = goal();
+
+      document.getElementById("level").textContent = level;
+      document.getElementById("score").textContent = score;
+
+      document.getElementById("sub").textContent =
+        "Swap to match " + minimum + " or more";
+
+      document.getElementById("rule").textContent =
+        "Match " + minimum + "+ — 4+ clears that color";
+
+      document.getElementById("hint").textContent =
+        "Tap a gem, then an adjacent gem to swap. " +
+        "Match " + minimum + "+. Match 4+ to clear every gem of that color.";
+
+      document.getElementById("progress").textContent =
+        Math.min(score, high) + " / " + high;
+
+      var percentage = Math.max(
+        0,
+        Math.min(1, (score - low) / (high - low))
+      ) * 100;
+
+      document.getElementById("bar").style.width =
+        percentage.toFixed(1) + "%";
+    }
+
+    function runLength(row, col, color, rowDirection, colDirection) {
+      var length = 1;
+
+      for (
+        var r = row - rowDirection,
+            c = col - colDirection;
+
+        r >= 0 &&
+        r < N &&
+        c >= 0 &&
+        c < N &&
+        board[r][c] === color;
+
+        r -= rowDirection,
+        c -= colDirection
+      ) {
+        length++;
+      }
+
+      return length;
+    }
+
+    function makeBoard() {
+      var minimum = need();
+      var colorCount = levelCfg(level).colors;
+
+      board = [];
+
+      for (var r = 0; r < N; r++) {
+        board.push([]);
+
+        for (var c = 0; c < N; c++) {
+          var color;
+
+          do {
+            color = Math.floor(Math.random() * colorCount);
+          } while (
+            runLength(r, c, color, 0, 1) >= minimum ||
+            runLength(r, c, color, 1, 0) >= minimum
+          );
+
+          board[r].push(color);
+        }
+      }
+    }
+
+    function dealBoard() {
+      for (var attempt = 0; attempt < 200; attempt++) {
+        makeBoard();
+
+        if (hasMove()) {
+          return;
+        }
+      }
+
+      makeBoard();
+    }
+
+    function getMatches() {
+      var minimum = need();
+      var matches = {};
+
+      // Horizontal matches
+      for (var r = 0; r < N; r++) {
+        var run = 1;
+
+        for (var c = 1; c <= N; c++) {
+          if (
+            c < N &&
+            board[r][c] >= 0 &&
+            board[r][c] === board[r][c - 1]
+          ) {
+            run++;
+          } else {
+            if (
+              board[r][c - run] >= 0 &&
+              run >= minimum
+            ) {
+              for (var x = 0; x < run; x++) {
+                matches[rc(r, c - 1 - x)] = true;
+              }
+            }
+
+            run = 1;
+          }
+        }
+      }
+
+      // Vertical matches
+      for (var c2 = 0; c2 < N; c2++) {
+        var run2 = 1;
+
+        for (var r2 = 1; r2 <= N; r2++) {
+          if (
+            r2 < N &&
+            board[r2][c2] >= 0 &&
+            board[r2][c2] === board[r2 - 1][c2]
+          ) {
+            run2++;
+          } else {
+            if (
+              board[r2 - run2][c2] >= 0 &&
+              run2 >= minimum
+            ) {
+              for (var y = 0; y < run2; y++) {
+                matches[rc(r2 - 1 - y, c2)] = true;
+              }
+            }
+
+            run2 = 1;
+          }
+        }
+      }
+
+      return Object.keys(matches).map(Number);
+    }
+
+    function getRuns() {
+      var minimum = need();
+      var runs = [];
+
+      // Horizontal runs
+      for (var r = 0; r < N; r++) {
+        var start = 0;
+
+        for (var c = 1; c <= N; c++) {
+          var same =
+            c < N &&
+            board[r][c] >= 0 &&
+            board[r][c] === board[r][c - 1];
+
+          if (!same) {
+            var length = c - start;
+
+            if (
+              board[r][start] >= 0 &&
+              length >= minimum
+            ) {
+              var cells = [];
+
+              for (var x = start; x < c; x++) {
+                cells.push(rc(r, x));
+              }
+
+              runs.push({
+                cells: cells,
+                color: board[r][start],
+                length: length
+              });
+            }
+
+            start = c;
+          }
+        }
+      }
+
+      // Vertical runs
+      for (var c2 = 0; c2 < N; c2++) {
+        var start2 = 0;
+
+        for (var r2 = 1; r2 <= N; r2++) {
+          var same2 =
+            r2 < N &&
+            board[r2][c2] >= 0 &&
+            board[r2][c2] === board[r2 - 1][c2];
+
+          if (!same2) {
+            var length2 = r2 - start2;
+
+            if (
+              board[start2][c2] >= 0 &&
+              length2 >= minimum
+            ) {
+              var cells2 = [];
+
+              for (var y = start2; y < r2; y++) {
+                cells2.push(rc(y, c2));
+              }
+
+              runs.push({
+                cells: cells2,
+                color: board[start2][c2],
+                length: length2
+              });
+            }
+
+            start2 = r2;
+          }
+        }
+      }
+
+      return runs;
+    }
+
+    function swapCells(a, b) {
+      var temporary = board[a[0]][a[1]];
+
+      board[a[0]][a[1]] = board[b[0]][b[1]];
+      board[b[0]][b[1]] = temporary;
+    }
+
+    function clearsSomething(a, b) {
+      swapCells(a, b);
+
+      var works = getMatches().length > 0;
+
+      swapCells(a, b);
+
+      return works;
+    }
+
+    function hasMove() {
+      for (var r = 0; r < N; r++) {
+        for (var c = 0; c < N; c++) {
+          if (
+            c + 1 < N &&
+            clearsSomething([r, c], [r, c + 1])
+          ) {
+            return true;
+          }
+
+          if (
+            r + 1 < N &&
+            clearsSomething([r, c], [r + 1, c])
+          ) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    }
+
+    function collapse() {
+      var colorCount = levelCfg(level).colors;
+
+      for (var c = 0; c < N; c++) {
+        var remaining = [];
+
+        for (var r = N - 1; r >= 0; r--) {
+          if (board[r][c] >= 0) {
+            remaining.push(board[r][c]);
+          }
+        }
+
+        for (var r2 = N - 1; r2 >= 0; r2--) {
+          var index = N - 1 - r2;
+
+          board[r2][c] =
+            index < remaining.length
+              ? remaining[index]
+              : Math.floor(Math.random() * colorCount);
+        }
+      }
+    }
+
+    function resolve() {
+      var total = 0;
+      var chain = 0;
+
+      return new Promise(function(done) {
+        function stepOnce() {
+          var matches = getMatches();
+
+          if (!matches.length) {
+            if (total > 0) {
+              score += total;
+              paint();
+              saveBest();
+            }
+
+            done(total > 0);
+            return;
+          }
+
+          chain++;
+
+          var runs = getRuns();
+          var clearSet = {};
+          var bonusColors = {};
+
+          // Add the regular matched gems
+          matches.forEach(function(index) {
+            clearSet[index] = true;
+          });
+
+          /*
+            Four or more creates a color-bomb effect.
+            The entire color used in that linked run is cleared.
+          */
+          runs.forEach(function(run) {
+            if (run.length >= 4) {
+              bonusColors[run.color] = true;
+            }
+          });
+
+          Object.keys(bonusColors).forEach(function(colorKey) {
+            var color = Number(colorKey);
+
+            for (var r = 0; r < N; r++) {
+              for (var c = 0; c < N; c++) {
+                if (board[r][c] === color) {
+                  clearSet[rc(r, c)] = true;
+                }
+              }
+            }
+          });
+
+          var cleared = Object.keys(clearSet).map(Number);
+          var movePoints = 0;
+
+          // Longer matches score more
+          runs.forEach(function(run) {
+            movePoints += run.length * run.length * 10;
+
+            if (run.length >= 4) {
+              movePoints += 100 + ((run.length - 4) * 50);
+            }
+          });
+
+          // Small reward for gems removed by the color bonus
+          movePoints +=
+            Math.max(0, cleared.length - matches.length) * 5;
+
+          // Chain reactions multiply the score
+          total += movePoints * chain;
+
+          cleared.forEach(function(index) {
+            board[Math.floor(index / N)][index % N] = -1;
+          });
+
+          render(cleared);
+
+          setTimeout(function() {
+            collapse();
+            render();
+
+            setTimeout(stepOnce, 100);
+          }, 180);
+        }
+
+        stepOnce();
+      });
+    }
+
+    async function settle() {
+      while (score >= goal()) {
+        level++;
+
+        paint();
+        notice("Level " + level + " — match " + need() + "+");
+
+        dealBoard();
+        render();
+
+        await delay(900);
+
+        clearNotice();
+
+        await delay(180);
+      }
+
+      if (!hasMove()) {
+        notice("No moves left — new board");
+
+        await delay(800);
+
+        dealBoard();
+        render();
+
+        await delay(400);
+
+        clearNotice();
+
+        await delay(180);
+      }
+
+      paint();
+    }
+
+    function adjacent(a, b) {
+      return (
+        Math.abs(a[0] - b[0]) +
+        Math.abs(a[1] - b[1])
+      ) === 1;
+    }
+
+    async function trySwap(a, b) {
+      busy = true;
+
+      swapCells(a, b);
+
+      if (getMatches().length) {
+        render();
+
+        await resolve();
+        await settle();
+      } else {
+        render();
+
+        await delay(120);
+
+        swapCells(a, b);
+        render();
+      }
+
+      busy = false;
+    }
+
+    function onCell(row, col) {
+      if (busy) {
+        return;
+      }
+
+      if (!selected) {
+        selected = [row, col];
+        render();
+        return;
+      }
+
+      if (
+        selected[0] === row &&
+        selected[1] === col
+      ) {
+        selected = null;
+        render();
+        return;
+      }
+
+      if (adjacent(selected, [row, col])) {
+        var first = selected;
+
+        selected = null;
+
+        trySwap(first, [row, col]);
+      } else {
+        selected = [row, col];
+        render();
+      }
+    }
+
+    function render(cleared) {
+      cleared = cleared || [];
+
+      boardEl.innerHTML = "";
+
+      for (var r = 0; r < N; r++) {
+        for (var c = 0; c < N; c++) {
+          var value = board[r][c];
+          var gem = document.createElement("div");
+
+          gem.className = "gem";
+
+          if (
+            selected &&
+            selected[0] === r &&
+            selected[1] === c
+          ) {
+            gem.classList.add("sel");
+          }
+
+          if (cleared.indexOf(rc(r, c)) >= 0) {
+            gem.classList.add("clear");
+          }
+
+          gem.style.background =
+            value >= 0
+              ? COLORS[value]
+              : "transparent";
+
+          (function(row, col) {
+            gem.onclick = function() {
+              onCell(row, col);
+            };
+          })(r, c);
+
+          boardEl.appendChild(gem);
+        }
+      }
+    }
+
+    function newGame() {
+      if (busy) {
+        return;
+      }
+
+      score = 0;
+      level = 1;
+      selected = null;
+
+      clearNotice();
+      dealBoard();
+      paint();
+      render();
+    }
+
+    document
+      .getElementById("newGameButton")
+      .addEventListener("click", newGame);
+
+    (async function() {
+      await loadBest();
+      newGame();
+    })();
+  </script>
 </body>
 </html>
