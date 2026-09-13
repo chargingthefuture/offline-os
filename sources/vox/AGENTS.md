@@ -55,14 +55,16 @@ quotes, so do not reach for a banned word even to talk about it; use the replace
 - punch list → list
 - (the word for out-of-date) → drop it; if you mean something specific, name it (out-of-date, superseded, no longer current)
 - console → dashboard (the code identifiers `console.log` / `console.error` / `console.info` are exempt)
-- whole point → say the point plainly, without announcing that it is the point
-- whole argument → state the argument itself, without labeling it the argument
+- a sentence of the form "that is the whole ‹anything›" → state the point itself and stop
 - point of the thing → end on the fact itself, with no sentence explaining that it mattered
 
-Those last three are one habit: the sentence that arrives after the facts to tell the reader which
-of them mattered. Write the point as a plain statement and stop; if a sentence does nothing but
-label what came before it, delete it. Three spellings of it are banned, which is the signal to stop
-reaching for the shape at all rather than to find a fourth wording.
+Both are one habit: the sentence that arrives after the facts to tell the reader which of them
+mattered. Write the point as a plain statement and stop; if a sentence does nothing but label what
+came before it, delete it. The ban is on the construction, not on a list of nouns — three nouns
+were banned one at a time and each time the next reply reached for a fourth in the same frame, so
+the frame itself is what trips now, whatever word follows it. A negated form is left alone: saying
+an account is not the whole story states something about the account rather than ranking what came
+before it.
 
 When the hook blocks a reply, restate the result in plain, factual language — none of the terms
 above, no jargon, no first-person feeling words — then stop.
