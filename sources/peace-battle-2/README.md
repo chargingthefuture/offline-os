@@ -306,53 +306,47 @@ decision.
 
 | | Careful | Careless |
 |---|---|---|
-| Catalog filled inside two generations | 99.7% | 0% |
-| Median year it filled | 38 of 50 | — |
-| Median skills present at the end | 657 of 657 | 590 of 657 |
-| Median people | 723 | 590 |
+| Catalog filled inside two generations | 95% | 0% |
+| Median year it filled | 42 of 50 | — |
+| Median skills present at the end | 657 of 657 | 548 of 657 |
+| Median people | 682 | 585 |
 | Places covered / cut off | 6 / 0 | 2 / 4 |
-
-That is the map game's own shape — it wins 199 of 200 seeded runs for a greedy player and loses ten
-of ten for a random one — reproduced against a fifty-year clock and a board built from the Directory.
 
 The careless player is not a saboteur. It picks a legal action at random, which is what somebody
 doing things without reading the board looks like, and it loses four of the six places and finishes
-sixty-seven skills short.
+a hundred and nine skills short.
 
-### The one number still owed
+The five percent of careful runs that fail all fail the same way, and it is the way that makes the
+clock worth having. They finish on 655 or 656 of 657, with six places covered and a hundred
+teachers standing by, having run out of years while the last skill or two flickered off the map and
+back. The loss is the clock, not a mistake — which is what the issue asked the clock to be.
 
-The loop needs one input that is not in this folder and cannot be derived: how many skills the
-taxonomy carries in each of the twenty sectors. The Directory's 184 held skills are split by sector
-already, but the 473 nobody holds are not, and where they sit decides which sectors are hard. Making
-that split up would be making up the answer, so the loop refuses to run without it.
+### The taxonomy's own shape is what makes it hard
 
-One read-only query against production produces it. Nothing in it touches a person:
+`taxonomy-shape.json` is how many skills the taxonomy carries in each of the twenty sectors, pulled
+2026-09-14 by one read-only query. It is the last input, and it decides which sectors are hard,
+because the 473 skills nobody on the board holds are not spread evenly across them.
 
-```sql
-SELECT json_build_object(
-  'pulledOn', to_char(now(), 'YYYY-MM-DD'),
-  'totalSkills', (SELECT COUNT(*) FROM skills_taxonomy_skills WHERE is_active),
-  'skillsBySector', (
-    SELECT json_object_agg(sector, skills) FROM (
-      SELECT s.name AS sector, COUNT(k.id) AS skills
-      FROM skills_taxonomy_sectors s
-      LEFT JOIN skills_taxonomy_job_titles j
-        ON j.sector_id::text = s.id::text AND j.is_active
-      LEFT JOIN skills_taxonomy_skills k
-        ON k.job_title_id::text = j.id::text AND k.is_active
-      WHERE s.is_active
-      GROUP BY s.name
-    ) t
-  )
-) AS taxonomy_shape;
-```
+| Sector | Skills in the taxonomy | Held by the Directory | People who hold the sector |
+|---|---|---|---|
+| Health | 80 | 21 | 37 |
+| Creative & Media | 77 | 20 | 68 |
+| Professional & Business Services | 51 | 13 | — |
+| Food & Agriculture | 49 | 8 | — |
+| … | | | |
+| Emergency & Reserve Roles | 20 | 1 | 1 |
+| Public Safety & Justice | 15 | 1 | 1 |
+| Retail & Services | 14 | 14 | — |
+| Mining / Extractive | 12 | 1 | 1 |
 
-The casts to text are there because production still carries version 2 column types in places, and an
-id compared across two of them has no operator and errors out.
+Three of the twenty sectors carry between twelve and twenty skills and are held by exactly one
+person each. Nineteen of Emergency & Reserve Roles' twenty skills are missing, and the only route to
+them is teaching, because a sector that is one holding in three hundred and sixty-seven never walks
+in from the pool. A player who never notices those three sectors does not lose slowly — the run ends
+with nineteen skills that were never going to arrive by themselves.
 
-The board-level numbers above — how fast isolation spreads, what a Reach clears, how the careful and
-careless policies differ — do not depend on that split and are settled. Teaching and looking do, and
-get re-swept when it lands.
+Retail & Services is the other end of it: all fourteen of its skills are already held. A sector can
+be finished on day one, and one is.
 
 ## What this does not settle
 

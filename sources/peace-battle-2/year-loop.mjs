@@ -22,9 +22,9 @@ const read = (name) => {
     if (error.code === 'ENOENT' && name === 'taxonomy-shape.json') {
       throw new Error('taxonomy-shape.json is missing. It is how many skills the taxonomy carries in '
         + 'each of the twenty sectors, which decides where the 473 skills nobody on the board holds '
-        + 'actually sit. The query that produces it is in README.md under "The one number still '
-        + 'owed". Without it the loop would have to invent that split, and an invented split would '
-        + 'decide which sectors are hard.');
+        + 'actually sit. It is pulled by one read-only query against the taxonomy; the file itself '
+        + 'names it. Without it the loop would have to invent that split, and an invented split '
+        + 'would decide which sectors are hard.');
     }
     throw error;
   }
@@ -54,11 +54,6 @@ const PLACE_LINKS = [
 //
 // Every number here is a magnitude that could not be read off the opening board. They are swept
 // rather than chosen, and the values below are what the sweep settled on.
-// NOTE ON THE VALUES BELOW: the sweep that set them ran against a stand-in split of the taxonomy
-// across sectors, because the real split is the one input this work still owes (see README.md,
-// "The one number still owed"). The board-level knobs — how fast isolation spreads, what a Reach
-// clears — do not depend on that split and are settled. Teaching and looking do, and get re-swept
-// when the real split lands.
 export const DEFAULT_TUNING = {
   // What one action moves.
   reachClears: 1, // isolation a Reach takes off a place
