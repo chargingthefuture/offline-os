@@ -1,4 +1,4 @@
-# Peace-Battle 2 — the Directory's shape
+# Peace-Battle 2 — the numbers it runs on
 
 `directory-shape.json` is work item 1 of issue #47, written down as numbers. The game generates its
 147 residents from this and never from the Directory itself.
@@ -111,7 +111,144 @@ allocation, and it finds one if any exists.
   with a real person is possible; it would be a coincidence, because no name, place or skill was read
   from a row.
 
+## The year (work item 5)
+
+`read-opening-board.mjs` settles what a year contains and writes `opening-board.json`, which is what
+the headless loop in item 6 reads. Item 5 asks four things, and three of them are decisions while one
+is a reading, so the script keeps them apart: the decisions are named constants with the reason
+beside each, and everything else is computed from the generated board.
+
+### What a year contains
+
+A year carries three actions against four kinds of action. The count is one short of the menu on
+purpose — every year drops something, so a year is a choice rather than a checklist. Fifty years of
+three is a hundred and fifty decisions, which is the map game's sitting stretched over a longer board
+rather than a different kind of session.
+
+A generation is twenty-five years and the run ends after two. The issue asked for forty to fifty
+turns; fifty is the top of that range, and since it is the loss condition it is the number that has
+to be beatable rather than comfortable.
+
+The four kinds, none of which commands a person:
+
+| Action | What the player decides |
+|---|---|
+| Reach | Where the Directory reaches. Extends it into a place, or pushes isolation back out of one. |
+| Teach | What gets taught. Pick a sector; residents in reach learn skills in it. |
+| Look | Who gets looked for. Pulls from the pool of people not on the Directory into a place. |
+| Show the arithmetic | Answers the people who say it cannot be done, so more of the people found stay findable. |
+
+Teach is the only one that can aim at a skill nobody holds. Look finds skills by luck; teach fills
+them on purpose. The arithmetic below is what makes that distinction load-bearing rather than
+flavor.
+
+### What resolves on its own
+
+After the actions are spent, in this order: residents work and the settled index climbs by what
+settled; open posts are counted and the projected figure moves with them; teaching started this year
+lands, with the dice choosing which skills inside the sector that was taught; people looked for
+arrive, with the dice choosing who turns up and what they already hold; unavailability is rolled;
+isolation spreads and a place already at the top cuts off and takes the places beside it; detractor
+pressure moves, down if results became visible this year and up if nothing did; places are
+re-checked against the thirteen teams; then milestones and the two end conditions.
+
+Every roll in that list chooses which and when. None of them chooses whether.
+
+### Which slots a place has to fill before it runs
+
+Thirteen teams, each a named union of taxonomy sectors, taken from
+`ctf/packages/web/lib/workforce/community-planning.ts` in the product repository. They were
+transcribed from the owner's planning document and then widened on purpose to cover a settlement that
+has to stand on its own rather than buy water, power, schooling and courts from outside. Every one of
+the twenty sectors is drawn from by at least one team, which the script checks.
+
+A place runs when every one of the thirteen has somebody findable in it. That is the
+un-substitutable-slot mechanic with no invented ranking anywhere in it — the list of jobs a place
+cannot run without was already written down, so none of it had to be made up here.
+
+### What the opening board says
+
+One of the six places runs. The largest, the seventy-two people whose Directory rows carry no state,
+covers all thirteen teams. The other five do not: the United Kingdom is missing nine of them,
+Florida seven, California six.
+
+The teams are wildly uneven, and the thin end is thinner than any guess would have made it:
+
+| Team | People on the whole board |
+|---|---|
+| Communications & Documentation | 68 |
+| Health & Wellbeing | 37 |
+| Operations & Maintenance | 36 |
+| Finance | 22 |
+| Build & Infrastructure | 15 |
+| Technology | 14 |
+| Land & Site | 13 |
+| Legal & Governance | 12 |
+| Food & Agriculture | 11 |
+| Making & Repair | 8 |
+| Safety & Security | 2 |
+| Education & Childcare | 2 |
+| Water & Sanitation | 1 |
+
+That column is replacement level at team grain — how many people stand behind the one doing the job
+— and it is read off the shape rather than assigned. One person on the entire board can staff Water
+& Sanitation. The one place that runs rests on a single person for three of its thirteen teams:
+Safety & Security, Water & Sanitation, and Education & Childcare. So the year the unavailability roll
+takes any one of those three, the only running place on the board stops running.
+
+### How long the catalog takes
+
+The opening board says how often a new holding is a skill nobody holds. 127 of the 184 held skills
+are held by exactly one person, and that count over the 367 holdings — about a third — is the
+Good-Turing estimate of the chance the next holding is new. That rate falls as the catalog fills, so
+the model is the measured rate scaled by how much of the catalog is left, and integrating it gives
+the holdings a run needs.
+
+| Catalog reaches | Extra holdings | Extra people | People a year over fifty years |
+|---|---|---|---|
+| 591 of 657 (90%) | 2,692 | 1,078 | 22 |
+| 650 of 657 (99%) | 5,759 | 2,307 | 46 |
+| 656 of 657 | 8,419 | 3,372 | 67 |
+
+Breadth comes fast and the thin end does not. Nine tenths of the catalog needs twenty-two people a
+year; the last six cost nearly as much as the first four hundred and seven. And the 657th never
+arrives at all under recruitment alone, because the chance of drawing the one skill nobody has goes
+to zero as the catalog fills. Teaching is what closes that tail, which is why the player picks what
+gets taught and the dice do not.
+
+At sixty-seven people a year the signed-up goal of 384 lands in year four, which is the early
+milestone the issue expected.
+
+Two things fall out of the same table. A run that fills the catalog does it with about three and a
+half thousand people, against a participating population of two and a half million — three orders of
+magnitude below the ceiling. So the index figure the economy is aimed at belongs to the whole
+population and not to a board this size, and a run that reached every skill would still report an
+index nowhere near it. Reporting the index at the end rather than requiring it is the only way that
+is not a lie.
+
+### The covered-population figure
+
+The sixteen-city map totalled 30,570,000 real city populations. This board is not cities, and the
+population it is for is the survivor population the economy is aimed at, so the five million is
+apportioned across the six places by where the Directory's own people are.
+
+| Place | Residents | Stands for |
+|---|---|---|
+| United States, state not given | 72 | 2,448,980 |
+| United States, elsewhere | 41 | 1,394,558 |
+| Outside the US and UK | 11 | 374,150 |
+| United States, California | 11 | 374,150 |
+| United States, Florida | 7 | 238,095 |
+| United Kingdom | 5 | 170,068 |
+
+The board totals five million rather than the sixteen-city map's thirty, and the script fails
+if it does not.
+
 ## What this does not settle
 
-The generated residents (item 3) and replacement level (item 4) follow from these numbers directly.
-The year loop (item 5) and its tuning (item 6) do not, and are still ahead.
+The generated residents (item 3), replacement level (item 4) and the year (item 5) follow from these
+numbers. What is left is magnitudes that only a tuning pass can set: how much a single action moves,
+how fast isolation spreads against a fifty-year clock rather than a thirteen-round one, what an
+unavailability roll costs, and how much a detractor takes off the join-and-stay rate. Those are items
+6 and 8, and none of them can be guessed from the opening board — they have to be swept over seeds
+against a careful player and a careless one.

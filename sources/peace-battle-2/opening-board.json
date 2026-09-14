@@ -1,0 +1,458 @@
+{
+  "generatedFrom": [
+    "directory-shape.json",
+    "residents.json"
+  ],
+  "note": "Work item 5 of issue #47. Decisions are named in read-opening-board.mjs; everything else is read off the generated board.",
+  "year": {
+    "yearsInGeneration": 25,
+    "generations": 2,
+    "years": 50,
+    "actionsPerYear": 3,
+    "actionKinds": [
+      {
+        "key": "reach",
+        "name": "Reach",
+        "decides": "Where the Directory reaches. Extends it into a place, or pushes isolation back out of one.",
+        "inherits": "The map game’s help-here mechanic, on the rebuilt board."
+      },
+      {
+        "key": "teach",
+        "name": "Teach",
+        "decides": "What gets taught. Pick a sector; residents in reach learn skills in it.",
+        "inherits": "Level Up. The only action that can aim at a skill nobody holds."
+      },
+      {
+        "key": "look",
+        "name": "Look",
+        "decides": "Who gets looked for. Pulls from the pool of people not on the Directory into a place.",
+        "inherits": "SkillsHunt, and fantasy football’s un-rostered pool without its priority order."
+      },
+      {
+        "key": "show-the-arithmetic",
+        "name": "Show the arithmetic",
+        "decides": "Answers the people who say it cannot be done. Raises how many of the people found stay findable.",
+        "inherits": "The honest detractor mechanic: what moves a detractor is arithmetic, or other people’s results."
+      }
+    ],
+    "resolvesOnItsOwn": [
+      "Residents work. Services settle, and the settled index climbs by what settled.",
+      "Open posts are counted. The projected figure moves with them, and most of them never close.",
+      "Teaching started this year lands. The dice choose which skills inside the sector that was taught.",
+      "People looked for arrive. The dice choose who turns up and what they already hold.",
+      "Unavailability is rolled. Some residents are out of reach for the year and back the next one.",
+      "Isolation spreads on the map, and a place already at the top cuts off and takes the places beside it.",
+      "Detractor pressure moves — down if results became visible this year, up if nothing did.",
+      "Places are re-checked against the thirteen teams. A place that lost a team stops running.",
+      "Milestones, then the two end conditions."
+    ]
+  },
+  "figures": {
+    "taxonomySkills": 657,
+    "taxonomyCountedOn": "2026-09-13",
+    "skillsHeldAtStart": 184,
+    "skillsUnheldAtStart": 473,
+    "survivorPopulation": 5000000,
+    "participationRate": 0.5,
+    "signedUpGoal": 384,
+    "signedUpGoalReachedInYear": 4
+  },
+  "catalog": {
+    "newSkillRateAtStart": 0.346,
+    "holdingsPerResident": 2.5,
+    "milestones": [
+      {
+        "skills": 591,
+        "extraHoldings": 2692,
+        "extraPeople": 1078,
+        "peopleJoiningPerYear": 22,
+        "populationAtTheEnd": 1225
+      },
+      {
+        "skills": 650,
+        "extraHoldings": 5759,
+        "extraPeople": 2307,
+        "peopleJoiningPerYear": 46,
+        "populationAtTheEnd": 2454
+      },
+      {
+        "skills": 656,
+        "extraHoldings": 8419,
+        "extraPeople": 3372,
+        "peopleJoiningPerYear": 67,
+        "populationAtTheEnd": 3519
+      }
+    ]
+  },
+  "teams": [
+    {
+      "key": "legal-governance",
+      "name": "Legal & Governance",
+      "sectors": [
+        "Professional & Business Services",
+        "Public Safety & Justice"
+      ],
+      "peopleOnTheBoard": 12,
+      "byPlace": {
+        "United States — state not given": 8,
+        "United States — elsewhere": 1,
+        "Outside the US and UK": 2,
+        "United States — Florida": 1,
+        "United States — California": 0,
+        "United Kingdom": 0
+      },
+      "placesRestingOnOnePerson": [
+        "United States — elsewhere",
+        "United States — Florida"
+      ]
+    },
+    {
+      "key": "finance",
+      "name": "Finance",
+      "sectors": [
+        "Microfinance & SME Support",
+        "Professional & Business Services",
+        "Finance & Public Administration"
+      ],
+      "peopleOnTheBoard": 22,
+      "byPlace": {
+        "United States — state not given": 10,
+        "United States — elsewhere": 6,
+        "Outside the US and UK": 3,
+        "United States — Florida": 2,
+        "United States — California": 1,
+        "United Kingdom": 0
+      },
+      "placesRestingOnOnePerson": [
+        "United States — California"
+      ]
+    },
+    {
+      "key": "land-site",
+      "name": "Land & Site",
+      "sectors": [
+        "Housing & Construction",
+        "Environmental & Waste Management",
+        "Mining / Extractive"
+      ],
+      "peopleOnTheBoard": 13,
+      "byPlace": {
+        "United States — state not given": 7,
+        "United States — elsewhere": 5,
+        "Outside the US and UK": 1,
+        "United States — Florida": 0,
+        "United States — California": 0,
+        "United Kingdom": 0
+      },
+      "placesRestingOnOnePerson": [
+        "Outside the US and UK"
+      ]
+    },
+    {
+      "key": "build-infrastructure",
+      "name": "Build & Infrastructure",
+      "sectors": [
+        "Housing & Construction",
+        "Energy & Utilities",
+        "Water & Sanitation",
+        "Telecommunications & IT"
+      ],
+      "peopleOnTheBoard": 15,
+      "byPlace": {
+        "United States — state not given": 9,
+        "United States — elsewhere": 3,
+        "Outside the US and UK": 2,
+        "United States — Florida": 0,
+        "United States — California": 1,
+        "United Kingdom": 0
+      },
+      "placesRestingOnOnePerson": [
+        "United States — California"
+      ]
+    },
+    {
+      "key": "food-agriculture",
+      "name": "Food & Agriculture",
+      "sectors": [
+        "Food & Agriculture",
+        "Tourism & Hospitality"
+      ],
+      "peopleOnTheBoard": 11,
+      "byPlace": {
+        "United States — state not given": 6,
+        "United States — elsewhere": 3,
+        "Outside the US and UK": 0,
+        "United States — Florida": 0,
+        "United States — California": 2,
+        "United Kingdom": 0
+      },
+      "placesRestingOnOnePerson": []
+    },
+    {
+      "key": "health-wellbeing",
+      "name": "Health & Wellbeing",
+      "sectors": [
+        "Health"
+      ],
+      "peopleOnTheBoard": 37,
+      "byPlace": {
+        "United States — state not given": 14,
+        "United States — elsewhere": 10,
+        "Outside the US and UK": 2,
+        "United States — Florida": 4,
+        "United States — California": 4,
+        "United Kingdom": 3
+      },
+      "placesRestingOnOnePerson": []
+    },
+    {
+      "key": "safety-security",
+      "name": "Safety & Security",
+      "sectors": [
+        "Emergency & Reserve Roles",
+        "Public Safety & Justice"
+      ],
+      "peopleOnTheBoard": 2,
+      "byPlace": {
+        "United States — state not given": 1,
+        "United States — elsewhere": 0,
+        "Outside the US and UK": 0,
+        "United States — Florida": 0,
+        "United States — California": 0,
+        "United Kingdom": 1
+      },
+      "placesRestingOnOnePerson": [
+        "United States — state not given",
+        "United Kingdom"
+      ]
+    },
+    {
+      "key": "technology",
+      "name": "Technology",
+      "sectors": [
+        "R&D & High-Tech",
+        "Telecommunications & IT"
+      ],
+      "peopleOnTheBoard": 14,
+      "byPlace": {
+        "United States — state not given": 7,
+        "United States — elsewhere": 3,
+        "Outside the US and UK": 2,
+        "United States — Florida": 1,
+        "United States — California": 1,
+        "United Kingdom": 0
+      },
+      "placesRestingOnOnePerson": [
+        "United States — Florida",
+        "United States — California"
+      ]
+    },
+    {
+      "key": "communications-documentation",
+      "name": "Communications & Documentation",
+      "sectors": [
+        "Creative & Media"
+      ],
+      "peopleOnTheBoard": 68,
+      "byPlace": {
+        "United States — state not given": 28,
+        "United States — elsewhere": 22,
+        "Outside the US and UK": 8,
+        "United States — Florida": 4,
+        "United States — California": 5,
+        "United Kingdom": 1
+      },
+      "placesRestingOnOnePerson": [
+        "United Kingdom"
+      ]
+    },
+    {
+      "key": "operations-maintenance",
+      "name": "Operations & Maintenance",
+      "sectors": [
+        "Retail & Services",
+        "Housing & Construction",
+        "Transport & Logistics"
+      ],
+      "peopleOnTheBoard": 36,
+      "byPlace": {
+        "United States — state not given": 22,
+        "United States — elsewhere": 10,
+        "Outside the US and UK": 2,
+        "United States — Florida": 1,
+        "United States — California": 1,
+        "United Kingdom": 0
+      },
+      "placesRestingOnOnePerson": [
+        "United States — Florida",
+        "United States — California"
+      ]
+    },
+    {
+      "key": "water-sanitation",
+      "name": "Water & Sanitation",
+      "sectors": [
+        "Water & Sanitation"
+      ],
+      "peopleOnTheBoard": 1,
+      "byPlace": {
+        "United States — state not given": 1,
+        "United States — elsewhere": 0,
+        "Outside the US and UK": 0,
+        "United States — Florida": 0,
+        "United States — California": 0,
+        "United Kingdom": 0
+      },
+      "placesRestingOnOnePerson": [
+        "United States — state not given"
+      ]
+    },
+    {
+      "key": "education-childcare",
+      "name": "Education & Childcare",
+      "sectors": [
+        "Education"
+      ],
+      "peopleOnTheBoard": 2,
+      "byPlace": {
+        "United States — state not given": 1,
+        "United States — elsewhere": 1,
+        "Outside the US and UK": 0,
+        "United States — Florida": 0,
+        "United States — California": 0,
+        "United Kingdom": 0
+      },
+      "placesRestingOnOnePerson": [
+        "United States — state not given",
+        "United States — elsewhere"
+      ]
+    },
+    {
+      "key": "making-repair",
+      "name": "Making & Repair",
+      "sectors": [
+        "Manufacturing & Industry",
+        "Mining / Extractive"
+      ],
+      "peopleOnTheBoard": 8,
+      "byPlace": {
+        "United States — state not given": 4,
+        "United States — elsewhere": 1,
+        "Outside the US and UK": 2,
+        "United States — Florida": 0,
+        "United States — California": 0,
+        "United Kingdom": 1
+      },
+      "placesRestingOnOnePerson": [
+        "United States — elsewhere",
+        "United Kingdom"
+      ]
+    }
+  ],
+  "places": [
+    {
+      "place": "United States — state not given",
+      "residents": 72,
+      "standsFor": 2448980,
+      "runs": true,
+      "teamsMissing": [],
+      "teamsRestingOnOnePerson": [
+        "Safety & Security",
+        "Water & Sanitation",
+        "Education & Childcare"
+      ]
+    },
+    {
+      "place": "United States — elsewhere",
+      "residents": 41,
+      "standsFor": 1394558,
+      "runs": false,
+      "teamsMissing": [
+        "Safety & Security",
+        "Water & Sanitation"
+      ],
+      "teamsRestingOnOnePerson": [
+        "Legal & Governance",
+        "Education & Childcare",
+        "Making & Repair"
+      ]
+    },
+    {
+      "place": "Outside the US and UK",
+      "residents": 11,
+      "standsFor": 374150,
+      "runs": false,
+      "teamsMissing": [
+        "Food & Agriculture",
+        "Safety & Security",
+        "Water & Sanitation",
+        "Education & Childcare"
+      ],
+      "teamsRestingOnOnePerson": [
+        "Land & Site"
+      ]
+    },
+    {
+      "place": "United States — Florida",
+      "residents": 7,
+      "standsFor": 238095,
+      "runs": false,
+      "teamsMissing": [
+        "Land & Site",
+        "Build & Infrastructure",
+        "Food & Agriculture",
+        "Safety & Security",
+        "Water & Sanitation",
+        "Education & Childcare",
+        "Making & Repair"
+      ],
+      "teamsRestingOnOnePerson": [
+        "Legal & Governance",
+        "Technology",
+        "Operations & Maintenance"
+      ]
+    },
+    {
+      "place": "United States — California",
+      "residents": 11,
+      "standsFor": 374150,
+      "runs": false,
+      "teamsMissing": [
+        "Legal & Governance",
+        "Land & Site",
+        "Safety & Security",
+        "Water & Sanitation",
+        "Education & Childcare",
+        "Making & Repair"
+      ],
+      "teamsRestingOnOnePerson": [
+        "Finance",
+        "Build & Infrastructure",
+        "Technology",
+        "Operations & Maintenance"
+      ]
+    },
+    {
+      "place": "United Kingdom",
+      "residents": 5,
+      "standsFor": 170068,
+      "runs": false,
+      "teamsMissing": [
+        "Legal & Governance",
+        "Finance",
+        "Land & Site",
+        "Build & Infrastructure",
+        "Food & Agriculture",
+        "Technology",
+        "Operations & Maintenance",
+        "Water & Sanitation",
+        "Education & Childcare"
+      ],
+      "teamsRestingOnOnePerson": [
+        "Safety & Security",
+        "Communications & Documentation",
+        "Making & Repair"
+      ]
+    }
+  ]
+}
