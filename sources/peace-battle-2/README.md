@@ -244,11 +244,119 @@ apportioned across the six places by where the Directory's own people are.
 The board totals five million rather than the sixteen-city map's thirty, and the script fails
 if it does not.
 
+## The loop and its tuning (work item 6)
+
+`year-loop.mjs` is the model and `tune-year-loop.mjs` is the sweep. They are separate files on
+purpose: a rule that only makes sense because of how one policy plays it reads oddly on its own,
+which is easier to notice when the rules are not sitting next to the strategy.
+
+Run it with `node sources/peace-battle-2/tune-year-loop.mjs 300`.
+
+### The board's links
+
+Isolation spreading needs links between places, and the sixteen-city map had its drawn in from
+geography. This board cannot use proximity: two of its four United States buckets are catch-alls
+rather than regions, so there is no distance between them to measure. The links are by containment
+instead — everything inside one country connects to everything else inside it, and the two places
+outside the United States connect to each other and to the bucket holding most of the board.
+
+### Teaching is per teacher
+
+The single most important rule in the loop. One Teach reaches a number of people for every findable
+person who already works in that sector, rather than a flat number. That is the Du Bois arithmetic
+the whole game rests on — 2,000 trained 50,000, who taught nine millions — and it makes looking for
+people and teaching them one strategy instead of two: a sector held by one person teaches one person,
+and a sector held by sixty-eight teaches the board.
+
+A first version used a flat yield, and a careful player then filled the whole catalog with the
+original 147 people and never looked for anybody. That board is not the one being argued for.
+
+### A skill is present when somebody findable holds it
+
+Taken from the issue's own wording for the win condition, and it is what gives isolation its teeth.
+A place cutting off does not only stop its people working — every skill nobody else holds goes off
+the map with them. So the catalog can shrink as well as grow, and a run is measured on what is
+present in the same year rather than on what was ever learned.
+
+That also makes replacement level the real win condition rather than a flavor of one. With a chance
+each year that any given person is out of reach, a skill one person holds is absent about that often.
+657 skills all present in the same year therefore needs most of them held by three people, not one,
+which is roughly two thousand holdings — and that, not breadth, is what the run is actually racing
+the clock to build.
+
+### What the sweep changed
+
+Two things were wrong and the sweep is what showed it.
+
+The board was five times too hot. The map game grew isolation in two places of sixteen each round.
+Carried over unchanged onto a six-place board that is the same two places a year, which is five times
+the pressure per place. A careful player spent ninety-nine of its hundred and fifty actions holding
+the board and never reached the catalog. One place a year is the same rate against the board that
+exists, and it is the re-tuning the issue asked for.
+
+Chasing the worst place never finishes any place. A player who reaches whichever place looks worst
+this year pushes it from three back to two, watches it return to three, and repeats for fifty years.
+Finishing one place at a time, cheapest first, costs a few actions once and takes that place off the
+board for good. Both readings are legal; only one of them wins, which is what makes the action a
+decision.
+
+### Where it landed
+
+300 seeds, careful against careless:
+
+| | Careful | Careless |
+|---|---|---|
+| Catalog filled inside two generations | 99.7% | 0% |
+| Median year it filled | 38 of 50 | — |
+| Median skills present at the end | 657 of 657 | 590 of 657 |
+| Median people | 723 | 590 |
+| Places covered / cut off | 6 / 0 | 2 / 4 |
+
+That is the map game's own shape — it wins 199 of 200 seeded runs for a greedy player and loses ten
+of ten for a random one — reproduced against a fifty-year clock and a board built from the Directory.
+
+The careless player is not a saboteur. It picks a legal action at random, which is what somebody
+doing things without reading the board looks like, and it loses four of the six places and finishes
+sixty-seven skills short.
+
+### The one number still owed
+
+The loop needs one input that is not in this folder and cannot be derived: how many skills the
+taxonomy carries in each of the twenty sectors. The Directory's 184 held skills are split by sector
+already, but the 473 nobody holds are not, and where they sit decides which sectors are hard. Making
+that split up would be making up the answer, so the loop refuses to run without it.
+
+One read-only query against production produces it. Nothing in it touches a person:
+
+```sql
+SELECT json_build_object(
+  'pulledOn', to_char(now(), 'YYYY-MM-DD'),
+  'totalSkills', (SELECT COUNT(*) FROM skills_taxonomy_skills WHERE is_active),
+  'skillsBySector', (
+    SELECT json_object_agg(sector, skills) FROM (
+      SELECT s.name AS sector, COUNT(k.id) AS skills
+      FROM skills_taxonomy_sectors s
+      LEFT JOIN skills_taxonomy_job_titles j
+        ON j.sector_id::text = s.id::text AND j.is_active
+      LEFT JOIN skills_taxonomy_skills k
+        ON k.job_title_id::text = j.id::text AND k.is_active
+      WHERE s.is_active
+      GROUP BY s.name
+    ) t
+  )
+) AS taxonomy_shape;
+```
+
+The casts to text are there because production still carries version 2 column types in places, and an
+id compared across two of them has no operator and errors out.
+
+The board-level numbers above — how fast isolation spreads, what a Reach clears, how the careful and
+careless policies differ — do not depend on that split and are settled. Teaching and looking do, and
+get re-swept when it lands.
+
 ## What this does not settle
 
-The generated residents (item 3), replacement level (item 4) and the year (item 5) follow from these
-numbers. What is left is magnitudes that only a tuning pass can set: how much a single action moves,
-how fast isolation spreads against a fifty-year clock rather than a thirteen-round one, what an
-unavailability roll costs, and how much a detractor takes off the join-and-stay rate. Those are items
-6 and 8, and none of them can be guessed from the opening board — they have to be swept over seeds
-against a careful player and a careless one.
+Items 7, 8 and 9. Drawing it is item 7. The cost of a detractor and of an unavailability roll are
+item 8, tuned against these same seeds so they are known rather than guessed — the loop already has
+both, at placeholder magnitudes that the item 8 sweep replaces. The explanatory text behind a
+disclosure is item 9.
