@@ -1,7 +1,7 @@
 {
   "name": "Peace-Battle 2",
   "short_name": "Peace-Battle 2",
-  "description": "Peace-Battle 2 — a map where isolation spreads and four people with skills spread against it",
+  "description": "Peace-Battle 2 — fill the skills catalog from where the Directory actually is, inside two generations",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
