@@ -1,0 +1,1636 @@
+{
+  "generatedFrom": "directory-shape.json",
+  "seed": 20260914,
+  "note": "Invented residents rebuilt from counts. No name, place or skill was read from a Directory row.",
+  "skillsBySector": {
+    "Food & Agriculture": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Housing & Construction": [
+      2,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Manufacturing & Industry": [
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Microfinance & SME Support": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Emergency & Reserve Roles": [
+      1
+    ],
+    "Mining / Extractive": [
+      1
+    ],
+    "Energy & Utilities": [
+      1,
+      1,
+      1
+    ],
+    "Finance & Public Administration": [
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Telecommunications & IT": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "R&D & High-Tech": [
+      3,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Transport & Logistics": [
+      5,
+      3,
+      3,
+      3,
+      3,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Water & Sanitation": [
+      1,
+      1,
+      1
+    ],
+    "Retail & Services": [
+      3,
+      3,
+      2,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Creative & Media": [
+      68,
+      8,
+      5,
+      4,
+      4,
+      3,
+      3,
+      3,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Tourism & Hospitality": [
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Health": [
+      12,
+      9,
+      7,
+      6,
+      4,
+      4,
+      3,
+      3,
+      3,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Environmental & Waste Management": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Professional & Business Services": [
+      3,
+      2,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Public Safety & Justice": [
+      1
+    ],
+    "Education": [
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "minHoldersBySector": {
+    "Food & Agriculture": 1,
+    "Housing & Construction": 2,
+    "Manufacturing & Industry": 2,
+    "Microfinance & SME Support": 1,
+    "Emergency & Reserve Roles": 1,
+    "Mining / Extractive": 1,
+    "Energy & Utilities": 1,
+    "Finance & Public Administration": 2,
+    "Telecommunications & IT": 1,
+    "R&D & High-Tech": 3,
+    "Transport & Logistics": 5,
+    "Water & Sanitation": 1,
+    "Retail & Services": 3,
+    "Creative & Media": 68,
+    "Tourism & Hospitality": 2,
+    "Health": 12,
+    "Environmental & Waste Management": 1,
+    "Professional & Business Services": 3,
+    "Public Safety & Justice": 1,
+    "Education": 1
+  },
+  "residents": [
+    {
+      "id": "r001",
+      "name": "Ada Okonkwo",
+      "place": "United States — state not given",
+      "skills": 24,
+      "sectors": {
+        "Energy & Utilities": 3,
+        "Creative & Media": 4,
+        "Health": 10,
+        "Transport & Logistics": 4,
+        "Retail & Services": 2,
+        "Professional & Business Services": 1
+      }
+    },
+    {
+      "id": "r002",
+      "name": "Marcus Novak",
+      "place": "United States — state not given",
+      "skills": 18,
+      "sectors": {
+        "Water & Sanitation": 3,
+        "Creative & Media": 11,
+        "Health": 1,
+        "Transport & Logistics": 1,
+        "R&D & High-Tech": 1,
+        "Retail & Services": 1
+      }
+    },
+    {
+      "id": "r003",
+      "name": "Imani Ndiaye",
+      "place": "United States — elsewhere",
+      "skills": 14,
+      "sectors": {
+        "Education": 2,
+        "Creative & Media": 7,
+        "Health": 1,
+        "Transport & Logistics": 2,
+        "Housing & Construction": 1,
+        "Finance & Public Administration": 1
+      }
+    },
+    {
+      "id": "r004",
+      "name": "Tobias Rahman",
+      "place": "United States — state not given",
+      "skills": 9,
+      "sectors": {
+        "Environmental & Waste Management": 2,
+        "Creative & Media": 3,
+        "Health": 2,
+        "Transport & Logistics": 2
+      }
+    },
+    {
+      "id": "r005",
+      "name": "Lena Marek",
+      "place": "United States — state not given",
+      "skills": 9,
+      "sectors": {
+        "Food & Agriculture": 3,
+        "Creative & Media": 2,
+        "Health": 2,
+        "Transport & Logistics": 2
+      }
+    },
+    {
+      "id": "r006",
+      "name": "Rosa Ferreira",
+      "place": "United States — elsewhere",
+      "skills": 9,
+      "sectors": {
+        "Microfinance & SME Support": 3,
+        "Creative & Media": 5,
+        "Health": 1
+      }
+    },
+    {
+      "id": "r007",
+      "name": "Nadia Kowalski",
+      "place": "Outside the US and UK",
+      "skills": 8,
+      "sectors": {
+        "Telecommunications & IT": 3,
+        "Creative & Media": 2,
+        "Health": 3
+      }
+    },
+    {
+      "id": "r008",
+      "name": "Felix Mercier",
+      "place": "United States — state not given",
+      "skills": 8,
+      "sectors": {
+        "Manufacturing & Industry": 3,
+        "Creative & Media": 1,
+        "Health": 4
+      }
+    },
+    {
+      "id": "r009",
+      "name": "Omar Fontaine",
+      "place": "United States — elsewhere",
+      "skills": 8,
+      "sectors": {
+        "Tourism & Hospitality": 4,
+        "Creative & Media": 2,
+        "Health": 2
+      }
+    },
+    {
+      "id": "r010",
+      "name": "Greta Mbeki",
+      "place": "United States — Florida",
+      "skills": 7,
+      "sectors": {
+        "Finance & Public Administration": 3,
+        "Creative & Media": 1,
+        "Health": 3
+      }
+    },
+    {
+      "id": "r011",
+      "name": "Yusuf Bergman",
+      "place": "United States — elsewhere",
+      "skills": 7,
+      "sectors": {
+        "Housing & Construction": 3,
+        "Creative & Media": 1,
+        "Health": 3
+      }
+    },
+    {
+      "id": "r012",
+      "name": "Clara Petrov",
+      "place": "United States — Florida",
+      "skills": 6,
+      "sectors": {
+        "Professional & Business Services": 3,
+        "Creative & Media": 2,
+        "Health": 1
+      }
+    },
+    {
+      "id": "r013",
+      "name": "Dmitri Lindgren",
+      "place": "United States — state not given",
+      "skills": 6,
+      "sectors": {
+        "Retail & Services": 4,
+        "Creative & Media": 1,
+        "Health": 1
+      }
+    },
+    {
+      "id": "r014",
+      "name": "Amara Varga",
+      "place": "United States — state not given",
+      "skills": 6,
+      "sectors": {
+        "R&D & High-Tech": 5,
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r015",
+      "name": "Piotr Osei",
+      "place": "United States — state not given",
+      "skills": 5,
+      "sectors": {
+        "Transport & Logistics": 4,
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r016",
+      "name": "Sofia Whitfield",
+      "place": "United States — California",
+      "skills": 5,
+      "sectors": {
+        "Health": 4,
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r017",
+      "name": "Kwame Castellano",
+      "place": "United States — elsewhere",
+      "skills": 5,
+      "sectors": {
+        "Creative & Media": 4,
+        "Health": 1
+      }
+    },
+    {
+      "id": "r018",
+      "name": "Elin Vasquez",
+      "place": "United States — elsewhere",
+      "skills": 5,
+      "sectors": {
+        "Creative & Media": 4,
+        "Health": 1
+      }
+    },
+    {
+      "id": "r019",
+      "name": "Hassan Haddad",
+      "place": "United States — elsewhere",
+      "skills": 4,
+      "sectors": {
+        "Creative & Media": 1,
+        "Housing & Construction": 3
+      }
+    },
+    {
+      "id": "r020",
+      "name": "Mira Santos",
+      "place": "Outside the US and UK",
+      "skills": 4,
+      "sectors": {
+        "Creative & Media": 2,
+        "Manufacturing & Industry": 2
+      }
+    },
+    {
+      "id": "r021",
+      "name": "Joaquin Halvorsen",
+      "place": "United States — state not given",
+      "skills": 4,
+      "sectors": {
+        "Creative & Media": 2,
+        "Tourism & Hospitality": 2
+      }
+    },
+    {
+      "id": "r022",
+      "name": "Tessa Achebe",
+      "place": "Outside the US and UK",
+      "skills": 4,
+      "sectors": {
+        "Creative & Media": 1,
+        "Health": 3
+      }
+    },
+    {
+      "id": "r023",
+      "name": "Rafael Lindqvist",
+      "place": "Outside the US and UK",
+      "skills": 4,
+      "sectors": {
+        "Creative & Media": 1,
+        "R&D & High-Tech": 3
+      }
+    },
+    {
+      "id": "r024",
+      "name": "Noor Aziz",
+      "place": "United States — state not given",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 1,
+        "Retail & Services": 2
+      }
+    },
+    {
+      "id": "r025",
+      "name": "Bo Adeyemi",
+      "place": "United States — state not given",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 1,
+        "Professional & Business Services": 2
+      }
+    },
+    {
+      "id": "r026",
+      "name": "Ingrid Baptiste",
+      "place": "United States — state not given",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 1,
+        "Transport & Logistics": 2
+      }
+    },
+    {
+      "id": "r027",
+      "name": "Malik Delacroix",
+      "place": "United States — elsewhere",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 1,
+        "Retail & Services": 2
+      }
+    },
+    {
+      "id": "r028",
+      "name": "Junia Reyes",
+      "place": "Outside the US and UK",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 1,
+        "Professional & Business Services": 2
+      }
+    },
+    {
+      "id": "r029",
+      "name": "Arne Ibarra",
+      "place": "United States — state not given",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 1,
+        "Housing & Construction": 2
+      }
+    },
+    {
+      "id": "r030",
+      "name": "Petra Owusu",
+      "place": "United States — California",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 1,
+        "Finance & Public Administration": 2
+      }
+    },
+    {
+      "id": "r031",
+      "name": "Caleb Okonkwo",
+      "place": "United Kingdom",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 2,
+        "Manufacturing & Industry": 1
+      }
+    },
+    {
+      "id": "r032",
+      "name": "Yara Novak",
+      "place": "United States — elsewhere",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 2,
+        "Tourism & Hospitality": 1
+      }
+    },
+    {
+      "id": "r033",
+      "name": "Soren Ndiaye",
+      "place": "United States — state not given",
+      "skills": 3,
+      "sectors": {
+        "Transport & Logistics": 2,
+        "Health": 1
+      }
+    },
+    {
+      "id": "r034",
+      "name": "Delia Rahman",
+      "place": "United States — elsewhere",
+      "skills": 3,
+      "sectors": {
+        "R&D & High-Tech": 1,
+        "Retail & Services": 2
+      }
+    },
+    {
+      "id": "r035",
+      "name": "Nikolai Marek",
+      "place": "Outside the US and UK",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 1,
+        "Professional & Business Services": 2
+      }
+    },
+    {
+      "id": "r036",
+      "name": "Esme Ferreira",
+      "place": "Outside the US and UK",
+      "skills": 3,
+      "sectors": {
+        "Housing & Construction": 1,
+        "Finance & Public Administration": 2
+      }
+    },
+    {
+      "id": "r037",
+      "name": "Tariq Kowalski",
+      "place": "United States — state not given",
+      "skills": 3,
+      "sectors": {
+        "Manufacturing & Industry": 2,
+        "Tourism & Hospitality": 1
+      }
+    },
+    {
+      "id": "r038",
+      "name": "Wren Mercier",
+      "place": "United States — elsewhere",
+      "skills": 3,
+      "sectors": {
+        "Food & Agriculture": 1,
+        "Transport & Logistics": 2
+      }
+    },
+    {
+      "id": "r039",
+      "name": "Anders Fontaine",
+      "place": "United States — Florida",
+      "skills": 3,
+      "sectors": {
+        "Health": 2,
+        "R&D & High-Tech": 1
+      }
+    },
+    {
+      "id": "r040",
+      "name": "Leila Mbeki",
+      "place": "United States — California",
+      "skills": 3,
+      "sectors": {
+        "Retail & Services": 2,
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r041",
+      "name": "Gideon Bergman",
+      "place": "Outside the US and UK",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 3
+      }
+    },
+    {
+      "id": "r042",
+      "name": "Marta Petrov",
+      "place": "United States — state not given",
+      "skills": 3,
+      "sectors": {
+        "Creative & Media": 3
+      }
+    },
+    {
+      "id": "r043",
+      "name": "Ravi Lindgren",
+      "place": "United States — elsewhere",
+      "skills": 2,
+      "sectors": {
+        "Professional & Business Services": 2
+      }
+    },
+    {
+      "id": "r044",
+      "name": "Coral Varga",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Housing & Construction": 2
+      }
+    },
+    {
+      "id": "r045",
+      "name": "Emeka Osei",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Finance & Public Administration": 2
+      }
+    },
+    {
+      "id": "r046",
+      "name": "Astrid Whitfield",
+      "place": "United States — elsewhere",
+      "skills": 2,
+      "sectors": {
+        "Manufacturing & Industry": 2
+      }
+    },
+    {
+      "id": "r047",
+      "name": "Silas Castellano",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Telecommunications & IT": 2
+      }
+    },
+    {
+      "id": "r048",
+      "name": "Nia Vasquez",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Tourism & Hospitality": 2
+      }
+    },
+    {
+      "id": "r049",
+      "name": "Bruno Haddad",
+      "place": "United States — California",
+      "skills": 2,
+      "sectors": {
+        "Food & Agriculture": 2
+      }
+    },
+    {
+      "id": "r050",
+      "name": "Ilse Santos",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Transport & Logistics": 2
+      }
+    },
+    {
+      "id": "r051",
+      "name": "Ada Rahman",
+      "place": "United States — elsewhere",
+      "skills": 2,
+      "sectors": {
+        "Health": 2
+      }
+    },
+    {
+      "id": "r052",
+      "name": "Marcus Marek",
+      "place": "United States — elsewhere",
+      "skills": 2,
+      "sectors": {
+        "R&D & High-Tech": 2
+      }
+    },
+    {
+      "id": "r053",
+      "name": "Imani Ferreira",
+      "place": "United States — elsewhere",
+      "skills": 2,
+      "sectors": {
+        "Retail & Services": 2
+      }
+    },
+    {
+      "id": "r054",
+      "name": "Tobias Kowalski",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Creative & Media": 2
+      }
+    },
+    {
+      "id": "r055",
+      "name": "Lena Mercier",
+      "place": "United States — elsewhere",
+      "skills": 2,
+      "sectors": {
+        "Environmental & Waste Management": 2
+      }
+    },
+    {
+      "id": "r056",
+      "name": "Rosa Fontaine",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Professional & Business Services": 2
+      }
+    },
+    {
+      "id": "r057",
+      "name": "Nadia Mbeki",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Housing & Construction": 2
+      }
+    },
+    {
+      "id": "r058",
+      "name": "Felix Bergman",
+      "place": "United States — elsewhere",
+      "skills": 2,
+      "sectors": {
+        "Finance & Public Administration": 2
+      }
+    },
+    {
+      "id": "r059",
+      "name": "Omar Petrov",
+      "place": "Outside the US and UK",
+      "skills": 2,
+      "sectors": {
+        "Manufacturing & Industry": 2
+      }
+    },
+    {
+      "id": "r060",
+      "name": "Greta Lindgren",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Telecommunications & IT": 2
+      }
+    },
+    {
+      "id": "r061",
+      "name": "Yusuf Varga",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Tourism & Hospitality": 2
+      }
+    },
+    {
+      "id": "r062",
+      "name": "Clara Osei",
+      "place": "United States — California",
+      "skills": 2,
+      "sectors": {
+        "Food & Agriculture": 2
+      }
+    },
+    {
+      "id": "r063",
+      "name": "Dmitri Whitfield",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Transport & Logistics": 2
+      }
+    },
+    {
+      "id": "r064",
+      "name": "Amara Castellano",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Health": 2
+      }
+    },
+    {
+      "id": "r065",
+      "name": "Piotr Vasquez",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Microfinance & SME Support": 2
+      }
+    },
+    {
+      "id": "r066",
+      "name": "Sofia Haddad",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "R&D & High-Tech": 2
+      }
+    },
+    {
+      "id": "r067",
+      "name": "Kwame Santos",
+      "place": "United States — elsewhere",
+      "skills": 2,
+      "sectors": {
+        "Retail & Services": 2
+      }
+    },
+    {
+      "id": "r068",
+      "name": "Elin Halvorsen",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Creative & Media": 2
+      }
+    },
+    {
+      "id": "r069",
+      "name": "Hassan Achebe",
+      "place": "United States — elsewhere",
+      "skills": 2,
+      "sectors": {
+        "Environmental & Waste Management": 2
+      }
+    },
+    {
+      "id": "r070",
+      "name": "Mira Lindqvist",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Education": 2
+      }
+    },
+    {
+      "id": "r071",
+      "name": "Joaquin Aziz",
+      "place": "United States — state not given",
+      "skills": 2,
+      "sectors": {
+        "Professional & Business Services": 2
+      }
+    },
+    {
+      "id": "r072",
+      "name": "Tessa Adeyemi",
+      "place": "United States — California",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r073",
+      "name": "Rafael Baptiste",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r074",
+      "name": "Noor Delacroix",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r075",
+      "name": "Bo Reyes",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r076",
+      "name": "Ingrid Ibarra",
+      "place": "United States — Florida",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r077",
+      "name": "Malik Owusu",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r078",
+      "name": "Junia Okonkwo",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r079",
+      "name": "Arne Novak",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r080",
+      "name": "Petra Ndiaye",
+      "place": "United States — Florida",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r081",
+      "name": "Caleb Rahman",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r082",
+      "name": "Yara Marek",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r083",
+      "name": "Soren Ferreira",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r084",
+      "name": "Delia Kowalski",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r085",
+      "name": "Nikolai Mercier",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r086",
+      "name": "Esme Fontaine",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r087",
+      "name": "Tariq Mbeki",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r088",
+      "name": "Wren Bergman",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r089",
+      "name": "Anders Petrov",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r090",
+      "name": "Leila Lindgren",
+      "place": "United States — California",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r091",
+      "name": "Gideon Varga",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r092",
+      "name": "Marta Osei",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r093",
+      "name": "Ravi Whitfield",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r094",
+      "name": "Coral Castellano",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r095",
+      "name": "Emeka Vasquez",
+      "place": "United Kingdom",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r096",
+      "name": "Astrid Haddad",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r097",
+      "name": "Silas Santos",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r098",
+      "name": "Nia Halvorsen",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r099",
+      "name": "Bruno Achebe",
+      "place": "United States — California",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r100",
+      "name": "Ilse Lindqvist",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r101",
+      "name": "Ada Kowalski",
+      "place": "United States — California",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r102",
+      "name": "Marcus Mercier",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r103",
+      "name": "Imani Fontaine",
+      "place": "United Kingdom",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r104",
+      "name": "Tobias Mbeki",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Transport & Logistics": 1
+      }
+    },
+    {
+      "id": "r105",
+      "name": "Lena Bergman",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r106",
+      "name": "Rosa Petrov",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r107",
+      "name": "Nadia Lindgren",
+      "place": "Outside the US and UK",
+      "skills": 1,
+      "sectors": {
+        "Transport & Logistics": 1
+      }
+    },
+    {
+      "id": "r108",
+      "name": "Felix Varga",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r109",
+      "name": "Omar Osei",
+      "place": "United States — California",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r110",
+      "name": "Greta Whitfield",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Transport & Logistics": 1
+      }
+    },
+    {
+      "id": "r111",
+      "name": "Yusuf Castellano",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r112",
+      "name": "Clara Vasquez",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r113",
+      "name": "Dmitri Haddad",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Transport & Logistics": 1
+      }
+    },
+    {
+      "id": "r114",
+      "name": "Amara Santos",
+      "place": "Outside the US and UK",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r115",
+      "name": "Piotr Halvorsen",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r116",
+      "name": "Sofia Achebe",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "R&D & High-Tech": 1
+      }
+    },
+    {
+      "id": "r117",
+      "name": "Kwame Lindqvist",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Transport & Logistics": 1
+      }
+    },
+    {
+      "id": "r118",
+      "name": "Elin Aziz",
+      "place": "United States — Florida",
+      "skills": 1,
+      "sectors": {
+        "Retail & Services": 1
+      }
+    },
+    {
+      "id": "r119",
+      "name": "Hassan Adeyemi",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r120",
+      "name": "Mira Baptiste",
+      "place": "United Kingdom",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r121",
+      "name": "Joaquin Delacroix",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Professional & Business Services": 1
+      }
+    },
+    {
+      "id": "r122",
+      "name": "Tessa Reyes",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Housing & Construction": 1
+      }
+    },
+    {
+      "id": "r123",
+      "name": "Rafael Ibarra",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Finance & Public Administration": 1
+      }
+    },
+    {
+      "id": "r124",
+      "name": "Noor Owusu",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "R&D & High-Tech": 1
+      }
+    },
+    {
+      "id": "r125",
+      "name": "Bo Okonkwo",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Transport & Logistics": 1
+      }
+    },
+    {
+      "id": "r126",
+      "name": "Ingrid Novak",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Retail & Services": 1
+      }
+    },
+    {
+      "id": "r127",
+      "name": "Malik Ndiaye",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r128",
+      "name": "Junia Rahman",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r129",
+      "name": "Arne Marek",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Professional & Business Services": 1
+      }
+    },
+    {
+      "id": "r130",
+      "name": "Petra Ferreira",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Housing & Construction": 1
+      }
+    },
+    {
+      "id": "r131",
+      "name": "Caleb Kowalski",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Manufacturing & Industry": 1
+      }
+    },
+    {
+      "id": "r132",
+      "name": "Yara Mercier",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Microfinance & SME Support": 1
+      }
+    },
+    {
+      "id": "r133",
+      "name": "Soren Fontaine",
+      "place": "United Kingdom",
+      "skills": 1,
+      "sectors": {
+        "Emergency & Reserve Roles": 1
+      }
+    },
+    {
+      "id": "r134",
+      "name": "Delia Mbeki",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Mining / Extractive": 1
+      }
+    },
+    {
+      "id": "r135",
+      "name": "Nikolai Bergman",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Finance & Public Administration": 1
+      }
+    },
+    {
+      "id": "r136",
+      "name": "Esme Petrov",
+      "place": "United States — California",
+      "skills": 1,
+      "sectors": {
+        "Telecommunications & IT": 1
+      }
+    },
+    {
+      "id": "r137",
+      "name": "Tariq Lindgren",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "R&D & High-Tech": 1
+      }
+    },
+    {
+      "id": "r138",
+      "name": "Wren Varga",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Transport & Logistics": 1
+      }
+    },
+    {
+      "id": "r139",
+      "name": "Anders Osei",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Retail & Services": 1
+      }
+    },
+    {
+      "id": "r140",
+      "name": "Leila Whitfield",
+      "place": "United States — elsewhere",
+      "skills": 1,
+      "sectors": {
+        "Creative & Media": 1
+      }
+    },
+    {
+      "id": "r141",
+      "name": "Gideon Castellano",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Tourism & Hospitality": 1
+      }
+    },
+    {
+      "id": "r142",
+      "name": "Marta Vasquez",
+      "place": "United States — Florida",
+      "skills": 1,
+      "sectors": {
+        "Health": 1
+      }
+    },
+    {
+      "id": "r143",
+      "name": "Ravi Haddad",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Professional & Business Services": 1
+      }
+    },
+    {
+      "id": "r144",
+      "name": "Coral Santos",
+      "place": "United States — state not given",
+      "skills": 1,
+      "sectors": {
+        "Public Safety & Justice": 1
+      }
+    },
+    {
+      "id": "r145",
+      "name": "Emeka Halvorsen",
+      "place": "United States — state not given",
+      "skills": 0,
+      "sectors": {}
+    },
+    {
+      "id": "r146",
+      "name": "Astrid Achebe",
+      "place": "United States — state not given",
+      "skills": 0,
+      "sectors": {}
+    },
+    {
+      "id": "r147",
+      "name": "Silas Lindqvist",
+      "place": "United States — state not given",
+      "skills": 0,
+      "sectors": {}
+    }
+  ]
+}

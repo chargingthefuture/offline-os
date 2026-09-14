@@ -62,6 +62,55 @@ eleven are spread across seven other countries, none of which clears five people
 United States with a thin scatter beyond it, not an international board. The covered-population
 figure the issue expected to recompute has to be worked from that.
 
+## The residents and replacement level (work items 3 and 4)
+
+`generate-residents.mjs` rebuilds a 147-person board from the counts above and writes
+`residents.json`. Nothing in it reads the Directory. It is deterministic — one fixed seed, no clock
+— so the file can be checked rather than re-rolled each build, and it verifies itself against the
+source distribution and exits non-zero on any mismatch.
+
+It reproduces all three distributions exactly: the skills-per-person histogram, the
+sectors-per-person histogram, and all twenty sector holding totals.
+
+### What the scarcity curve forced
+
+The first version distributed each sector's holdings to whoever had room, and gave Creative & Media
+36 members. That is impossible, and the scarcity curve is what proves it. One real skill is held by
+68 people, and a skill can only sit in a sector carrying at least 68 holdings — Creative & Media
+(113) is the only candidate, because Health has 66. So at least 68 people must hold Creative &
+Media: the sector is wide and shallow, not narrow and deep.
+
+Scarcity therefore constrains the sector assignment, not just the skill list. Each sector's biggest
+skill sets a floor on how many members it must reach, and the generator now reads that floor first.
+
+Skills are partitioned into sectors largest-first, which lands all 184 exactly against the twenty
+holding totals and is what places the 68-holder skill in Creative & Media without anybody choosing
+to put it there. That partition is `skillsBySector`, and the floors it implies are
+`minHoldersBySector` — the replacement-level input item 4 asked for, read off the real shape rather
+than assigned.
+
+### Why the allocation is a flow
+
+Deciding how many skills each person holds in each of their sectors has to satisfy a row total (that
+person's skill count) and a column total (that sector's holdings) at the same time. Four greedy
+orderings were tried and every one stranded holdings somewhere: serving the hungriest sector starved
+the middle of the board, serving the most-constrained person starved the small sectors. That is not
+bad luck with the ordering — no single pass satisfies both sums.
+
+It is solved as a max-flow instead: source to each person with their spare skills, person to each of
+their sectors, each sector to the sink with what it still needs. A saturating flow is a valid
+allocation, and it finds one if any exists.
+
+### The board that comes out
+
+- 147 residents, 367 holdings, 208 person-sector places.
+- Creative & Media reaches 68 people, its floor exactly.
+- Places are country grain: 72 in the United States with no state given, 41 elsewhere in the United
+  States, 11 in California, 7 in Florida, 5 in the United Kingdom, 11 outside both.
+- Names are invented from common given names and surnames. With 147 residents a coincidental match
+  with a real person is possible; it would be a coincidence, because no name, place or skill was read
+  from a row.
+
 ## What this does not settle
 
 The generated residents (item 3) and replacement level (item 4) follow from these numbers directly.
