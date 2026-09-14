@@ -1,0 +1,92 @@
+{
+  "pulledOn": "2026-09-14",
+  "source": "chargingthefuture production, one read-only query. Aggregates only: no names, ids, bios or per-person rows. Place buckets under 5 people are suppressed and reported as counts.",
+  "profiles": 147,
+  "totalHoldings": 367,
+  "skillsPerProfile": {
+    "9": 3,
+    "3": 19,
+    "5": 4,
+    "4": 5,
+    "0": 3,
+    "6": 3,
+    "14": 1,
+    "2": 29,
+    "7": 2,
+    "24": 1,
+    "1": 73,
+    "18": 1,
+    "8": 3
+  },
+  "sectorsPerProfile": {
+    "4": 2,
+    "6": 3,
+    "2": 27,
+    "3": 8,
+    "1": 104
+  },
+  "sectorFrequency": {
+    "Food & Agriculture": 8,
+    "Housing & Construction": 16,
+    "Manufacturing & Industry": 13,
+    "Microfinance & SME Support": 6,
+    "Emergency & Reserve Roles": 1,
+    "Mining / Extractive": 1,
+    "Energy & Utilities": 3,
+    "Finance & Public Administration": 14,
+    "Telecommunications & IT": 8,
+    "R&D & High-Tech": 18,
+    "Transport & Logistics": 32,
+    "Water & Sanitation": 3,
+    "Retail & Services": 22,
+    "Creative & Media": 113,
+    "Tourism & Hospitality": 13,
+    "Health": 66,
+    "Environmental & Waste Management": 6,
+    "Professional & Business Services": 19,
+    "Public Safety & Justice": 1,
+    "Education": 4
+  },
+  "skillScarcity": {
+    "68": 1,
+    "4": 4,
+    "6": 1,
+    "2": 31,
+    "9": 1,
+    "7": 1,
+    "12": 1,
+    "3": 14,
+    "1": 127,
+    "5": 2,
+    "8": 1
+  },
+  "locations": {
+    "minBucket": 5,
+    "byCountry": {
+      "United States": 131,
+      "United Kingdom": 5
+    },
+    "byCountrySuppressed": {
+      "people": 11,
+      "buckets": 7
+    },
+    "byState": {
+      "United States / unspecified": 72,
+      "United Kingdom / unspecified": 5,
+      "United States / Florida": 7,
+      "United States / California": 11
+    },
+    "byStateSuppressed": {
+      "people": 52,
+      "buckets": 32
+    },
+    "byCity": {
+      "United States / unspecified / unspecified": 72,
+      "United Kingdom / unspecified / unspecified": 5
+    },
+    "byCitySuppressed": {
+      "people": 70,
+      "buckets": 54
+    }
+  }
+}
