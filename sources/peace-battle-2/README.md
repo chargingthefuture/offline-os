@@ -284,21 +284,32 @@ each year that any given person is out of reach, a skill one person holds is abs
 which is roughly two thousand holdings — and that, not breadth, is what the run is actually racing
 the clock to build.
 
+### Two rules the sweep forced in
+
+A place can only be finished where it already runs. A Reach pulls a place back from the edge
+anywhere, but clearing it to nothing — covered, isolation never returns — needs all thirteen jobs
+fillable there first. The Directory does not take root somewhere that cannot keep its own water on
+because somebody visited. Without that rule a careful player locked all six places by year ten for
+about ten actions, isolation had nowhere left to grow, and two of the game's three kinds of friction
+measured at exactly zero cost.
+
+Teaching happens somewhere. The people who learn are the findable people in that place; the teachers
+can be anywhere, because coordinating that is what the Directory is for. A place of five people is
+hard to staff however many teachers the board has, which is true, and it is the reason a thin place
+stays thin. Before this, teaching drew learners from anywhere, so no amount of it could deliberately
+staff a place and the two halves of the game did not touch.
+
 ### What the sweep changed
 
-Two things were wrong and the sweep is what showed it.
-
-The board was five times too hot. The map game grew isolation in two places of sixteen each round.
-Carried over unchanged onto a six-place board that is the same two places a year, which is five times
-the pressure per place. A careful player spent ninety-nine of its hundred and fifty actions holding
+The board was five times too hot. The map game grew isolation in two places of sixteen a round, and
+two of six is five times the pressure per place; a careful player spent 99 of its 150 actions holding
 the board and never reached the catalog. One place a year is the same rate against the board that
-exists, and it is the re-tuning the issue asked for.
+exists.
 
 Chasing the worst place never finishes any place. A player who reaches whichever place looks worst
 this year pushes it from three back to two, watches it return to three, and repeats for fifty years.
-Finishing one place at a time, cheapest first, costs a few actions once and takes that place off the
-board for good. Both readings are legal; only one of them wins, which is what makes the action a
-decision.
+Finishing one at a time, cheapest first, costs a few actions once and takes that place off the board
+for good. Both readings are legal; only one wins, which is what makes the action a decision.
 
 ### Where it landed
 
@@ -306,20 +317,58 @@ decision.
 
 | | Careful | Careless |
 |---|---|---|
-| Catalog filled inside two generations | 95% | 0% |
-| Median year it filled | 42 of 50 | — |
-| Median skills present at the end | 657 of 657 | 548 of 657 |
-| Median people | 682 | 585 |
-| Places covered / cut off | 6 / 0 | 2 / 4 |
+| Catalog filled inside two generations | 94.7% | 0% |
+| Median year it filled | 44 of 50 | — |
+| Median skills present at the end | 657 of 657 | 525 of 657 |
+| Median people | 691 | 673 |
+| Places covered / cut off | 2 / 0 | 1 / 5 |
 
 The careless player is not a saboteur. It picks a legal action at random, which is what somebody
-doing things without reading the board looks like, and it loses four of the six places and finishes
-a hundred and nine skills short.
+doing things without reading the board looks like, and it loses five of the six places.
 
-The five percent of careful runs that fail all fail the same way, and it is the way that makes the
-clock worth having. They finish on 655 or 656 of 657, with six places covered and a hundred
-teachers standing by, having run out of years while the last skill or two flickered off the map and
-back. The loss is the clock, not a mistake — which is what the issue asked the clock to be.
+A careful run finishes at year 44 of 50, with two places covered and the rest held back from the edge
+year by year. The clock binds rather than decorates, and the runs that fail run out of years.
+
+### What the friction costs (work item 8)
+
+`measure-friction.mjs` sweeps each kind of friction on its own against the same careful player, with
+the other two held where they are. None of the three is depicted as harm done to a person: a
+detractor lowers how many of the people found stay findable, an isolator takes a place off the map
+rather than a character, and unavailability is somebody not available this year.
+
+| Unavailability | Catalog filled | Median year |
+|---|---|---|
+| never | 100% | 39 |
+| 3% | 98% | 41 |
+| 6% (shipped) | 96% | 43 |
+| 10% | 66% | 47 |
+| 15% | 14% | 49 |
+
+| Isolation spreading | Catalog filled | Median year |
+|---|---|---|
+| nowhere | 99.3% | 36 |
+| one place a year (shipped) | 96% | 43 |
+| two places a year | 0% | — |
+| three places a year | 0% | — |
+
+| Detractor pressure | Catalog filled | Median year |
+|---|---|---|
+| none | 95.3% | 42 |
+| 0.20 (shipped) | 96% | 43 |
+| 0.50 | 92.7% | 44 |
+
+Unavailability is the sharpest. A board where nobody is ever out of reach finishes every time; one
+where people are out of reach fifteen years in a hundred finishes one run in seven. That is
+replacement level doing its work — with nobody ever away, a capability one person holds is as good as
+one ten people hold, and the whole idea stops meaning anything.
+
+Isolation has a cliff rather than a slope: one place a year is survivable and two is not, with
+nothing in between. That is why the number carried over from the sixteen-place map had to change, and
+it is worth knowing the tolerance is this narrow rather than assuming there is room in it.
+
+Detractors are the mildest, worth about two years across their whole range. That is the measurement
+rather than a verdict on the mechanic — what moves a detractor is arithmetic, the action that answers
+them is cheap, and a player who never bothers still mostly finishes.
 
 ### The taxonomy's own shape is what makes it hard
 

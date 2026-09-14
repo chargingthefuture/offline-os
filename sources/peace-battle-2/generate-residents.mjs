@@ -24,6 +24,7 @@
 // Usage: node sources/peace-battle-2/generate-residents.mjs > sources/peace-battle-2/residents.json
 
 import { readFileSync } from 'node:fs';
+import { GIVEN, SURNAME } from './names.mjs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -266,18 +267,7 @@ const residents = roster;
 }
 
 // --- 6. Names and places -------------------------------------------------------------------------
-// Names are invented, assembled from common given names and surnames. None was read from the
-// Directory; with 147 residents a coincidental match with a real person is possible and would be a
-// coincidence, because no name, place or skill here came from a row — only from counts.
-const GIVEN = ['Ada', 'Marcus', 'Imani', 'Tobias', 'Lena', 'Rosa', 'Nadia', 'Felix', 'Omar', 'Greta',
-  'Yusuf', 'Clara', 'Dmitri', 'Amara', 'Piotr', 'Sofia', 'Kwame', 'Elin', 'Hassan', 'Mira',
-  'Joaquin', 'Tessa', 'Rafael', 'Noor', 'Bo', 'Ingrid', 'Malik', 'Junia', 'Arne', 'Petra',
-  'Caleb', 'Yara', 'Soren', 'Delia', 'Nikolai', 'Esme', 'Tariq', 'Wren', 'Anders', 'Leila',
-  'Gideon', 'Marta', 'Ravi', 'Coral', 'Emeka', 'Astrid', 'Silas', 'Nia', 'Bruno', 'Ilse'];
-const SURNAME = ['Okonkwo', 'Varga', 'Delacroix', 'Mbeki', 'Lindqvist', 'Ferreira', 'Haddad', 'Novak',
-  'Osei', 'Reyes', 'Bergman', 'Aziz', 'Kowalski', 'Santos', 'Ndiaye', 'Whitfield', 'Ibarra', 'Petrov',
-  'Adeyemi', 'Mercier', 'Halvorsen', 'Rahman', 'Castellano', 'Owusu', 'Lindgren', 'Baptiste',
-  'Fontaine', 'Achebe', 'Marek', 'Vasquez'];
+// Names come from names.mjs, which the app shares so people found mid-run are named the same way.
 
 // Country grain, because the numbers refused anything finer: 54 named cities hold 70 people between
 // them, so most hold one, and a pin holding one person with one distinctive trade is that person.
