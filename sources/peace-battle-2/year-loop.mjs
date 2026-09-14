@@ -64,7 +64,7 @@ export const DEFAULT_TUNING = {
   // sixty-eight teaches the board. It is why the thin end of the list is the real problem and why
   // looking for people and teaching them are the same strategy rather than two.
   teachPerTeacher: 1.3,
-  lookYield: 12, // people one Look pulls out of the pool
+  lookYield: 16, // people one Look pulls out of the pool
 
   // What the year does back.
   // The map game grew isolation in two of sixteen places a round. This board has six, so the same
@@ -290,17 +290,31 @@ export const ACTIONS = {
     // Nothing to push back where nothing is wrong, the same way the map game refuses to help in a
     // place that needs nothing. So a place has to be in trouble before it can be put beyond it.
     if (place.isolation === 0) return false;
+    // The Directory only takes root where the place can already fill all thirteen jobs. Somewhere
+    // that cannot feed itself or keep its water on does not become permanently reachable because
+    // somebody visited. So a place that does not run can be pulled back from the edge but never
+    // finished, and the first sweep is what forced this rule in: with covering cheap and permanent,
+    // a careful player locked all six places by year ten and isolation had nowhere left to grow,
+    // which made two of the game's three kinds of friction cost exactly nothing.
     const runs = placesThatRun(s).some((p) => p.key === placeKey);
     place.isolation -= runs ? s.tuning.reachClearsWhereItRuns : s.tuning.reachClears;
     if (place.isolation <= 0) {
-      place.isolation = 0;
-      place.covered = true;
-      s.somethingVisible = true;
+      if (runs) {
+        place.isolation = 0;
+        place.covered = true;
+        s.somethingVisible = true;
+      } else {
+        place.isolation = 1;
+      }
     }
     return true;
   },
-  teach(s, sector) {
-    s.teachingQueued.push(sector);
+  // Teaching happens somewhere. The people who learn are the findable people in that place; the
+  // teachers can be anywhere, because coordinating that is what the Directory is for. So a small
+  // place is hard to staff however many teachers the board has, which is true and is the reason a
+  // thin place stays thin.
+  teach(s, sector, placeKey) {
+    s.teachingQueued.push({ sector, place: placeKey ?? s.places[0].key });
     return true;
   },
   look(s, placeKey) {
@@ -332,8 +346,9 @@ function resolveTeaching(s) {
   const findable = findableResidents(s);
   if (findable.length === 0) { s.teachingQueued = []; return; }
   const depth = skillDepth(s);
-  for (const sector of s.teachingQueued) {
-    const learners = teachingCapacity(s, sector, findable);
+  for (const { sector, place } of s.teachingQueued) {
+    const inPlace = findable.filter((r) => r.place === place);
+    const learners = Math.min(teachingCapacity(s, sector, findable), inPlace.length);
     if (learners === 0) continue;
     const missing = missingInSector(s, sector, new Set(depth.keys()));
     // A sector whose catalog is complete is still worth teaching, because a skill one person holds is
@@ -348,7 +363,7 @@ function resolveTeaching(s) {
     }
     thin.sort((a, b) => a.held - b.held);
     for (let i = 0; i < learners; i += 1) {
-      const learner = pick(s.rng, findable);
+      const learner = pick(s.rng, inPlace);
       // Teaching is the only action that can aim at a skill nobody findable holds. The player picks
       // the sector; the dice pick which skill inside it.
       if (missing.length > 0) {

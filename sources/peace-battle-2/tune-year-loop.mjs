@@ -15,7 +15,7 @@
 
 import {
   ACTIONS, DEFAULT_TUNING, runGame, findableResidents, missingInSector, skillDepth,
-  teachingCapacity,
+  teachingCapacity, placesThatRun,
 } from './year-loop.mjs';
 
 const SECTORS = (s) => Object.keys(s.skillsBySector);
@@ -34,13 +34,14 @@ function careful(s) {
     .sort((a, b) => b.standsFor - a.standsFor)[0];
   if (atRisk) return ACTIONS.reach(s, atRisk.key);
 
-  // A place cleared all the way to nothing is covered, and isolation never comes back to it. So the
-  // move is to finish one place at a time, cheapest first: each one costs a few actions once and then
-  // leaves the board's worry list for good. Chasing whichever place looks worst this year instead
-  // never finishes any of them, and the sweep showed a player doing that spending two actions in
-  // three on a treadmill.
+  // A place cleared to nothing is covered and isolation never comes back to it — but only a place
+  // that can already fill all thirteen jobs can be finished that way. So the move is to finish the
+  // places that run, cheapest first: each costs a few actions once and then leaves the board's worry
+  // list for good. Chasing whichever place looks worst instead never finishes any of them, and the
+  // sweep showed a player doing that spending two actions in three on a treadmill.
+  const running = new Set(placesThatRun(s).map((p) => p.key));
   const finishing = s.places
-    .filter((p) => !p.covered && !p.cutOff && p.isolation > 0)
+    .filter((p) => !p.covered && !p.cutOff && p.isolation > 0 && running.has(p.key))
     .sort((a, b) => a.isolation - b.isolation || b.standsFor - a.standsFor)[0];
   if (finishing) return ACTIONS.reach(s, finishing.key);
 
@@ -68,6 +69,27 @@ function careful(s) {
   // sectors that only teaching can reach are the thin ones, which is the same reading the opening
   // board gave. So the score is what this year's teaching would bring, divided by how often that
   // sector walks in by itself.
+  // Staffing comes first. A place short only a job or two is a place that can be finished and taken
+  // off the board for good, and teaching into that job is the only way to get it there.
+  const shortest = s.places
+    .map((place) => {
+      if (place.covered || place.cutOff) return null;
+      const here = findable.filter((r) => r.place === place.key);
+      const empty = s.teams.filter((team) => !here.some((r) => team.sectors.some((sec) => r.sectors[sec])));
+      return empty.length > 0 && empty.length <= 3 && here.length > 0
+        ? { place, empty, standsFor: place.standsFor } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.empty.length - b.empty.length || b.standsFor - a.standsFor)[0];
+  if (shortest) {
+    for (const team of shortest.empty) {
+      const sector = team.sectors
+        .map((sec) => ({ sec, capacity: teachingCapacity(s, sec, findable) }))
+        .sort((a, b) => b.capacity - a.capacity)[0];
+      if (sector && sector.capacity > 0) return ACTIONS.teach(s, sector.sec, shortest.place.key);
+    }
+  }
+
   const present = new Set(depth.keys());
   const holdings = s.shape.sectorFrequency;
   const allHoldings = Object.values(holdings).reduce((a, b) => a + b, 0);
@@ -83,7 +105,10 @@ function careful(s) {
       return { sector, brings, score: brings / Math.max(arrivesByItself, 1 / allHoldings) };
     })
     .sort((a, b) => b.score - a.score)[0];
-  if (best && best.brings > 0) return ACTIONS.teach(s, best.sector);
+  if (best && best.brings > 0) {
+    const where = s.places.filter((p) => !p.cutOff).sort((a, b) => b.standsFor - a.standsFor)[0];
+    return ACTIONS.teach(s, best.sector, where.key);
+  }
   return open ? ACTIONS.look(s, open.key) : ACTIONS.showTheArithmetic(s);
 }
 
@@ -95,7 +120,7 @@ function careless(s) {
   const open = s.places.filter((p) => !p.cutOff);
   const kind = Math.floor(s.rng() * 4);
   if (kind === 0 && open.length > 0) return ACTIONS.reach(s, pick(open).key);
-  if (kind === 1) return ACTIONS.teach(s, pick(SECTORS(s)));
+  if (kind === 1 && open.length > 0) return ACTIONS.teach(s, pick(SECTORS(s)), pick(open).key);
   if (kind === 2 && open.length > 0) return ACTIONS.look(s, pick(open).key);
   return ACTIONS.showTheArithmetic(s);
 }
