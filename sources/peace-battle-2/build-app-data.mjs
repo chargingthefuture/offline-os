@@ -17,6 +17,8 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
+import { GIVEN, SURNAME } from './names.mjs';
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const read = (name) => JSON.parse(readFileSync(join(HERE, name), 'utf8'));
 const shape = read('directory-shape.json');
@@ -90,6 +92,9 @@ const data = {
   years: opening.year.years,
   actionsPerYear: opening.year.actionsPerYear,
   signedUpGoal: opening.figures.signedUpGoal,
+  // The app names the people it finds mid-run from the same pool the board was built from.
+  given: GIVEN,
+  surname: SURNAME,
 };
 
 const problems = [];

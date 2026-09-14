@@ -17,24 +17,62 @@
   [hidden]{display:none!important;}
   .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:2px;}
   .back:hover,.back:focus-visible{color:var(--amber);}
-  .topline{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:6px 0 2px;}
-  .count{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:34px;
+  .topline{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:6px 0 4px;}
+  .count{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:30px;
     line-height:1;color:var(--amber);font-variant-numeric:tabular-nums;}
-  .count small{display:block;font-family:inherit;font-weight:400;font-size:11px;color:var(--muted);
-    text-transform:uppercase;letter-spacing:.09em;margin-top:3px;}
+  .count small{display:block;font-family:inherit;font-weight:400;font-size:10.5px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
   .counters{text-align:right;font-size:11px;color:var(--muted);line-height:1.7;white-space:nowrap;}
   .counters b{color:var(--text);font-variant-numeric:tabular-nums;}
-  .counters .warn{color:#e5794b;}
-  .bars{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 8px;margin:8px 0;}
-  .bar{display:grid;grid-template-columns:1fr 46px;gap:6px;align-items:center;width:100%;
-    background:none;border:0;border-radius:6px;padding:3px 4px;font:inherit;color:inherit;
-    cursor:pointer;text-align:left;}
-  .bar[aria-pressed="true"]{background:var(--panel-2);outline:1px solid var(--amber);}
-  .bar .nm{font-size:10.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .bar .track{grid-column:1/3;height:5px;border-radius:3px;background:#2c2f36;overflow:hidden;}
-  .bar .fill{display:block;height:100%;background:var(--amber);}
-  .bar .fill.done{background:#2f6b4f;}
-  .bar .num{font-size:10.5px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;}
+
+  .places{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;
+    -webkit-overflow-scrolling:touch;}
+  .pl{flex:0 0 auto;background:var(--panel);border:1px solid var(--line);border-radius:9px;
+    padding:6px 9px;font:inherit;color:var(--text);cursor:pointer;text-align:left;min-width:92px;}
+  .pl[aria-pressed="true"]{border-color:var(--amber);background:var(--panel-2);}
+  .pl .n{font-size:10.5px;color:var(--muted);white-space:nowrap;}
+  .pl .v{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:15px;
+    font-variant-numeric:tabular-nums;}
+  .pl .st{font-size:10px;white-space:nowrap;}
+  .pl .st.run{color:#57a87a;}
+  .pl .st.stop{color:#e5794b;}
+  .pl .st.gone{color:#a2412c;}
+
+  .rosterhead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:2px 0 4px;}
+  .rosterhead .t{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:14px;
+    text-transform:uppercase;letter-spacing:.05em;}
+  .rosterhead .s{font-size:11px;color:var(--muted);}
+  .roster{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px 6px;
+    margin-bottom:8px;}
+  .job{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:baseline;width:100%;
+    background:none;border:0;border-radius:6px;padding:5px 5px;font:inherit;color:inherit;
+    cursor:pointer;text-align:left;border-bottom:1px solid #22242a;}
+  .job:last-child{border-bottom:0;}
+  .job[aria-pressed="true"]{background:var(--panel-2);outline:1px solid var(--amber);}
+  .job .jn{font-size:11.5px;color:var(--text);}
+  .job .who{font-size:11px;color:var(--muted);text-align:right;}
+  .job.thin .who{color:var(--amber);}
+  .job.empty .jn{color:#8a8f99;}
+  .job.empty .who{color:#e5794b;}
+  .job .away{display:block;font-size:10px;color:#8a8f99;}
+  .job .hint{display:block;font-size:9.5px;color:#7b8089;margin-top:1px;}
+  .job .rare{color:#c98a4b;}
+
+  .events{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;
+    font-size:11.5px;line-height:1.65;color:var(--muted);margin-bottom:8px;min-height:38px;}
+  .events b{color:var(--text);}
+  .events .bad{color:#e5794b;}
+  .events .good{color:#57a87a;}
+  .events div{margin-bottom:2px;}
+  .events div:last-child{margin-bottom:0;}
+
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;}
+  .act{background:var(--amber);border:1px solid var(--amber);border-radius:10px;color:#16171b;
+    padding:11px 6px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;}
+  .act.ghost{background:none;color:var(--text);border-color:var(--line);font-weight:400;}
+  .act[disabled]{opacity:.4;cursor:default;}
+  .act:focus-visible,.job:focus-visible,.pl:focus-visible,.reset:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+
   .index{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
   .ix{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 9px;}
   .ix .n{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);line-height:1.4;}
@@ -47,25 +85,25 @@
   svg.map text{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-size:3.1px;fill:#8a8f99;
     text-anchor:middle;pointer-events:none;}
   svg.map .node{cursor:pointer;}
-  svg.map .ring{fill:none;stroke:var(--amber);stroke-width:.9;}
+  svg.map .ring{fill:none;stroke:#57a87a;stroke-width:.9;}
   svg.map .sel{fill:none;stroke:var(--amber);stroke-width:.8;stroke-dasharray:1.6 1.4;}
   svg.map .who{font-size:3px;font-weight:700;fill:#16171b;text-anchor:middle;pointer-events:none;}
-  .status{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 11px;
-    font-size:12px;line-height:1.6;color:var(--muted);min-height:34px;margin-bottom:8px;}
-  .status b{color:var(--text);}
-  .actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
-  .act{background:var(--amber);border:1px solid var(--amber);border-radius:10px;color:#16171b;
-    padding:10px 6px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;}
-  .act.ghost{background:none;color:var(--text);border-color:var(--line);font-weight:400;}
-  .act[disabled]{opacity:.4;cursor:default;}
-  .act:focus-visible,.bar:focus-visible,.reset:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+
+  .bars{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 8px;margin-bottom:10px;}
+  .barrow{display:grid;grid-template-columns:1fr 46px;gap:6px;align-items:center;padding:3px 4px;}
+  .barrow .nm{font-size:10.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .barrow .num{font-size:10.5px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;}
+  .barrow .track{grid-column:1/3;height:4px;border-radius:3px;background:#2c2f36;overflow:hidden;}
+  .barrow .fill{display:block;height:100%;background:var(--amber);}
+  .barrow .fill.done{background:#2f6b4f;}
+
   .reset{width:100%;background:none;border:1px solid var(--line);border-radius:10px;color:var(--muted);
     padding:9px 12px;font:inherit;font-size:12px;cursor:pointer;margin-bottom:14px;}
   .over{background:var(--panel-2);border:1px solid var(--amber);border-radius:12px;padding:12px 14px;margin-bottom:8px;}
   .over .t{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:16px;
     text-transform:uppercase;letter-spacing:.05em;color:var(--amber);margin-bottom:4px;}
   .over p{margin:0 0 6px;font-size:12px;color:var(--muted);line-height:1.7;}
-  details{border-top:1px solid var(--line);padding-top:10px;}
+  details{border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;}
   summary{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:13px;
     text-transform:uppercase;letter-spacing:.06em;color:var(--muted);cursor:pointer;}
   details h3{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--text);margin:12px 0 4px;}
@@ -77,14 +115,31 @@
   <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
 
   <div class="topline">
-    <div class="count"><span id="skills">184</span><small>skills somebody can be found for</small></div>
+    <div class="count"><span id="skills">184</span> of <span id="total">657</span>
+      <small>skills somebody can be found for</small></div>
     <div class="counters">
       Year <b id="year">1</b> of <b id="years">50</b><br>
       Actions <b id="acts">3</b> &middot; people <b id="people">147</b>
     </div>
   </div>
 
-  <div class="bars" id="bars"></div>
+  <div class="places" id="places"></div>
+
+  <div class="rosterhead">
+    <div class="t" id="placeName">&nbsp;</div>
+    <div class="s" id="placeState">&nbsp;</div>
+  </div>
+  <div class="roster" id="roster"></div>
+
+  <div id="overBox"></div>
+  <div class="events" id="events"></div>
+
+  <div class="actions">
+    <button type="button" class="act" id="teach">Teach this job</button>
+    <button type="button" class="act" id="look">Look for people</button>
+    <button type="button" class="act" id="reach">Reach further in</button>
+    <button type="button" class="act ghost" id="arith">Show the arithmetic</button>
+  </div>
 
   <div class="index">
     <div class="ix"><div class="n">Community Value Index<br>settled</div><div class="v" id="settled">0</div></div>
@@ -93,15 +148,7 @@
 
   <svg class="map" id="map" viewBox="0 0 100 92" role="img" aria-label="Map of places"></svg>
 
-  <div id="overBox"></div>
-  <div class="status" id="status"></div>
-
-  <div class="actions">
-    <button type="button" class="act" id="reach">Reach</button>
-    <button type="button" class="act" id="teach">Teach</button>
-    <button type="button" class="act" id="look">Look</button>
-    <button type="button" class="act ghost" id="arith">Show the arithmetic</button>
-  </div>
+  <div class="bars" id="bars"></div>
 
   <button type="button" class="reset" id="reset">Start again</button>
 
@@ -118,6 +165,18 @@
       The map is at country grain for the same reason. Fifty-four cities hold seventy people between
       them, so a pin on a city would mostly be one person with one distinctive trade, which is that
       person to anybody who has seen the list.
+    </p>
+    <h3>Thirteen jobs, and a place runs or it does not</h3>
+    <p>
+      Every place needs all thirteen filled by somebody who can be found: water, power, food, care,
+      teaching, making and mending, and the rest. You cannot cover a missing one with more of
+      something else. A place with nobody in a job has stopped running, however many people are
+      standing in it.
+    </p>
+    <p>
+      A job held by one person is the fragile kind. The year that person is out of reach, the job is
+      empty and the place stops. That is why finding more people matters as much as adding more
+      skills.
     </p>
     <h3>How a year goes</h3>
     <p>
@@ -139,13 +198,6 @@
       skills and rest on one person each, and nobody with those skills walks in by chance, because
       that is how rare they are in the pool. Only teaching reaches them.
     </p>
-    <h3>Why a skill can disappear</h3>
-    <p>
-      A skill counts when somebody findable holds it. A person out of reach this year takes theirs
-      with them, and a place cut off takes everybody's. A capability one person holds is one
-      unavailable year from being gone, which is why finding more people matters as much as adding
-      more skills.
-    </p>
     <h3>The two figures</h3>
     <p>
       Settled is what was actually exchanged. Waiting is what the open posts would add if every one
@@ -164,7 +216,7 @@
 <script src="../../shared/storage.js"></script>
 <script src="../../shared/pwa.js"></script>
 <script>
-var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufacturing & Industry","Microfinance & SME Support","Emergency & Reserve Roles","Mining / Extractive","Energy & Utilities","Finance & Public Administration","Telecommunications & IT","R&D & High-Tech","Transport & Logistics","Water & Sanitation","Retail & Services","Creative & Media","Tourism & Hospitality","Health","Environmental & Waste Management","Professional & Business Services","Public Safety & Justice","Education"],"taxonomy":[49,46,28,24,20,12,20,34,20,41,37,19,14,77,16,80,25,51,15,29],"held":[[1,1,1,1,1,1,1,1],[2,2,2,2,1,1,1,1,1,1,1,1],[2,2,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1],[1],[1],[1,1,1],[2,2,2,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[3,2,2,2,1,1,1,1,1,1,1,1,1],[5,3,3,3,3,2,2,2,1,1,1,1,1,1,1,1,1],[1,1,1],[3,3,2,2,2,2,1,1,1,1,1,1,1,1],[68,8,5,4,4,3,3,3,2,2,2,1,1,1,1,1,1,1,1,1],[2,2,1,1,1,1,1,1,1,1,1],[12,9,7,6,4,4,3,3,3,2,2,2,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1],[3,2,2,2,2,1,1,1,1,1,1,1,1],[1],[1,1,1,1]],"taxonomyCountedOn":"2026-09-14","totalSkills":657,"places":[{"name":"US, state not given","x":36,"y":47,"standsFor":2448980},{"name":"US, elsewhere","x":58,"y":33,"standsFor":1394558},{"name":"Outside US and UK","x":79,"y":79,"standsFor":374150},{"name":"Florida","x":58,"y":68,"standsFor":238095},{"name":"California","x":13,"y":62,"standsFor":374150},{"name":"United Kingdom","x":79,"y":18,"standsFor":170068}],"links":[[0,1],[0,4],[0,3],[1,4],[1,3],[4,3],[5,0],[2,0],[5,2]],"teams":[{"name":"Legal & Governance","sectors":[17,18]},{"name":"Finance","sectors":[3,17,7]},{"name":"Land & Site","sectors":[1,16,5]},{"name":"Build & Infrastructure","sectors":[1,6,11,8]},{"name":"Food & Agriculture","sectors":[0,14]},{"name":"Health & Wellbeing","sectors":[15]},{"name":"Safety & Security","sectors":[4,18]},{"name":"Technology","sectors":[9,8]},{"name":"Communications & Documentation","sectors":[13]},{"name":"Operations & Maintenance","sectors":[12,1,10]},{"name":"Water & Sanitation","sectors":[11]},{"name":"Education & Childcare","sectors":[19]},{"name":"Making & Repair","sectors":[2,5]}],"residents":[{"name":"Ada Okonkwo","place":0,"sectors":{"6":3,"10":4,"12":2,"13":4,"15":10,"17":1}},{"name":"Marcus Novak","place":0,"sectors":{"9":1,"10":1,"11":3,"12":1,"13":11,"15":1}},{"name":"Imani Ndiaye","place":1,"sectors":{"1":1,"7":1,"10":2,"13":7,"15":1,"19":2}},{"name":"Tobias Rahman","place":0,"sectors":{"10":2,"13":3,"15":2,"16":2}},{"name":"Lena Marek","place":0,"sectors":{"0":3,"10":2,"13":2,"15":2}},{"name":"Rosa Ferreira","place":1,"sectors":{"3":3,"13":5,"15":1}},{"name":"Nadia Kowalski","place":2,"sectors":{"8":3,"13":2,"15":3}},{"name":"Felix Mercier","place":0,"sectors":{"2":3,"13":1,"15":4}},{"name":"Omar Fontaine","place":1,"sectors":{"13":2,"14":4,"15":2}},{"name":"Greta Mbeki","place":3,"sectors":{"7":3,"13":1,"15":3}},{"name":"Yusuf Bergman","place":1,"sectors":{"1":3,"13":1,"15":3}},{"name":"Clara Petrov","place":3,"sectors":{"13":2,"15":1,"17":3}},{"name":"Dmitri Lindgren","place":0,"sectors":{"12":4,"13":1,"15":1}},{"name":"Amara Varga","place":0,"sectors":{"9":5,"13":1}},{"name":"Piotr Osei","place":0,"sectors":{"10":4,"13":1}},{"name":"Sofia Whitfield","place":4,"sectors":{"13":1,"15":4}},{"name":"Kwame Castellano","place":1,"sectors":{"13":4,"15":1}},{"name":"Elin Vasquez","place":1,"sectors":{"13":4,"15":1}},{"name":"Hassan Haddad","place":1,"sectors":{"1":3,"13":1}},{"name":"Mira Santos","place":2,"sectors":{"2":2,"13":2}},{"name":"Joaquin Halvorsen","place":0,"sectors":{"13":2,"14":2}},{"name":"Tessa Achebe","place":2,"sectors":{"13":1,"15":3}},{"name":"Rafael Lindqvist","place":2,"sectors":{"9":3,"13":1}},{"name":"Noor Aziz","place":0,"sectors":{"12":2,"13":1}},{"name":"Bo Adeyemi","place":0,"sectors":{"13":1,"17":2}},{"name":"Ingrid Baptiste","place":0,"sectors":{"10":2,"13":1}},{"name":"Malik Delacroix","place":1,"sectors":{"12":2,"13":1}},{"name":"Junia Reyes","place":2,"sectors":{"13":1,"17":2}},{"name":"Arne Ibarra","place":0,"sectors":{"1":2,"13":1}},{"name":"Petra Owusu","place":4,"sectors":{"7":2,"13":1}},{"name":"Caleb Okonkwo","place":5,"sectors":{"2":1,"13":2}},{"name":"Yara Novak","place":1,"sectors":{"13":2,"14":1}},{"name":"Soren Ndiaye","place":0,"sectors":{"10":2,"15":1}},{"name":"Delia Rahman","place":1,"sectors":{"9":1,"12":2}},{"name":"Nikolai Marek","place":2,"sectors":{"13":1,"17":2}},{"name":"Esme Ferreira","place":2,"sectors":{"1":1,"7":2}},{"name":"Tariq Kowalski","place":0,"sectors":{"2":2,"14":1}},{"name":"Wren Mercier","place":1,"sectors":{"0":1,"10":2}},{"name":"Anders Fontaine","place":3,"sectors":{"9":1,"15":2}},{"name":"Leila Mbeki","place":4,"sectors":{"12":2,"13":1}},{"name":"Gideon Bergman","place":2,"sectors":{"13":3}},{"name":"Marta Petrov","place":0,"sectors":{"13":3}},{"name":"Ravi Lindgren","place":1,"sectors":{"17":2}},{"name":"Coral Varga","place":0,"sectors":{"1":2}},{"name":"Emeka Osei","place":0,"sectors":{"7":2}},{"name":"Astrid Whitfield","place":1,"sectors":{"2":2}},{"name":"Silas Castellano","place":0,"sectors":{"8":2}},{"name":"Nia Vasquez","place":0,"sectors":{"14":2}},{"name":"Bruno Haddad","place":4,"sectors":{"0":2}},{"name":"Ilse Santos","place":0,"sectors":{"10":2}},{"name":"Ada Rahman","place":1,"sectors":{"15":2}},{"name":"Marcus Marek","place":1,"sectors":{"9":2}},{"name":"Imani Ferreira","place":1,"sectors":{"12":2}},{"name":"Tobias Kowalski","place":0,"sectors":{"13":2}},{"name":"Lena Mercier","place":1,"sectors":{"16":2}},{"name":"Rosa Fontaine","place":0,"sectors":{"17":2}},{"name":"Nadia Mbeki","place":0,"sectors":{"1":2}},{"name":"Felix Bergman","place":1,"sectors":{"7":2}},{"name":"Omar Petrov","place":2,"sectors":{"2":2}},{"name":"Greta Lindgren","place":0,"sectors":{"8":2}},{"name":"Yusuf Varga","place":0,"sectors":{"14":2}},{"name":"Clara Osei","place":4,"sectors":{"0":2}},{"name":"Dmitri Whitfield","place":0,"sectors":{"10":2}},{"name":"Amara Castellano","place":0,"sectors":{"15":2}},{"name":"Piotr Vasquez","place":0,"sectors":{"3":2}},{"name":"Sofia Haddad","place":0,"sectors":{"9":2}},{"name":"Kwame Santos","place":1,"sectors":{"12":2}},{"name":"Elin Halvorsen","place":0,"sectors":{"13":2}},{"name":"Hassan Achebe","place":1,"sectors":{"16":2}},{"name":"Mira Lindqvist","place":0,"sectors":{"19":2}},{"name":"Joaquin Aziz","place":0,"sectors":{"17":2}},{"name":"Tessa Adeyemi","place":4,"sectors":{"13":1}},{"name":"Rafael Baptiste","place":1,"sectors":{"13":1}},{"name":"Noor Delacroix","place":1,"sectors":{"13":1}},{"name":"Bo Reyes","place":1,"sectors":{"13":1}},{"name":"Ingrid Ibarra","place":3,"sectors":{"13":1}},{"name":"Malik Owusu","place":0,"sectors":{"13":1}},{"name":"Junia Okonkwo","place":0,"sectors":{"13":1}},{"name":"Arne Novak","place":1,"sectors":{"13":1}},{"name":"Petra Ndiaye","place":3,"sectors":{"13":1}},{"name":"Caleb Rahman","place":0,"sectors":{"13":1}},{"name":"Yara Marek","place":0,"sectors":{"13":1}},{"name":"Soren Ferreira","place":0,"sectors":{"13":1}},{"name":"Delia Kowalski","place":1,"sectors":{"13":1}},{"name":"Nikolai Mercier","place":1,"sectors":{"13":1}},{"name":"Esme Fontaine","place":1,"sectors":{"13":1}},{"name":"Tariq Mbeki","place":0,"sectors":{"15":1}},{"name":"Wren Bergman","place":1,"sectors":{"13":1}},{"name":"Anders Petrov","place":0,"sectors":{"15":1}},{"name":"Leila Lindgren","place":4,"sectors":{"13":1}},{"name":"Gideon Varga","place":0,"sectors":{"15":1}},{"name":"Marta Osei","place":1,"sectors":{"13":1}},{"name":"Ravi Whitfield","place":0,"sectors":{"15":1}},{"name":"Coral Castellano","place":0,"sectors":{"13":1}},{"name":"Emeka Vasquez","place":5,"sectors":{"15":1}},{"name":"Astrid Haddad","place":0,"sectors":{"13":1}},{"name":"Silas Santos","place":1,"sectors":{"15":1}},{"name":"Nia Halvorsen","place":0,"sectors":{"13":1}},{"name":"Bruno Achebe","place":4,"sectors":{"15":1}},{"name":"Ilse Lindqvist","place":1,"sectors":{"13":1}},{"name":"Ada Kowalski","place":4,"sectors":{"15":1}},{"name":"Marcus Mercier","place":1,"sectors":{"13":1}},{"name":"Imani Fontaine","place":5,"sectors":{"15":1}},{"name":"Tobias Mbeki","place":1,"sectors":{"10":1}},{"name":"Lena Bergman","place":1,"sectors":{"13":1}},{"name":"Rosa Petrov","place":0,"sectors":{"15":1}},{"name":"Nadia Lindgren","place":2,"sectors":{"10":1}},{"name":"Felix Varga","place":0,"sectors":{"13":1}},{"name":"Omar Osei","place":4,"sectors":{"15":1}},{"name":"Greta Whitfield","place":0,"sectors":{"10":1}},{"name":"Yusuf Castellano","place":0,"sectors":{"13":1}},{"name":"Clara Vasquez","place":1,"sectors":{"15":1}},{"name":"Dmitri Haddad","place":0,"sectors":{"10":1}},{"name":"Amara Santos","place":2,"sectors":{"13":1}},{"name":"Piotr Halvorsen","place":0,"sectors":{"15":1}},{"name":"Sofia Achebe","place":1,"sectors":{"9":1}},{"name":"Kwame Lindqvist","place":0,"sectors":{"10":1}},{"name":"Elin Aziz","place":3,"sectors":{"12":1}},{"name":"Hassan Adeyemi","place":0,"sectors":{"13":1}},{"name":"Mira Baptiste","place":5,"sectors":{"15":1}},{"name":"Joaquin Delacroix","place":0,"sectors":{"17":1}},{"name":"Tessa Reyes","place":0,"sectors":{"1":1}},{"name":"Rafael Ibarra","place":1,"sectors":{"7":1}},{"name":"Noor Owusu","place":0,"sectors":{"9":1}},{"name":"Bo Okonkwo","place":1,"sectors":{"10":1}},{"name":"Ingrid Novak","place":0,"sectors":{"12":1}},{"name":"Malik Ndiaye","place":0,"sectors":{"13":1}},{"name":"Junia Rahman","place":1,"sectors":{"15":1}},{"name":"Arne Marek","place":0,"sectors":{"17":1}},{"name":"Petra Ferreira","place":0,"sectors":{"1":1}},{"name":"Caleb Kowalski","place":0,"sectors":{"2":1}},{"name":"Yara Mercier","place":0,"sectors":{"3":1}},{"name":"Soren Fontaine","place":5,"sectors":{"4":1}},{"name":"Delia Mbeki","place":0,"sectors":{"5":1}},{"name":"Nikolai Bergman","place":1,"sectors":{"7":1}},{"name":"Esme Petrov","place":4,"sectors":{"8":1}},{"name":"Tariq Lindgren","place":0,"sectors":{"9":1}},{"name":"Wren Varga","place":0,"sectors":{"10":1}},{"name":"Anders Osei","place":0,"sectors":{"12":1}},{"name":"Leila Whitfield","place":1,"sectors":{"13":1}},{"name":"Gideon Castellano","place":0,"sectors":{"14":1}},{"name":"Marta Vasquez","place":3,"sectors":{"15":1}},{"name":"Ravi Haddad","place":0,"sectors":{"17":1}},{"name":"Coral Santos","place":0,"sectors":{"18":1}},{"name":"Emeka Halvorsen","place":0,"sectors":{}},{"name":"Astrid Achebe","place":0,"sectors":{}},{"name":"Silas Lindqvist","place":0,"sectors":{}}],"skillsPerProfile":{"0":3,"1":73,"2":29,"3":19,"4":5,"5":4,"6":3,"7":2,"8":3,"9":3,"14":1,"18":1,"24":1},"sectorFrequency":[8,16,13,6,1,1,3,14,8,18,32,3,22,113,13,66,6,19,1,4],"newSkillRateAtStart":0.346,"years":50,"actionsPerYear":3,"signedUpGoal":384};
+var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufacturing & Industry","Microfinance & SME Support","Emergency & Reserve Roles","Mining / Extractive","Energy & Utilities","Finance & Public Administration","Telecommunications & IT","R&D & High-Tech","Transport & Logistics","Water & Sanitation","Retail & Services","Creative & Media","Tourism & Hospitality","Health","Environmental & Waste Management","Professional & Business Services","Public Safety & Justice","Education"],"taxonomy":[49,46,28,24,20,12,20,34,20,41,37,19,14,77,16,80,25,51,15,29],"held":[[1,1,1,1,1,1,1,1],[2,2,2,2,1,1,1,1,1,1,1,1],[2,2,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1],[1],[1],[1,1,1],[2,2,2,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[3,2,2,2,1,1,1,1,1,1,1,1,1],[5,3,3,3,3,2,2,2,1,1,1,1,1,1,1,1,1],[1,1,1],[3,3,2,2,2,2,1,1,1,1,1,1,1,1],[68,8,5,4,4,3,3,3,2,2,2,1,1,1,1,1,1,1,1,1],[2,2,1,1,1,1,1,1,1,1,1],[12,9,7,6,4,4,3,3,3,2,2,2,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1],[3,2,2,2,2,1,1,1,1,1,1,1,1],[1],[1,1,1,1]],"taxonomyCountedOn":"2026-09-14","totalSkills":657,"places":[{"name":"US, state not given","x":36,"y":47,"standsFor":2448980},{"name":"US, elsewhere","x":58,"y":33,"standsFor":1394558},{"name":"Outside US and UK","x":79,"y":79,"standsFor":374150},{"name":"Florida","x":58,"y":68,"standsFor":238095},{"name":"California","x":13,"y":62,"standsFor":374150},{"name":"United Kingdom","x":79,"y":18,"standsFor":170068}],"links":[[0,1],[0,4],[0,3],[1,4],[1,3],[4,3],[5,0],[2,0],[5,2]],"teams":[{"name":"Legal & Governance","sectors":[17,18]},{"name":"Finance","sectors":[3,17,7]},{"name":"Land & Site","sectors":[1,16,5]},{"name":"Build & Infrastructure","sectors":[1,6,11,8]},{"name":"Food & Agriculture","sectors":[0,14]},{"name":"Health & Wellbeing","sectors":[15]},{"name":"Safety & Security","sectors":[4,18]},{"name":"Technology","sectors":[9,8]},{"name":"Communications & Documentation","sectors":[13]},{"name":"Operations & Maintenance","sectors":[12,1,10]},{"name":"Water & Sanitation","sectors":[11]},{"name":"Education & Childcare","sectors":[19]},{"name":"Making & Repair","sectors":[2,5]}],"residents":[{"name":"Ada Okonkwo","place":0,"sectors":{"6":3,"10":4,"12":2,"13":4,"15":10,"17":1}},{"name":"Marcus Novak","place":0,"sectors":{"9":1,"10":1,"11":3,"12":1,"13":11,"15":1}},{"name":"Imani Ndiaye","place":1,"sectors":{"1":1,"7":1,"10":2,"13":7,"15":1,"19":2}},{"name":"Tobias Rahman","place":0,"sectors":{"10":2,"13":3,"15":2,"16":2}},{"name":"Lena Marek","place":0,"sectors":{"0":3,"10":2,"13":2,"15":2}},{"name":"Rosa Ferreira","place":1,"sectors":{"3":3,"13":5,"15":1}},{"name":"Nadia Kowalski","place":2,"sectors":{"8":3,"13":2,"15":3}},{"name":"Felix Mercier","place":0,"sectors":{"2":3,"13":1,"15":4}},{"name":"Omar Fontaine","place":1,"sectors":{"13":2,"14":4,"15":2}},{"name":"Greta Mbeki","place":3,"sectors":{"7":3,"13":1,"15":3}},{"name":"Yusuf Bergman","place":1,"sectors":{"1":3,"13":1,"15":3}},{"name":"Clara Petrov","place":3,"sectors":{"13":2,"15":1,"17":3}},{"name":"Dmitri Lindgren","place":0,"sectors":{"12":4,"13":1,"15":1}},{"name":"Amara Varga","place":0,"sectors":{"9":5,"13":1}},{"name":"Piotr Osei","place":0,"sectors":{"10":4,"13":1}},{"name":"Sofia Whitfield","place":4,"sectors":{"13":1,"15":4}},{"name":"Kwame Castellano","place":1,"sectors":{"13":4,"15":1}},{"name":"Elin Vasquez","place":1,"sectors":{"13":4,"15":1}},{"name":"Hassan Haddad","place":1,"sectors":{"1":3,"13":1}},{"name":"Mira Santos","place":2,"sectors":{"2":2,"13":2}},{"name":"Joaquin Halvorsen","place":0,"sectors":{"13":2,"14":2}},{"name":"Tessa Achebe","place":2,"sectors":{"13":1,"15":3}},{"name":"Rafael Lindqvist","place":2,"sectors":{"9":3,"13":1}},{"name":"Noor Aziz","place":0,"sectors":{"12":2,"13":1}},{"name":"Bo Adeyemi","place":0,"sectors":{"13":1,"17":2}},{"name":"Ingrid Baptiste","place":0,"sectors":{"10":2,"13":1}},{"name":"Malik Delacroix","place":1,"sectors":{"12":2,"13":1}},{"name":"Junia Reyes","place":2,"sectors":{"13":1,"17":2}},{"name":"Arne Ibarra","place":0,"sectors":{"1":2,"13":1}},{"name":"Petra Owusu","place":4,"sectors":{"7":2,"13":1}},{"name":"Caleb Okonkwo","place":5,"sectors":{"2":1,"13":2}},{"name":"Yara Novak","place":1,"sectors":{"13":2,"14":1}},{"name":"Soren Ndiaye","place":0,"sectors":{"10":2,"15":1}},{"name":"Delia Rahman","place":1,"sectors":{"9":1,"12":2}},{"name":"Nikolai Marek","place":2,"sectors":{"13":1,"17":2}},{"name":"Esme Ferreira","place":2,"sectors":{"1":1,"7":2}},{"name":"Tariq Kowalski","place":0,"sectors":{"2":2,"14":1}},{"name":"Wren Mercier","place":1,"sectors":{"0":1,"10":2}},{"name":"Anders Fontaine","place":3,"sectors":{"9":1,"15":2}},{"name":"Leila Mbeki","place":4,"sectors":{"12":2,"13":1}},{"name":"Gideon Bergman","place":2,"sectors":{"13":3}},{"name":"Marta Petrov","place":0,"sectors":{"13":3}},{"name":"Ravi Lindgren","place":1,"sectors":{"17":2}},{"name":"Coral Varga","place":0,"sectors":{"1":2}},{"name":"Emeka Osei","place":0,"sectors":{"7":2}},{"name":"Astrid Whitfield","place":1,"sectors":{"2":2}},{"name":"Silas Castellano","place":0,"sectors":{"8":2}},{"name":"Nia Vasquez","place":0,"sectors":{"14":2}},{"name":"Bruno Haddad","place":4,"sectors":{"0":2}},{"name":"Ilse Santos","place":0,"sectors":{"10":2}},{"name":"Ada Rahman","place":1,"sectors":{"15":2}},{"name":"Marcus Marek","place":1,"sectors":{"9":2}},{"name":"Imani Ferreira","place":1,"sectors":{"12":2}},{"name":"Tobias Kowalski","place":0,"sectors":{"13":2}},{"name":"Lena Mercier","place":1,"sectors":{"16":2}},{"name":"Rosa Fontaine","place":0,"sectors":{"17":2}},{"name":"Nadia Mbeki","place":0,"sectors":{"1":2}},{"name":"Felix Bergman","place":1,"sectors":{"7":2}},{"name":"Omar Petrov","place":2,"sectors":{"2":2}},{"name":"Greta Lindgren","place":0,"sectors":{"8":2}},{"name":"Yusuf Varga","place":0,"sectors":{"14":2}},{"name":"Clara Osei","place":4,"sectors":{"0":2}},{"name":"Dmitri Whitfield","place":0,"sectors":{"10":2}},{"name":"Amara Castellano","place":0,"sectors":{"15":2}},{"name":"Piotr Vasquez","place":0,"sectors":{"3":2}},{"name":"Sofia Haddad","place":0,"sectors":{"9":2}},{"name":"Kwame Santos","place":1,"sectors":{"12":2}},{"name":"Elin Halvorsen","place":0,"sectors":{"13":2}},{"name":"Hassan Achebe","place":1,"sectors":{"16":2}},{"name":"Mira Lindqvist","place":0,"sectors":{"19":2}},{"name":"Joaquin Aziz","place":0,"sectors":{"17":2}},{"name":"Tessa Adeyemi","place":4,"sectors":{"13":1}},{"name":"Rafael Baptiste","place":1,"sectors":{"13":1}},{"name":"Noor Delacroix","place":1,"sectors":{"13":1}},{"name":"Bo Reyes","place":1,"sectors":{"13":1}},{"name":"Ingrid Ibarra","place":3,"sectors":{"13":1}},{"name":"Malik Owusu","place":0,"sectors":{"13":1}},{"name":"Junia Okonkwo","place":0,"sectors":{"13":1}},{"name":"Arne Novak","place":1,"sectors":{"13":1}},{"name":"Petra Ndiaye","place":3,"sectors":{"13":1}},{"name":"Caleb Rahman","place":0,"sectors":{"13":1}},{"name":"Yara Marek","place":0,"sectors":{"13":1}},{"name":"Soren Ferreira","place":0,"sectors":{"13":1}},{"name":"Delia Kowalski","place":1,"sectors":{"13":1}},{"name":"Nikolai Mercier","place":1,"sectors":{"13":1}},{"name":"Esme Fontaine","place":1,"sectors":{"13":1}},{"name":"Tariq Mbeki","place":0,"sectors":{"15":1}},{"name":"Wren Bergman","place":1,"sectors":{"13":1}},{"name":"Anders Petrov","place":0,"sectors":{"15":1}},{"name":"Leila Lindgren","place":4,"sectors":{"13":1}},{"name":"Gideon Varga","place":0,"sectors":{"15":1}},{"name":"Marta Osei","place":1,"sectors":{"13":1}},{"name":"Ravi Whitfield","place":0,"sectors":{"15":1}},{"name":"Coral Castellano","place":0,"sectors":{"13":1}},{"name":"Emeka Vasquez","place":5,"sectors":{"15":1}},{"name":"Astrid Haddad","place":0,"sectors":{"13":1}},{"name":"Silas Santos","place":1,"sectors":{"15":1}},{"name":"Nia Halvorsen","place":0,"sectors":{"13":1}},{"name":"Bruno Achebe","place":4,"sectors":{"15":1}},{"name":"Ilse Lindqvist","place":1,"sectors":{"13":1}},{"name":"Ada Kowalski","place":4,"sectors":{"15":1}},{"name":"Marcus Mercier","place":1,"sectors":{"13":1}},{"name":"Imani Fontaine","place":5,"sectors":{"15":1}},{"name":"Tobias Mbeki","place":1,"sectors":{"10":1}},{"name":"Lena Bergman","place":1,"sectors":{"13":1}},{"name":"Rosa Petrov","place":0,"sectors":{"15":1}},{"name":"Nadia Lindgren","place":2,"sectors":{"10":1}},{"name":"Felix Varga","place":0,"sectors":{"13":1}},{"name":"Omar Osei","place":4,"sectors":{"15":1}},{"name":"Greta Whitfield","place":0,"sectors":{"10":1}},{"name":"Yusuf Castellano","place":0,"sectors":{"13":1}},{"name":"Clara Vasquez","place":1,"sectors":{"15":1}},{"name":"Dmitri Haddad","place":0,"sectors":{"10":1}},{"name":"Amara Santos","place":2,"sectors":{"13":1}},{"name":"Piotr Halvorsen","place":0,"sectors":{"15":1}},{"name":"Sofia Achebe","place":1,"sectors":{"9":1}},{"name":"Kwame Lindqvist","place":0,"sectors":{"10":1}},{"name":"Elin Aziz","place":3,"sectors":{"12":1}},{"name":"Hassan Adeyemi","place":0,"sectors":{"13":1}},{"name":"Mira Baptiste","place":5,"sectors":{"15":1}},{"name":"Joaquin Delacroix","place":0,"sectors":{"17":1}},{"name":"Tessa Reyes","place":0,"sectors":{"1":1}},{"name":"Rafael Ibarra","place":1,"sectors":{"7":1}},{"name":"Noor Owusu","place":0,"sectors":{"9":1}},{"name":"Bo Okonkwo","place":1,"sectors":{"10":1}},{"name":"Ingrid Novak","place":0,"sectors":{"12":1}},{"name":"Malik Ndiaye","place":0,"sectors":{"13":1}},{"name":"Junia Rahman","place":1,"sectors":{"15":1}},{"name":"Arne Marek","place":0,"sectors":{"17":1}},{"name":"Petra Ferreira","place":0,"sectors":{"1":1}},{"name":"Caleb Kowalski","place":0,"sectors":{"2":1}},{"name":"Yara Mercier","place":0,"sectors":{"3":1}},{"name":"Soren Fontaine","place":5,"sectors":{"4":1}},{"name":"Delia Mbeki","place":0,"sectors":{"5":1}},{"name":"Nikolai Bergman","place":1,"sectors":{"7":1}},{"name":"Esme Petrov","place":4,"sectors":{"8":1}},{"name":"Tariq Lindgren","place":0,"sectors":{"9":1}},{"name":"Wren Varga","place":0,"sectors":{"10":1}},{"name":"Anders Osei","place":0,"sectors":{"12":1}},{"name":"Leila Whitfield","place":1,"sectors":{"13":1}},{"name":"Gideon Castellano","place":0,"sectors":{"14":1}},{"name":"Marta Vasquez","place":3,"sectors":{"15":1}},{"name":"Ravi Haddad","place":0,"sectors":{"17":1}},{"name":"Coral Santos","place":0,"sectors":{"18":1}},{"name":"Emeka Halvorsen","place":0,"sectors":{}},{"name":"Astrid Achebe","place":0,"sectors":{}},{"name":"Silas Lindqvist","place":0,"sectors":{}}],"skillsPerProfile":{"0":3,"1":73,"2":29,"3":19,"4":5,"5":4,"6":3,"7":2,"8":3,"9":3,"14":1,"18":1,"24":1},"sectorFrequency":[8,16,13,6,1,1,3,14,8,18,32,3,22,113,13,66,6,19,1,4],"newSkillRateAtStart":0.346,"years":50,"actionsPerYear":3,"signedUpGoal":384,"given":["Ada","Marcus","Imani","Tobias","Lena","Rosa","Nadia","Felix","Omar","Greta","Yusuf","Clara","Dmitri","Amara","Piotr","Sofia","Kwame","Elin","Hassan","Mira","Joaquin","Tessa","Rafael","Noor","Bo","Ingrid","Malik","Junia","Arne","Petra","Caleb","Yara","Soren","Delia","Nikolai","Esme","Tariq","Wren","Anders","Leila","Gideon","Marta","Ravi","Coral","Emeka","Astrid","Silas","Nia","Bruno","Ilse"],"surname":["Okonkwo","Varga","Delacroix","Mbeki","Lindqvist","Ferreira","Haddad","Novak","Osei","Reyes","Bergman","Aziz","Kowalski","Santos","Ndiaye","Whitfield","Ibarra","Petrov","Adeyemi","Mercier","Halvorsen","Rahman","Castellano","Owusu","Lindgren","Baptiste","Fontaine","Achebe","Marek","Vasquez"]};
 (function () {
   'use strict';
   var KEY = 'peace-battle-2:state';
@@ -174,7 +226,7 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
     reachClears: 1,
     reachClearsWhereItRuns: 2,
     teachPerTeacher: 1.3,
-    lookYield: 12,
+    lookYield: 16,
     isolationSpread: 1,
     maxIsolation: 3,
     unavailableRate: 0.06,
@@ -207,6 +259,10 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
     };
   }
   function pick(list) { return list[Math.floor(s.rand() * list.length)]; }
+  function nameFor(id) {
+    return DATA.given[id % DATA.given.length] + ' '
+      + DATA.surname[(id * 7 + Math.floor(id / DATA.given.length)) % DATA.surname.length];
+  }
 
   // A skill is a sector and its place inside that sector.
   function skillId(sector, i) { return sector * 1000 + i; }
@@ -243,9 +299,10 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
 
   function fresh(seed) {
     var st = { seed: seed, rand: rng(seed), year: 1, acts: DATA.actionsPerYear,
-      pressure: T.startingPressure, settled: 0, projected: 0, selPlace: 0, selSector: null,
+      pressure: T.startingPressure, settled: 0, projected: 0, selPlace: 0, selJob: 0,
       nextId: 0, teachQueue: [], lookQueue: [], visible: false, over: null, goalNoted: false,
-      status: 'Tap a place or a part of the work, then pick what to do with the year.' };
+      events: [], learned: 0, found: 0,
+      events0: true };
     st.people = [];
     for (var i = 0; i < DATA.residents.length; i++) {
       var r = DATA.residents[i];
@@ -359,23 +416,62 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
     if (place.cutOff) { say('<b>' + DATA.places[s.selPlace].name + '</b> is cut off.'); return; }
     if (place.covered) { say('<b>' + DATA.places[s.selPlace].name + '</b> is already covered.'); return; }
     if (place.isolation === 0) { say('<b>' + DATA.places[s.selPlace].name + '</b> needs nothing right now.'); return; }
+    // The Directory only takes root where all thirteen jobs can already be filled. Somewhere that
+    // cannot keep its own water on does not become permanently reachable because somebody visited.
     var runs = placesThatRun()[s.selPlace];
     place.isolation -= runs ? T.reachClearsWhereItRuns : T.reachClears;
-    if (place.isolation <= 0) {
+    if (place.isolation <= 0 && runs) {
       place.isolation = 0;
       place.covered = true;
       s.visible = true;
       say('<b>' + DATA.places[s.selPlace].name + '</b> is covered. Isolation does not come back to it.');
+    } else if (place.isolation <= 0) {
+      place.isolation = 1;
+      say('<b>' + DATA.places[s.selPlace].name + '</b> is pulled back from the edge, but it cannot be '
+        + 'finished until it can fill all thirteen jobs.');
     } else {
       say('The Directory reaches further into <b>' + DATA.places[s.selPlace].name + '</b>.');
     }
     spend();
   }
 
+  // Teaching is aimed at a job in a place, which is what the player is looking at. The sector inside
+  // that job is picked for them: whichever of the job's sectors is missing the most and has somebody
+  // left who can teach it.
+  function sectorForJob(job) {
+    var f = findable();
+    var d = depths();
+    var best = null;
+    for (var i = 0; i < DATA.teams[job].sectors.length; i++) {
+      var sector = DATA.teams[job].sectors[i];
+      var missing = missingInSector(d, sector).length;
+      var capacity = teachingCapacity(sector, f);
+      if (!capacity) continue;
+      var score = Math.min(capacity, missing);
+      if (!best || score > best.score) best = { sector: sector, score: score, missing: missing };
+    }
+    return best;
+  }
+
   function doTeach() {
-    if (s.selSector === null) { say('Tap a part of the work first, and it gets taught this year.'); return; }
-    s.teachQueue.push(s.selSector);
-    say('<b>' + DATA.sectors[s.selSector] + '</b> gets taught this year.');
+    var here = 0;
+    for (var i = 0; i < s.people.length; i++) {
+      if (s.people[i].place === s.selPlace && !s.people[i].away && !s.places[s.selPlace].cutOff) here++;
+    }
+    if (!here) {
+      say('Nobody findable is in <b>' + DATA.places[s.selPlace].name + '</b> to learn anything. Look '
+        + 'for people there first.');
+      return;
+    }
+    var best = sectorForJob(s.selJob);
+    if (!best) {
+      say('Nobody findable does <b>' + DATA.teams[s.selJob].name + '</b> anywhere, so there is nobody '
+        + 'to teach it. Look for people first.');
+      return;
+    }
+    s.teachQueue.push({ sector: best.sector, place: s.selPlace });
+    say('<b>' + DATA.sectors[best.sector] + '</b> gets taught in <b>' + DATA.places[s.selPlace].name
+      + '</b> this year, for ' + DATA.teams[s.selJob].name + '.');
     spend();
   }
 
@@ -399,8 +495,13 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
     if (!f.length) { s.teachQueue = []; return; }
     var d = depths();
     for (var q = 0; q < s.teachQueue.length; q++) {
-      var sector = s.teachQueue[q];
-      var learners = teachingCapacity(sector, f);
+      var sector = s.teachQueue[q].sector;
+      // The people who learn are the findable people in that place. The teachers can be anywhere,
+      // because coordinating that is what the Directory is for — so a small place is hard to staff
+      // however many teachers the board has.
+      var inPlace = [];
+      for (var z = 0; z < f.length; z++) if (f[z].place === s.teachQueue[q].place) inPlace.push(f[z]);
+      var learners = Math.min(teachingCapacity(sector, f), inPlace.length);
       if (!learners) continue;
       var missing = missingInSector(d, sector);
       var thin = [];
@@ -410,10 +511,10 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
       }
       thin.sort(function (a, b) { return a.held - b.held; });
       for (var k = 0; k < learners; k++) {
-        var learner = pick(f);
+        var learner = pick(inPlace);
         if (missing.length) {
           var at = Math.floor(s.rand() * missing.length);
-          if (gainSkill(learner, missing[at], sector)) missing.splice(at, 1);
+          if (gainSkill(learner, missing[at], sector)) { missing.splice(at, 1); s.learned += 1; }
         } else if (thin.length) {
           var next = thin.shift();
           if (gainSkill(learner, next.id, sector)) next.held += 1;
@@ -456,7 +557,8 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
         // Somebody saying it cannot be done lowers the chance a person found stays findable. That is
         // what answering the arithmetic moves.
         if (s.rand() < s.pressure) continue;
-        var person = { id: s.nextId++, name: null, place: s.lookQueue[q], sectors: {}, skills: {}, away: false };
+        var id = s.nextId++;
+        var person = { id: id, name: nameFor(id), place: s.lookQueue[q], sectors: {}, skills: {}, away: false };
         var count = drawFromHistogram(DATA.skillsPerProfile);
         var sectors = [drawSector()];
         if (count > 1 && s.rand() < 0.3) sectors.push(drawSector());
@@ -471,6 +573,7 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
           }
         }
         s.people.push(person);
+        s.found += 1;
         s.visible = true;
       }
     }
@@ -512,9 +615,75 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
     return working;
   }
 
+  function count(obj) { var n = 0; for (var k in obj) if (obj.hasOwnProperty(k)) n++; return n; }
+
+  // What a player needs to see to play this at all: how many people anywhere could teach this job,
+  // and whether anybody with it ever walks in by themselves. The pool looks like the Directory, so a
+  // job drawing on one holding in 367 is one that only teaching will ever reach.
+  var POOL_TOTAL = (function () {
+    var t = 0;
+    for (var i = 0; i < DATA.sectorFrequency.length; i++) t += DATA.sectorFrequency[i];
+    return t;
+  })();
+
+  function jobSignal(job, f, d) {
+    var share = 0, missing = 0;
+    for (var k = 0; k < DATA.teams[job].sectors.length; k++) {
+      var sector = DATA.teams[job].sectors[k];
+      share += DATA.sectorFrequency[sector] / POOL_TOTAL;
+      missing += missingInSector(d, sector).length;
+    }
+    return { teachers: teachersFor(job, f), share: share, missing: missing };
+  }
+
+  function teachersFor(job, f) {
+    var seen = {}, n = 0;
+    for (var i = 0; i < f.length; i++) {
+      for (var k = 0; k < DATA.teams[job].sectors.length; k++) {
+        if (f[i].sectors[DATA.teams[job].sectors[k]]) { if (!seen[f[i].id]) { seen[f[i].id] = 1; n++; } break; }
+      }
+    }
+    return n;
+  }
+
+  function rosterOf(place) {
+    var rows = [];
+    for (var t = 0; t < DATA.teams.length; t++) {
+      var here = [], away = [];
+      for (var i = 0; i < s.people.length; i++) {
+        var p = s.people[i];
+        if (p.place !== place) continue;
+        var fits = false;
+        for (var k = 0; k < DATA.teams[t].sectors.length; k++) {
+          if (p.sectors[DATA.teams[t].sectors[k]]) { fits = true; break; }
+        }
+        if (!fits) continue;
+        if (p.away || s.places[place].cutOff) away.push(p); else here.push(p);
+      }
+      // The person shown is the one this job is most particular to — fewest other kinds of work —
+      // because that is the one whose absence empties it.
+      var bySpread = function (a, b) { return count(a.sectors) - count(b.sectors) || a.id - b.id; };
+      here.sort(bySpread);
+      away.sort(bySpread);
+      rows.push({ team: DATA.teams[t], here: here, away: away });
+    }
+    return rows;
+  }
+
+  function brokenJobs(place) {
+    var out = [], rows = rosterOf(place);
+    for (var i = 0; i < rows.length; i++) {
+      if (!rows[i].here.length && rows[i].away.length) out.push(rows[i]);
+    }
+    return out;
+  }
+
   function endYear() {
     if (s.over) return;
     s.visible = false;
+    s.learned = 0;
+    s.found = 0;
+    var ranBefore = placesThatRun();
     settle();
     resolveTeaching();
     resolveLooking();
@@ -524,15 +693,46 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
 
     var d = depths();
     var present = presentCount(d);
-    var note = hit.length ? 'Isolation grows in <b>' + DATA.places[hit[0]].name + '</b>.' : '';
-    // The first milestone, and the only one worth interrupting a year for.
+    var ranAfter = placesThatRun();
+
+    // What the player is answering next year. Written as things that happened to people and places,
+    // because that is what they are.
+    var events = [];
+    if (s.learned) events.push('<span class="good">' + s.learned + '</span> skills learned that nobody '
+      + 'findable held.');
+    if (s.found) events.push('<span class="good">' + s.found + '</span> people found and on the Directory.');
+    for (var b = 0; b < s.places.length; b++) {
+      var broke = brokenJobs(b);
+      if (broke.length && !s.places[b].cutOff) {
+        var names = [];
+        for (var n = 0; n < broke.length && n < 2; n++) names.push(broke[n].away[0].name);
+        events.push('<span class="bad">' + names.join(' and ') + '</span> out of reach this year &mdash; '
+          + broke.map(function (r) { return r.team.name; }).slice(0, 2).join(' and ')
+          + ' is empty in <b>' + DATA.places[b].name + '</b>.');
+      }
+      if (ranBefore[b] && !ranAfter[b] && !s.places[b].cutOff) {
+        events.push('<span class="bad"><b>' + DATA.places[b].name + '</b> has stopped running.</span>');
+      }
+      if (!ranBefore[b] && ranAfter[b]) {
+        events.push('<span class="good"><b>' + DATA.places[b].name + '</b> can fill all thirteen jobs.</span>');
+      }
+    }
+    if (hit.length) events.push('Isolation grows in <b>' + DATA.places[hit[0]].name + '</b>.');
+    for (var c2 = 0; c2 < s.places.length; c2++) {
+      if (s.places[c2].cutOff && !s.places[c2].noted) {
+        s.places[c2].noted = true;
+        events.push('<span class="bad"><b>' + DATA.places[c2].name + '</b> is cut off. Everybody in it '
+          + 'is out of reach, and every skill nobody else holds went with them.</span>');
+      }
+    }
     if (!s.goalNoted && s.people.length >= DATA.signedUpGoal) {
       s.goalNoted = true;
-      note += ' <b>' + num(DATA.signedUpGoal) + '</b> people on the Directory, in year ' + s.year + '.';
+      events.push('<span class="good"><b>' + num(DATA.signedUpGoal) + '</b> people on the Directory.</span>');
     }
-    for (var c = 0; c < s.places.length; c++) {
-      if (s.places[c].cutOff) { note += ' <b>' + DATA.places[c].name + '</b> is cut off.'; }
-    }
+    if (s.pressure >= 0.4) events.push('People saying it cannot be done are keeping others away.');
+    if (!events.length) events.push('A quiet year.');
+    s.events = events;
+    s.events0 = false;
     if (present === DATA.totalSkills) {
       s.over = { won: true, year: s.year, text: 'Every one of the ' + DATA.totalSkills + ' skills is held by somebody who '
         + 'can be found, in year ' + s.year + '. ' + num(s.people.length) + ' people, and nobody had to lose '
@@ -544,16 +744,16 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
     }
     s.year += 1;
     s.acts = DATA.actionsPerYear;
-    s.status = note || 'Nowhere left for isolation to grow.';
   }
 
-  function say(text) { s.status = text; draw(); }
+  function say(text) { s.said = text; draw(); }
   function spend() {
     s.acts -= 1;
     if (s.acts <= 0) endYear();
     draw();
     save();
   }
+
 
   // --- Drawing ---------------------------------------------------------------------------------------
 
@@ -564,6 +764,7 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
     var runs = placesThatRun();
 
     el('skills').textContent = num(present);
+    el('total').textContent = num(DATA.totalSkills);
     el('year').textContent = s.over ? s.over.year : Math.min(s.year, DATA.years);
     el('years').textContent = DATA.years;
     el('acts').textContent = s.acts;
@@ -571,17 +772,71 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
     el('settled').textContent = big(s.settled);
     el('projected').textContent = big(s.projected);
 
-    var bars = '';
-    for (var i = 0; i < DATA.sectors.length; i++) {
-      var got = presentInSector(d, i), total = DATA.taxonomy[i];
-      var pct = total ? Math.round((got / total) * 100) : 100;
-      bars += '<button type="button" class="bar" data-s="' + i + '" aria-pressed="' + (s.selSector === i) + '">'
-        + '<span class="nm">' + DATA.sectors[i] + '</span>'
-        + '<span class="num">' + got + '/' + total + '</span>'
-        + '<span class="track"><span class="fill' + (got === total ? ' done' : '') + '" style="width:' + pct + '%"></span></span>'
-        + '</button>';
+    // The six places, each saying whether it can fill all thirteen jobs.
+    var chips = '';
+    for (var p = 0; p < DATA.places.length; p++) {
+      var here = 0;
+      for (var q = 0; q < f.length; q++) if (f[q].place === p) here++;
+      var st = s.places[p];
+      var state = st.cutOff ? '<span class="st gone">cut off</span>'
+        : runs[p] ? '<span class="st run">all thirteen</span>'
+        : '<span class="st stop">' + emptyJobs(p) + ' jobs empty</span>';
+      chips += '<button type="button" class="pl" data-p="' + p + '" aria-pressed="' + (p === s.selPlace) + '">'
+        + '<div class="n">' + DATA.places[p].name + '</div>'
+        + '<div class="v">' + here + '</div>' + state + '</button>';
     }
-    el('bars').innerHTML = bars;
+    el('places').innerHTML = chips;
+
+    // The selected place's thirteen jobs, by name, with whoever holds them.
+    var rows = rosterOf(s.selPlace);
+    var empty = 0, thin = 0;
+    var roster = '';
+    for (var t = 0; t < rows.length; t++) {
+      var row = rows[t], cls = 'job', who;
+      if (!row.here.length) {
+        empty++;
+        cls += ' empty';
+        who = 'nobody here';
+        if (row.away.length) {
+          who += '<span class="away">' + row.away[0].name
+            + (row.away.length > 1 ? ' and ' + (row.away.length - 1) + ' more' : '') + ' out of reach</span>';
+        }
+      } else {
+        if (row.here.length === 1) { thin++; cls += ' thin'; }
+        who = row.here[0].name + (row.here.length > 1 ? ' +' + (row.here.length - 1) : ' only');
+        if (row.away.length) who += '<span class="away">' + row.away.length + ' out of reach</span>';
+      }
+      var sig = jobSignal(t, f, d);
+      var hint = sig.teachers + ' can teach it';
+      if (sig.missing) hint += ' &middot; ' + sig.missing + ' skills missing';
+      if (sig.share < 0.02) hint += ' &middot; <span class="rare">nobody new brings this</span>';
+      roster += '<button type="button" class="' + cls + '" data-j="' + t + '" aria-pressed="'
+        + (t === s.selJob) + '">'
+        + '<span class="jn">' + row.team.name + '<span class="hint">' + hint + '</span></span>'
+        + '<span class="who">' + who + '</span></button>';
+    }
+    el('roster').innerHTML = roster;
+
+    el('placeName').textContent = DATA.places[s.selPlace].name;
+    var place = s.places[s.selPlace];
+    var state;
+    if (place.cutOff) state = 'cut off — nobody here can be reached';
+    else if (empty) state = empty + ' of 13 jobs empty, so it is not running';
+    else if (thin) state = 'running — ' + thin + ' job' + (thin > 1 ? 's' : '') + ' held by one person';
+    else state = 'running, with somebody spare in every job';
+    if (!place.cutOff && !place.covered && place.isolation) {
+      state += ' · isolation ' + place.isolation + ' of ' + T.maxIsolation;
+    }
+    if (place.covered) state += ' · covered for good';
+    el('placeState').textContent = state;
+
+    var lines = s.said ? ['<div>' + s.said + '</div>'] : [];
+    for (var e = 0; e < s.events.length; e++) lines.push('<div>' + s.events[e] + '</div>');
+    if (s.events0 && !s.said) {
+      lines.push('<div>Pick a place, pick a job, and spend the year. A place runs only when all '
+        + 'thirteen can be filled by somebody who can be found.</div>');
+    }
+    el('events').innerHTML = lines.join('');
 
     var svg = '';
     for (var l = 0; l < DATA.links.length; l++) {
@@ -590,29 +845,33 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
       svg += '<line class="link' + (open ? ' open' : '') + '" x1="' + a.x + '" y1="' + a.y
         + '" x2="' + b.x + '" y2="' + b.y + '"/>';
     }
-    for (var p = 0; p < DATA.places.length; p++) {
-      var here = 0;
-      for (var q = 0; q < f.length; q++) if (f[q].place === p) here++;
-      var pl = DATA.places[p], st = s.places[p];
-      var r = 3 + Math.sqrt(here) * 0.62;
-      var fill = st.cutOff ? '#a2412c' : (st.covered ? '#2f6b4f' : ['#3a3f48', '#6d5a32', '#8a5a2c', '#a2412c'][st.isolation]);
-      svg += '<g class="node" data-p="' + p + '">';
-      svg += '<circle cx="' + pl.x + '" cy="' + pl.y + '" r="' + r.toFixed(2) + '" fill="' + fill + '"/>';
-      if (runs[p]) svg += '<circle class="ring" cx="' + pl.x + '" cy="' + pl.y + '" r="' + (r + 1.3).toFixed(2) + '"/>';
-      if (p === s.selPlace) svg += '<circle class="sel" cx="' + pl.x + '" cy="' + pl.y + '" r="' + (r + 2.4).toFixed(2) + '"/>';
-      svg += '<text class="who" x="' + pl.x + '" y="' + (pl.y + 1.1) + '">' + here + '</text>';
-      svg += '<text x="' + pl.x + '" y="' + (pl.y + r + 5.2).toFixed(2) + '">' + pl.name + '</text>';
+    for (var m = 0; m < DATA.places.length; m++) {
+      var count = 0;
+      for (var r2 = 0; r2 < f.length; r2++) if (f[r2].place === m) count++;
+      var pl = DATA.places[m], ms = s.places[m];
+      var rad = 3 + Math.sqrt(count) * 0.62;
+      var fill = ms.cutOff ? '#a2412c'
+        : (ms.covered ? '#2f6b4f' : ['#3a3f48', '#6d5a32', '#8a5a2c', '#a2412c'][ms.isolation]);
+      svg += '<g class="node" data-p="' + m + '">';
+      svg += '<circle cx="' + pl.x + '" cy="' + pl.y + '" r="' + rad.toFixed(2) + '" fill="' + fill + '"/>';
+      if (runs[m]) svg += '<circle class="ring" cx="' + pl.x + '" cy="' + pl.y + '" r="' + (rad + 1.3).toFixed(2) + '"/>';
+      if (m === s.selPlace) svg += '<circle class="sel" cx="' + pl.x + '" cy="' + pl.y + '" r="' + (rad + 2.4).toFixed(2) + '"/>';
+      svg += '<text class="who" x="' + pl.x + '" y="' + (pl.y + 1.1) + '">' + count + '</text>';
+      svg += '<text x="' + pl.x + '" y="' + (pl.y + rad + 5.2).toFixed(2) + '">' + pl.name + '</text>';
       svg += '</g>';
     }
     el('map').innerHTML = svg;
 
-    var running = 0;
-    for (var rr = 0; rr < runs.length; rr++) if (runs[rr]) running++;
-    var tail = ' &middot; ' + num(f.length) + ' people findable, ' + running + ' of ' + DATA.places.length
-      + ' places able to run every job';
-    el('status').innerHTML = s.status + '<br>' + '<span style="opacity:.75">Selected: <b>'
-      + DATA.places[s.selPlace].name + '</b>'
-      + (s.selSector === null ? '' : ' and <b>' + DATA.sectors[s.selSector] + '</b>') + tail + '</span>';
+    var bars = '';
+    for (var i = 0; i < DATA.sectors.length; i++) {
+      var got = presentInSector(d, i), total = DATA.taxonomy[i];
+      var pct = total ? Math.round((got / total) * 100) : 100;
+      bars += '<div class="barrow"><span class="nm">' + DATA.sectors[i] + '</span>'
+        + '<span class="num">' + got + '/' + total + '</span>'
+        + '<span class="track"><span class="fill' + (got === total ? ' done' : '') + '" style="width:'
+        + pct + '%"></span></span></div>';
+    }
+    el('bars').innerHTML = bars;
 
     el('overBox').innerHTML = s.over
       ? '<div class="over"><div class="t">' + (s.over.won ? 'Everybody is reachable' : 'Out of years')
@@ -623,6 +882,12 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
     el('arith').disabled = !!s.over;
   }
 
+  function emptyJobs(place) {
+    var rows = rosterOf(place), n = 0;
+    for (var i = 0; i < rows.length; i++) if (!rows[i].here.length) n++;
+    return n;
+  }
+
   function save() {
     if (!window.storage) return;
     try { window.storage.set(KEY, JSON.stringify({ seed: s.seed })); } catch (e) {}
@@ -630,26 +895,33 @@ var DATA = {"sectors":["Food & Agriculture","Housing & Construction","Manufactur
 
   function start(seed) {
     s = fresh(seed === undefined ? (Date.now() & 0xffff) : seed);
+    s.said = '';
+    s.events = [];
     draw();
     save();
   }
 
+  el('places').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.pl') : null;
+    if (!b) return;
+    s.selPlace = +b.getAttribute('data-p');
+    draw();
+  });
   el('map').addEventListener('click', function (e) {
     var g = e.target.closest ? e.target.closest('.node') : null;
     if (!g) return;
     s.selPlace = +g.getAttribute('data-p');
     draw();
   });
-  el('bars').addEventListener('click', function (e) {
-    var b = e.target.closest ? e.target.closest('.bar') : null;
+  el('roster').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.job') : null;
     if (!b) return;
-    var at = +b.getAttribute('data-s');
-    s.selSector = s.selSector === at ? null : at;
+    s.selJob = +b.getAttribute('data-j');
     draw();
   });
-  el('reach').addEventListener('click', function () { if (!s.over) doReach(); });
   el('teach').addEventListener('click', function () { if (!s.over) doTeach(); });
   el('look').addEventListener('click', function () { if (!s.over) doLook(); });
+  el('reach').addEventListener('click', function () { if (!s.over) doReach(); });
   el('arith').addEventListener('click', function () { if (!s.over) doArithmetic(); });
   el('reset').addEventListener('click', function () { start(); });
 
