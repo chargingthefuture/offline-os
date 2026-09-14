@@ -1,0 +1,27 @@
+{
+  "pulledOn": "2026-09-14",
+  "source": "chargingthefuture production, one read-only query against the Skills Taxonomy. Active sectors, occupations and skills only. No person's row is touched.",
+  "totalSkills": 657,
+  "skillsBySector": {
+    "Food & Agriculture": 49,
+    "Housing & Construction": 46,
+    "Manufacturing & Industry": 28,
+    "Microfinance & SME Support": 24,
+    "Emergency & Reserve Roles": 20,
+    "Mining / Extractive": 12,
+    "Energy & Utilities": 20,
+    "Finance & Public Administration": 34,
+    "Telecommunications & IT": 20,
+    "R&D & High-Tech": 41,
+    "Transport & Logistics": 37,
+    "Water & Sanitation": 19,
+    "Retail & Services": 14,
+    "Creative & Media": 77,
+    "Tourism & Hospitality": 16,
+    "Health": 80,
+    "Environmental & Waste Management": 25,
+    "Professional & Business Services": 51,
+    "Public Safety & Justice": 15,
+    "Education": 29
+  }
+}

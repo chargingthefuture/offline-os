@@ -244,11 +244,162 @@ apportioned across the six places by where the Directory's own people are.
 The board totals five million rather than the sixteen-city map's thirty, and the script fails
 if it does not.
 
+## The loop and its tuning (work item 6)
+
+`year-loop.mjs` is the model and `tune-year-loop.mjs` is the sweep. They are separate files on
+purpose: a rule that only makes sense because of how one policy plays it reads oddly on its own,
+which is easier to notice when the rules are not sitting next to the strategy.
+
+Run it with `node sources/peace-battle-2/tune-year-loop.mjs 300`.
+
+### The board's links
+
+Isolation spreading needs links between places, and the sixteen-city map had its drawn in from
+geography. This board cannot use proximity: two of its four United States buckets are catch-alls
+rather than regions, so there is no distance between them to measure. The links are by containment
+instead — everything inside one country connects to everything else inside it, and the two places
+outside the United States connect to each other and to the bucket holding most of the board.
+
+### Teaching is per teacher
+
+The single most important rule in the loop. One Teach reaches a number of people for every findable
+person who already works in that sector, rather than a flat number. That is the Du Bois arithmetic
+the whole game rests on — 2,000 trained 50,000, who taught nine millions — and it makes looking for
+people and teaching them one strategy instead of two: a sector held by one person teaches one person,
+and a sector held by sixty-eight teaches the board.
+
+A first version used a flat yield, and a careful player then filled the whole catalog with the
+original 147 people and never looked for anybody. That board is not the one being argued for.
+
+### A skill is present when somebody findable holds it
+
+Taken from the issue's own wording for the win condition, and it is what gives isolation its teeth.
+A place cutting off does not only stop its people working — every skill nobody else holds goes off
+the map with them. So the catalog can shrink as well as grow, and a run is measured on what is
+present in the same year rather than on what was ever learned.
+
+That also makes replacement level the real win condition rather than a flavor of one. With a chance
+each year that any given person is out of reach, a skill one person holds is absent about that often.
+657 skills all present in the same year therefore needs most of them held by three people, not one,
+which is roughly two thousand holdings — and that, not breadth, is what the run is actually racing
+the clock to build.
+
+### Two rules the sweep forced in
+
+A place can only be finished where it already runs. A Reach pulls a place back from the edge
+anywhere, but clearing it to nothing — covered, isolation never returns — needs all thirteen jobs
+fillable there first. The Directory does not take root somewhere that cannot keep its own water on
+because somebody visited. Without that rule a careful player locked all six places by year ten for
+about ten actions, isolation had nowhere left to grow, and two of the game's three kinds of friction
+measured at exactly zero cost.
+
+Teaching happens somewhere. The people who learn are the findable people in that place; the teachers
+can be anywhere, because coordinating that is what the Directory is for. A place of five people is
+hard to staff however many teachers the board has, which is true, and it is the reason a thin place
+stays thin. Before this, teaching drew learners from anywhere, so no amount of it could deliberately
+staff a place and the two halves of the game did not touch.
+
+### What the sweep changed
+
+The board was five times too hot. The map game grew isolation in two places of sixteen a round, and
+two of six is five times the pressure per place; a careful player spent 99 of its 150 actions holding
+the board and never reached the catalog. One place a year is the same rate against the board that
+exists.
+
+Chasing the worst place never finishes any place. A player who reaches whichever place looks worst
+this year pushes it from three back to two, watches it return to three, and repeats for fifty years.
+Finishing one at a time, cheapest first, costs a few actions once and takes that place off the board
+for good. Both readings are legal; only one wins, which is what makes the action a decision.
+
+### Where it landed
+
+300 seeds, careful against careless:
+
+| | Careful | Careless |
+|---|---|---|
+| Catalog filled inside two generations | 94.7% | 0% |
+| Median year it filled | 44 of 50 | — |
+| Median skills present at the end | 657 of 657 | 525 of 657 |
+| Median people | 691 | 673 |
+| Places covered / cut off | 2 / 0 | 1 / 5 |
+
+The careless player is not a saboteur. It picks a legal action at random, which is what somebody
+doing things without reading the board looks like, and it loses five of the six places.
+
+A careful run finishes at year 44 of 50, with two places covered and the rest held back from the edge
+year by year. The clock binds rather than decorates, and the runs that fail run out of years.
+
+### What the friction costs (work item 8)
+
+`measure-friction.mjs` sweeps each kind of friction on its own against the same careful player, with
+the other two held where they are. None of the three is depicted as harm done to a person: a
+detractor lowers how many of the people found stay findable, an isolator takes a place off the map
+rather than a character, and unavailability is somebody not available this year.
+
+| Unavailability | Catalog filled | Median year |
+|---|---|---|
+| never | 100% | 39 |
+| 3% | 98% | 41 |
+| 6% (shipped) | 96% | 43 |
+| 10% | 66% | 47 |
+| 15% | 14% | 49 |
+
+| Isolation spreading | Catalog filled | Median year |
+|---|---|---|
+| nowhere | 99.3% | 36 |
+| one place a year (shipped) | 96% | 43 |
+| two places a year | 0% | — |
+| three places a year | 0% | — |
+
+| Detractor pressure | Catalog filled | Median year |
+|---|---|---|
+| none | 95.3% | 42 |
+| 0.20 (shipped) | 96% | 43 |
+| 0.50 | 92.7% | 44 |
+
+Unavailability is the sharpest. A board where nobody is ever out of reach finishes every time; one
+where people are out of reach fifteen years in a hundred finishes one run in seven. That is
+replacement level doing its work — with nobody ever away, a capability one person holds is as good as
+one ten people hold, and the whole idea stops meaning anything.
+
+Isolation has a cliff rather than a slope: one place a year is survivable and two is not, with
+nothing in between. That is why the number carried over from the sixteen-place map had to change, and
+it is worth knowing the tolerance is this narrow rather than assuming there is room in it.
+
+Detractors are the mildest, worth about two years across their whole range. That is the measurement
+rather than a verdict on the mechanic — what moves a detractor is arithmetic, the action that answers
+them is cheap, and a player who never bothers still mostly finishes.
+
+### The taxonomy's own shape is what makes it hard
+
+`taxonomy-shape.json` is how many skills the taxonomy carries in each of the twenty sectors, pulled
+2026-09-14 by one read-only query. It is the last input, and it decides which sectors are hard,
+because the 473 skills nobody on the board holds are not spread evenly across them.
+
+| Sector | Skills in the taxonomy | Held by the Directory | People who hold the sector |
+|---|---|---|---|
+| Health | 80 | 21 | 37 |
+| Creative & Media | 77 | 20 | 68 |
+| Professional & Business Services | 51 | 13 | — |
+| Food & Agriculture | 49 | 8 | — |
+| … | | | |
+| Emergency & Reserve Roles | 20 | 1 | 1 |
+| Public Safety & Justice | 15 | 1 | 1 |
+| Retail & Services | 14 | 14 | — |
+| Mining / Extractive | 12 | 1 | 1 |
+
+Three of the twenty sectors carry between twelve and twenty skills and are held by exactly one
+person each. Nineteen of Emergency & Reserve Roles' twenty skills are missing, and the only route to
+them is teaching, because a sector that is one holding in three hundred and sixty-seven never walks
+in from the pool. A player who never notices those three sectors does not lose slowly — the run ends
+with nineteen skills that were never going to arrive by themselves.
+
+Retail & Services is the other end of it: all fourteen of its skills are already held. A sector can
+be finished on day one, and one is.
+
 ## What this does not settle
 
-The generated residents (item 3), replacement level (item 4) and the year (item 5) follow from these
-numbers. What is left is magnitudes that only a tuning pass can set: how much a single action moves,
-how fast isolation spreads against a fifty-year clock rather than a thirteen-round one, what an
-unavailability roll costs, and how much a detractor takes off the join-and-stay rate. Those are items
-6 and 8, and none of them can be guessed from the opening board — they have to be swept over seeds
-against a careful player and a careless one.
+Items 7, 8 and 9. Drawing it is item 7. The cost of a detractor and of an unavailability roll are
+item 8, tuned against these same seeds so they are known rather than guessed — the loop already has
+both, at placeholder magnitudes that the item 8 sweep replaces. The explanatory text behind a
+disclosure is item 9.
