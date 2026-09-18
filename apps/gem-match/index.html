@@ -529,10 +529,11 @@
         "Match " + minimum + "+ — 4+ creates a special";
 
       document.getElementById("hint").textContent =
-        "Match 3 normally. Match 4+ creates a special gem, and 5+ always " +
-        "creates a rainbow that clears a whole colour. Swap a special with " +
-        "any neighbour to set it off -- that counts as a move even when no " +
-        "colour lines up.";
+        "Match " + minimum + " normally. Match 4+ creates a special gem, " +
+        "and 5+ always creates a rainbow that clears a whole colour. The " +
+        "swirl paints the block around it one colour so it lines up. Swap " +
+        "a special with any neighbour to set it off -- that counts as a " +
+        "move even when no colour lines up.";
 
       document.getElementById("progress").textContent =
         Math.min(score, high) + " / " + high;
@@ -917,12 +918,51 @@
         }
       }
 
+      /*
+        The swirl paints the block around it a single colour, which then
+        lines up and clears. The block is as wide as the level's match
+        requirement, so it always leaves a run long enough to count.
+      */
       if (gem.special === "changer") {
-        var nearby = adjacentColors(row, col);
+        var side = Math.max(3, need());
 
-        if (nearby.length) {
-          gem.color =
-            nearby[Math.floor(Math.random() * nearby.length)];
+        var top = Math.min(Math.max(row - Math.floor((side - 1) / 2), 0), N - side);
+        var left = Math.min(Math.max(col - Math.floor((side - 1) / 2), 0), N - side);
+
+        /*
+          Paint it the colour the block already holds most of, so the swirl
+          extends what is there rather than dropping in something arbitrary.
+        */
+        var tally = {};
+        var target = -1;
+        var bestCount = 0;
+
+        for (var br = top; br < top + side; br++) {
+          for (var bc = left; bc < left + side; bc++) {
+            var near = getColor(br, bc);
+
+            if (near < 0) {
+              continue;
+            }
+
+            tally[near] = (tally[near] || 0) + 1;
+
+            if (tally[near] > bestCount) {
+              bestCount = tally[near];
+              target = near;
+            }
+          }
+        }
+
+        if (target >= 0) {
+          for (var pr = top; pr < top + side; pr++) {
+            for (var pc = left; pc < left + side; pc++) {
+              if (board[pr][pc]) {
+                // Keep any special sitting in the block; only recolour it.
+                board[pr][pc].color = target;
+              }
+            }
+          }
 
           gem.special = null;
         }
