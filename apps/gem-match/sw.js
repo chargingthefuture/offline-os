@@ -1,6 +1,6 @@
 /* Gem Match — service worker. Precaches the shell (incl. shared assets) so it
  * runs fully offline. Bump VERSION to push updates. */
-var VERSION = 'gemmatch-v6';
+var VERSION = 'gemmatch-v7';
 var SHELL = [
   './',
   './index.html',

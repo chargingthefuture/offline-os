@@ -529,11 +529,12 @@
         "Match " + minimum + "+ — 4+ creates a special";
 
       document.getElementById("hint").textContent =
-        "Match " + minimum + " normally. Match 4+ creates a special gem, " +
-        "and 5+ always creates a rainbow that clears a whole colour. The " +
-        "swirl paints the block around it one colour so it lines up. Swap " +
-        "a special with any neighbour to set it off -- that counts as a " +
-        "move even when no colour lines up.";
+        "Match " + minimum + " normally. Clearing 4+ gems in one match " +
+        "creates a special, corners and crosses included -- five in a line, " +
+        "or six round a corner, always makes a rainbow that takes a whole " +
+        "colour. The swirl paints the block around it one colour so it " +
+        "lines up. Swap a special with any neighbour to set it off -- that " +
+        "counts as a move even when no colour lines up.";
 
       document.getElementById("progress").textContent =
         Math.min(score, high) + " / " + high;
@@ -827,14 +828,115 @@
     }
 
     /*
+      Runs of the same colour that share a cell are one match -- an L or a T,
+      not two separate lines. Group them so a match can be judged by the gems
+      it clears rather than by its longest arm alone, which is the only thing
+      a straight-run reading can see.
+    */
+    function matchShapes(runs) {
+      var parent = [];
+      var i;
+
+      for (i = 0; i < runs.length; i++) {
+        parent.push(i);
+      }
+
+      function find(x) {
+        while (parent[x] !== x) {
+          parent[x] = parent[parent[x]];
+          x = parent[x];
+        }
+
+        return x;
+      }
+
+      // Two runs that land on the same cell belong to the same shape.
+      var owner = {};
+
+      for (i = 0; i < runs.length; i++) {
+        var cells = runs[i].cells;
+
+        for (var c = 0; c < cells.length; c++) {
+          if (owner[cells[c]] === undefined) {
+            owner[cells[c]] = i;
+          } else {
+            var a = find(owner[cells[c]]);
+            var b = find(i);
+
+            if (a !== b) {
+              parent[b] = a;
+            }
+          }
+        }
+      }
+
+      var groups = {};
+
+      for (i = 0; i < runs.length; i++) {
+        var root = find(i);
+        var run = runs[i];
+
+        if (!groups[root]) {
+          groups[root] = {
+            color: run.color,
+            seen: {},
+            size: 0,
+            longest: 0,
+            cross: null,
+            spine: run
+          };
+        }
+
+        var group = groups[root];
+
+        for (var d = 0; d < run.cells.length; d++) {
+          var cell = run.cells[d];
+
+          if (group.seen[cell]) {
+            group.cross = cell;   // where the arms meet: the corner of the L
+          } else {
+            group.seen[cell] = true;
+            group.size++;
+          }
+        }
+
+        if (run.length > group.longest) {
+          group.longest = run.length;
+          group.spine = run;
+        }
+      }
+
+      return Object.keys(groups).map(function(key) {
+        var group = groups[key];
+
+        return {
+          color: group.color,
+          size: group.size,
+          longest: group.longest,
+          // A corner shape leaves its special where the arms cross.
+          center: group.cross !== null
+            ? group.cross
+            : group.spine.cells[
+                Math.floor(group.spine.cells.length / 2)
+              ]
+        };
+      });
+    }
+
+    /*
       A run of 5+ always yields the rainbow -- the one that clears a whole
       colour -- so the big match has a payoff worth aiming for. A run of 4
       has a small chance at one too, and mostly hands out the gems that
       actually clear something; the changer is the weakest of the set, so it
       shows up least.
     */
-    function randomSpecial(length) {
-      if (length >= 5) {
+    function randomSpecial(size, longest) {
+      /*
+        A straight five earns the rainbow. A corner has to be bigger to earn
+        it -- seven gems, two full arms -- because bending a match is easier
+        than extending one in a line.
+      */
+      if (longest >= 5 || size >= 7) {
         return "rainbow";
       }
 
@@ -1077,9 +1179,7 @@
 
           var runs = getRuns();
           var clearSet = {};
-          var specialIndex = null;
-          var specialLength = 0;
-          var specialColor = -1;
+          var best = null;
           var points = 0;
 
           matches.forEach(function(index) {
@@ -1088,27 +1188,33 @@
 
           runs.forEach(function(run) {
             points += matchPoints(run.length, chain);
+          });
 
-            if (run.length >= 4 && run.length > specialLength) {
-              specialLength = run.length;
-              specialIndex = run.cells[Math.floor(run.cells.length / 2)];
-              specialColor = run.color;
+          // The biggest shape earns the special, counted in gems cleared, so
+          // a corner pays like the straight line of the same size.
+          matchShapes(runs).forEach(function(shape) {
+            if (shape.size < 4) {
+              return;
+            }
+
+            if (!best || shape.size > best.size) {
+              best = shape;
             }
           });
 
           /*
-            Preserve one gem from the longest 4+ match and turn it
+            Preserve one gem from the biggest 4+ match and turn it
             into a special gem instead of clearing it.
           */
-          if (specialIndex !== null) {
-            delete clearSet[specialIndex];
+          if (best) {
+            delete clearSet[best.center];
 
-            var specialRow = rowOf(specialIndex);
-            var specialCol = colOf(specialIndex);
+            var specialRow = rowOf(best.center);
+            var specialCol = colOf(best.center);
 
             board[specialRow][specialCol] = newGem(
-              specialColor,
-              randomSpecial(specialLength)
+              best.color,
+              randomSpecial(best.size, best.longest)
             );
           }
 
