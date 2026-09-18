@@ -14,6 +14,13 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
+import {
+  OPENING_PLACES, REGIONS, OPENING_REGION, OPENING_COST, SURVIVOR_POPULATION,
+  apportion, linksFor, regionOf,
+} from './world-places.mjs';
+import { buildDeck, drawCard } from './event-deck.mjs';
+import { GIVEN, SURNAME } from './names.mjs';
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const read = (name) => {
   try {
@@ -30,25 +37,12 @@ const read = (name) => {
   }
 };
 
-// --- The board's links --------------------------------------------------------------------------
+// --- The board ------------------------------------------------------------------------------------
 //
-// Isolation spreading needs links between places, and the sixteen-city map had its drawn in by hand
-// from geography. This board cannot use proximity: two of its four United States buckets are
-// catch-alls ("state not given", "elsewhere") rather than regions, so there is no distance between
-// them to measure. So the links are by containment instead. Everything inside one country is
-// connected to everything else inside it, and the two places outside the United States connect to
-// each other and to the bucket holding most of the board.
-const PLACE_LINKS = [
-  ['United States — state not given', 'United States — elsewhere'],
-  ['United States — state not given', 'United States — California'],
-  ['United States — state not given', 'United States — Florida'],
-  ['United States — elsewhere', 'United States — California'],
-  ['United States — elsewhere', 'United States — Florida'],
-  ['United States — California', 'United States — Florida'],
-  ['United Kingdom', 'United States — state not given'],
-  ['Outside the US and UK', 'United States — state not given'],
-  ['United Kingdom', 'Outside the US and UK'],
-];
+// The six-place fixed map is gone. The board opens where the Directory reached and grows outward,
+// because a single walled place is the shape the adversary is built to take. Which places exist, how
+// they link, and what they stand for all live in world-places.mjs — item 1 — and this file only
+// plays them.
 
 // --- The knobs item 6 exists to set ---------------------------------------------------------------
 //
@@ -71,8 +65,18 @@ export const DEFAULT_TUNING = {
   // two would be five times the pressure per place, and the sweep showed exactly that: a careful
   // player spent two actions in three holding the board and never got to the catalog. One place a
   // year is the same rate against the board that exists.
-  isolationSpread: 1, // places that gain isolation each year
+  // A board that grows needs this to grow with it, or opening places is free and distribution stops
+  // costing anything. One place a year was the rate against six; against a board that can reach
+  // thirty-four it is nothing. So it is a share of what is open, floored at one.
+  // Sub-linear on purpose. A bigger network is more resilient, which is the argument this game
+  // exists to make, so isolation must not keep pace with the board or growth would be strictly
+  // punishing and the thesis would be false on the screen. Six places gain one a year, as before;
+  // thirty-four gain two.
+  isolationPerSixPlaces: 1,
   maxIsolation: 3, // pushed past this, a place cuts off and pushes into the places beside it
+  // Chance a place reached for good stops being so, each year. Holding the network is not a job that
+  // finishes.
+  coveredComesBack: 0.13,
   unavailableRate: 0.06, // chance a resident is out of reach for a year
   detractorDrift: 0.04, // pressure gained in a year where nothing visible happened
   resultsRelief: 0.03, // pressure lost in a year where something did
@@ -84,6 +88,29 @@ export const DEFAULT_TUNING = {
   // How many findable people a skill wants behind it before teaching moves on. Below this, one
   // unavailability roll takes the skill off the map.
   depthGoal: 3,
+
+  // --- Admission -----------------------------------------------------------------------------------
+  //
+  // Somebody arrives, the player sees what they can do, and never learns what they are. There is no
+  // accuse control, no reveal, and no flag the player is invited to guess at, because a suspicion
+  // game would have survivors rehearse the thing being done to them. The filter is structural: the
+  // network runs on exchange, and somebody producing none drifts out on their own.
+  //
+  // So this share exists in the model and is never surfaced. What the player can see is that Look is
+  // less efficient than its headline number, which is true and is the lesson.
+  newPlaceIsolation: OPENING_COST.newPlaceIsolation,
+  // Actions grow with the board, or a network of thirty places is held with the same three moves a
+  // network of six was and growing is a mistake. Capped, because this is played on a phone.
+  actionsPerEightPlaces: 1,
+  maxActionsPerYear: 6,
+  peopleAtFirstReach: OPENING_COST.peopleAtFirstReach,
+  firstInRegionExtra: OPENING_COST.firstInRegionExtra,
+
+  neverExchangesShare: 0.12,
+  driftOutAfter: 3, // years without exchanging anything before somebody drifts out
+  // Somebody in a place that is not running still exchanges, just less: most real help never touches
+  // an app and happens between people directly.
+  exchangeWhereNothingRuns: 0.35,
 
   // What a findable person in a running place is worth to the index in a year. This is the Workforce
   // benchmark the product already runs on, used as the index unit it is — a relative figure in the
@@ -146,19 +173,42 @@ function dealSkills(residents, skillsBySector) {
   return { holders, problems };
 }
 
-export function buildStartingState(seed, tuning = DEFAULT_TUNING) {
-  const shape = read('directory-shape.json');
-  const board = read('residents.json');
-  const opening = read('opening-board.json');
-  const taxonomy = read('taxonomy-shape.json');
+// Links are not drawn once. They form as places join: everything inside a region connects to
+// everything else inside it, and a region reaches the world through its bridges. So cutting a bridge
+// isolates a region rather than a place, which is what a network spread thin actually costs.
+export function rebuildLinks(s) {
+  const names = s.places.map((p) => p.key);
+  s.links = new Map(names.map((name) => [name, linksFor(name, names)]));
+  return s.links;
+}
+
+// The four committed files, read from disk. The browser has no disk, so it passes the same four
+// through `sources` instead — one model, two callers, nothing hand-copied between them.
+export function loadSources() {
+  return {
+    shape: read('directory-shape.json'),
+    board: read('residents.json'),
+    opening: read('opening-board.json'),
+    taxonomy: read('taxonomy-shape.json'),
+  };
+}
+
+export function buildStartingState(seed, tuning = DEFAULT_TUNING, sources = null) {
+  const { shape, board, opening, taxonomy } = sources ?? loadSources();
   const rng = makeRng(seed);
 
   const residents = board.residents.map((r) => ({
     id: r.id,
+    name: r.name,
     place: r.place,
     sectors: { ...r.sectors },
     skills: new Set(),
     away: false,
+    // Everybody the Directory already holds exchanges. The share that does not is something that
+    // arrives later, with people who arrive later.
+    exchanges: 0,
+    quietYears: 0,
+    neverExchanges: false,
   }));
   const { holders, problems } = dealSkills(residents, board.skillsBySector);
   if (problems.length > 0) throw new Error(`skills could not be dealt:\n  - ${problems.join('\n  - ')}`);
@@ -167,12 +217,18 @@ export function buildStartingState(seed, tuning = DEFAULT_TUNING) {
   // ones the Directory already holds came out of the deal above; the rest are what a run has to reach.
   const skillsBySector = { ...taxonomy.skillsBySector };
 
-  const places = opening.places.map((p) => ({
-    key: p.place,
-    standsFor: p.standsFor,
+  const standsFor = apportion(Object.fromEntries(opening.places.map((p) => [p.place, p.standsFor])));
+
+  // The board opens with the six the Directory reached. Everything else is a place the network can
+  // grow to, and growing to it is a move the player makes.
+  const places = OPENING_PLACES.map((name) => ({
+    key: name,
+    region: regionOf(name),
+    standsFor: standsFor[name],
     isolation: 0,
     covered: false,
     cutOff: false,
+    openedInYear: 1,
   }));
   // Three places start already struggling, the way the map game opens. The dice choose which.
   const free = places.map((_, i) => i);
@@ -181,14 +237,14 @@ export function buildStartingState(seed, tuning = DEFAULT_TUNING) {
     places[at].isolation = 1 + Math.floor(rng() * 2);
   }
 
-  const links = new Map(places.map((p) => [p.key, []]));
-  for (const [a, b] of PLACE_LINKS) {
-    if (!links.has(a) || !links.has(b)) throw new Error(`link names a place that is not on the board: ${a} / ${b}`);
-    links.get(a).push(b);
-    links.get(b).push(a);
+  const unopened = [];
+  for (const region of REGIONS) {
+    for (const place of region.places) {
+      unopened.push({ key: place.name, region: region.key, standsFor: standsFor[place.name] });
+    }
   }
 
-  return {
+  const state = {
     rng,
     tuning,
     year: 1,
@@ -200,7 +256,10 @@ export function buildStartingState(seed, tuning = DEFAULT_TUNING) {
     holders,
     skillsBySector,
     places,
-    links,
+    unopened,
+    links: new Map(),
+    standsFor,
+    survivorPopulation: SURVIVOR_POPULATION,
     teams: opening.teams.map((t) => ({ name: t.name, sectors: t.sectors })),
     pressure: tuning.startingPressure,
     settledIndex: 0,
@@ -210,11 +269,22 @@ export function buildStartingState(seed, tuning = DEFAULT_TUNING) {
     somethingVisible: false,
     // The distributions a newcomer is drawn from are the Directory's own.
     shape,
+    given: board.names?.given ?? GIVEN,
+    surname: board.names?.surname ?? SURNAME,
     newSkillRateAtStart: opening.catalog.newSkillRateAtStart,
     missingAtStart: taxonomy.totalSkills - opening.figures.skillsHeldAtStart,
+    openingCredit: 0,
+    opened: [],
+    card: null,
+    cardMix: {},
+    quietYears: 0,
+    actionsLostThisYear: 0,
+    driftedOut: 0,
     log: [],
     over: null,
   };
+  rebuildLinks(state);
+  return state;
 }
 
 // --- Reading the board ---------------------------------------------------------------------------
@@ -270,15 +340,58 @@ export function teachingCapacity(s, sector, findable = findableResidents(s)) {
   return Math.min(findable.length, Math.max(1, Math.round(teachers * s.tuning.teachPerTeacher)));
 }
 
-// A place runs when every one of the thirteen teams has somebody findable in it. That list is not
-// this game's invention — it is the product's own community planning teams, read in item 5.
+// A place runs when the network it is connected to can fill all thirteen jobs — not when the place
+// can fill them alone. The board before this one asked each place to fill them alone. No place holds
+// all thirteen, a place trying to is playing badly, and somewhere with four people runs because it
+// is joined to somewhere that has the rest.
+//
+// Which makes cutting a link the attack that matters. A region severed from the network does not
+// lose its people; it loses everybody else's, and stops.
+export function components(s) {
+  const live = s.places.filter((p) => !p.cutOff);
+  const seen = new Set();
+  const out = [];
+  for (const start of live) {
+    if (seen.has(start.key)) continue;
+    const group = [];
+    const queue = [start.key];
+    seen.add(start.key);
+    while (queue.length > 0) {
+      const key = queue.pop();
+      group.push(key);
+      for (const next of s.links.get(key) ?? []) {
+        if (seen.has(next)) continue;
+        const place = placeOf(s, next);
+        if (!place || place.cutOff) continue;
+        seen.add(next);
+        queue.push(next);
+      }
+    }
+    out.push(group);
+  }
+  return out;
+}
+
 export function placesThatRun(s) {
   const findable = findableResidents(s);
-  return s.places.filter((place) => {
-    if (place.cutOff) return false;
-    const here = findable.filter((r) => r.place === place.key);
-    return s.teams.every((team) => here.some((r) => team.sectors.some((sec) => r.sectors[sec])));
-  });
+  const running = [];
+  for (const group of components(s)) {
+    const here = findable.filter((r) => group.includes(r.place));
+    const covers = s.teams.every((team) => here.some((r) => team.sectors.some((sec) => r.sectors[sec])));
+    if (!covers) continue;
+    for (const key of group) running.push(placeOf(s, key));
+  }
+  return running;
+}
+
+// Which of the thirteen the network a place sits in cannot fill. What the screen shows when a place
+// has stopped, because the answer is never "this place is short" — it is the network that is short.
+export function teamsMissingFor(s, placeKey) {
+  const group = components(s).find((g) => g.includes(placeKey)) ?? [placeKey];
+  const here = findableResidents(s).filter((r) => group.includes(r.place));
+  return s.teams
+    .filter((team) => !here.some((r) => team.sectors.some((sec) => r.sectors[sec])))
+    .map((team) => team.name);
 }
 
 // --- The actions ---------------------------------------------------------------------------------
@@ -327,7 +440,52 @@ export const ACTIONS = {
     s.pressure = Math.max(0, s.pressure - s.tuning.arithmeticEffect);
     return true;
   },
+  // Open a way somewhere new. The player picks the region; the dice pick which place inside it —
+  // which and when, never whether. A region nobody has reached yet costs more, because somebody has
+  // to get there at all before anybody there can be found.
+  //
+  // Growth is not free and is not meant to be. A place arrives already under pressure, and the
+  // isolation the year spreads is a share of how many places are open, so every one added is another
+  // thing that can be cut. Spreading thin and holding what you spread are the same decision.
+  openAWay(s, regionKey) {
+    const waiting = s.unopened.filter((p) => !regionKey || p.region === regionKey);
+    if (waiting.length === 0) return false;
+    const first = !s.places.some((p) => p.region === (regionKey ?? waiting[0].region));
+    if (first && s.openingCredit < s.tuning.firstInRegionExtra) {
+      // A first reach into a region takes more than one action. The credit carries between years so
+      // that starting one is a commitment rather than a coin flip.
+      s.openingCredit += 1;
+      return true;
+    }
+    s.openingCredit = 0;
+    const at = Math.floor(s.rng() * waiting.length);
+    const chosen = waiting[at];
+    s.unopened.splice(s.unopened.indexOf(chosen), 1);
+    s.places.push({
+      key: chosen.key,
+      region: chosen.region,
+      standsFor: chosen.standsFor,
+      isolation: s.tuning.newPlaceIsolation,
+      covered: false,
+      cutOff: false,
+      openedInYear: s.year,
+    });
+    rebuildLinks(s);
+    // People who were already there and become findable once there is a way to reach them.
+    for (let i = 0; i < s.tuning.peopleAtFirstReach; i += 1) s.lookingQueued.push(chosen.key);
+    s.somethingVisible = true;
+    s.opened.push({ year: s.year, place: chosen.key, region: chosen.region });
+    return true;
+  },
 };
+
+export function regionsWithRoom(s) {
+  const out = new Map();
+  for (const place of s.unopened) {
+    out.set(place.region, (out.get(place.region) ?? 0) + 1);
+  }
+  return out;
+}
 
 // --- What resolves on its own --------------------------------------------------------------------
 
@@ -404,10 +562,17 @@ function resolveLooking(s) {
       if (s.rng() < s.pressure) continue;
       const resident = {
         id: `n${s.nextResidentId}`,
+        name: `${pick(s.rng, s.given)} ${pick(s.rng, s.surname)}`,
         place: placeKey,
         sectors: {},
         skills: new Set(),
         away: false,
+        exchanges: 0,
+        quietYears: 0,
+        // Never read by anything the player can see. No screen names it, no control asks about it,
+        // and nothing reveals it at the end of a run. It exists so that Look is worth less than its
+        // headline number, which is the true thing and the only thing the player needs.
+        neverExchanges: s.rng() < s.tuning.neverExchangesShare,
       };
       s.nextResidentId += 1;
       const count = newcomerSkillCount(s);
@@ -433,10 +598,30 @@ function resolveLooking(s) {
 }
 
 function rollUnavailability(s) {
-  for (const r of s.residents) r.away = s.rng() < s.tuning.unavailableRate;
+  for (const r of s.residents) {
+    // Somebody a card sent away stays away until the year it said, rather than being re-rolled back
+    // into reach the following spring.
+    if (r.awayUntil && r.awayUntil > s.year) { r.away = true; continue; }
+    if (r.awayUntil) delete r.awayUntil;
+    r.away = s.rng() < s.tuning.unavailableRate;
+  }
 }
 
 function spreadIsolation(s) {
+  // Nothing stays safe. Reaching a place for good takes it off the worry list, and then some years
+  // it comes back, because the other side does not stop when a place stops being interesting.
+  //
+  // Without this the game has a fixed point a careful player always reaches: cover everything, and
+  // isolation has nowhere left to land. The first build had the same hole and hid it behind a board
+  // too small to finish. On a board that can be finished it has to be shut properly, and shutting it
+  // with a knob would not have worked — isolation at two and a half times did nothing at all, because
+  // the problem was never the rate.
+  for (const place of s.places) {
+    if (!place.covered || place.cutOff) continue;
+    if (s.rng() >= s.tuning.coveredComesBack) continue;
+    place.covered = false;
+    place.isolation = 1;
+  }
   const open = s.places.filter((p) => !p.covered && !p.cutOff);
   const chain = new Set();
   const push = (place) => {
@@ -450,26 +635,74 @@ function spreadIsolation(s) {
     place.cutOff = true;
     for (const next of s.links.get(place.key)) push(placeOf(s, next));
   };
-  for (let i = 0; i < s.tuning.isolationSpread && open.length > 0; i += 1) {
+  // A share of what is open rather than a flat count, so opening places costs something. Floored at
+  // one so a board held down to a handful still feels pressure.
+  const howMany = Math.max(1, Math.round(s.tuning.isolationPerSixPlaces * Math.sqrt(s.places.length / 6)));
+  for (let i = 0; i < howMany && open.length > 0; i += 1) {
     push(open.splice(Math.floor(s.rng() * open.length), 1)[0]);
   }
 }
 
 function settle(s) {
   const running = new Set(placesThatRun(s).map((p) => p.key));
-  const working = findableResidents(s).filter((r) => running.has(r.place)).length;
-  s.settledIndex += working * s.tuning.indexPerFindablePersonPerYear;
-  s.projectedIndex += Math.round(working * s.tuning.postsPerFindablePersonPerYear
+  const findable = findableResidents(s);
+  let value = 0;
+  for (const r of findable) {
+    if (r.neverExchanges) continue;
+    // Somewhere that runs, a person's work goes through the network. Somewhere that does not, people
+    // still help each other directly and most of it is never recorded anywhere — less value on the
+    // board, and not nothing.
+    value += running.has(r.place) ? 1 : s.tuning.exchangeWhereNothingRuns;
+    r.exchanges += 1;
+  }
+  s.settledIndex += Math.round(value * s.tuning.indexPerFindablePersonPerYear);
+  s.projectedIndex += Math.round(value * s.tuning.postsPerFindablePersonPerYear
     * s.tuning.indexPerFindablePersonPerYear);
+}
+
+// Nobody is accused and nobody is removed. Somebody who has exchanged nothing for long enough stops
+// being around, which is what happens when a place runs on exchange and a person offers none.
+function driftOut(s) {
+  const before = s.residents.length;
+  s.residents = s.residents.filter((r) => {
+    if (r.exchanges > 0) { r.quietYears = 0; return true; }
+    r.quietYears += 1;
+    if (r.quietYears < s.tuning.driftOutAfter) return true;
+    for (const holders of s.holders.values()) holders.delete(r.id);
+    return false;
+  });
+  s.driftedOut += before - s.residents.length;
+}
+
+// The year opens with a draw. Dice choose which card and how large it lands, never whether a good
+// run succeeds — a strategy that loses on a roll would be teaching that this comes down to luck.
+export function beginYear(s) {
+  if (!s.deck) s.deck = buildDeck(DECK_API);
+  s.actionsLostThisYear = 0;
+  s.card = drawCard(s, s.deck);
+  const kind = s.card ? s.card.kind : 'none';
+  s.cardMix[kind] = (s.cardMix[kind] ?? 0) + 1;
+  return s.card;
+}
+
+export function chooseOnCard(s, key) {
+  if (!s.card) return false;
+  const choice = s.card.choices.find((c) => c.key === key);
+  if (!choice) return false;
+  choice.apply(s);
+  s.card = null;
+  return true;
 }
 
 export function endYear(s) {
   s.somethingVisible = false;
   settle(s);
+  driftOut(s);
   resolveTeaching(s);
   resolveLooking(s);
   rollUnavailability(s);
   spreadIsolation(s);
+  s.quietYears = s.somethingVisible ? 0 : s.quietYears + 1;
   s.pressure = Math.min(1, Math.max(0, s.somethingVisible
     ? s.pressure - s.tuning.resultsRelief
     : s.pressure + s.tuning.detractorDrift));
@@ -481,10 +714,42 @@ export function endYear(s) {
   s.year += 1;
 }
 
-export function runGame(seed, policy, tuning = DEFAULT_TUNING) {
-  const s = buildStartingState(seed, tuning);
+// A network of thirty places cannot be held with the three moves a network of six was held with, so
+// the year's actions grow with the board. Capped, because this is played on a phone with one hand.
+export function actionsThisYear(s) {
+  const live = s.places.filter((p) => !p.cutOff).length;
+  const base = Math.min(
+    s.tuning.maxActionsPerYear,
+    s.actionsPerYear + Math.floor(live / 8) * s.tuning.actionsPerEightPlaces,
+  );
+  return Math.max(1, base - (s.actionsLostThisYear ?? 0));
+}
+
+// What the deck is allowed to see. Passed in rather than imported the other way so that the deck
+// can read the board and act through the same actions a player has, and nothing else.
+const DECK_API = {
+  ACTIONS: null, // filled below, once ACTIONS exists
+  findableResidents,
+  skillDepth,
+  presentSkills,
+  missingInSector,
+  teachingCapacity,
+  placesThatRun,
+  teamsMissingFor,
+  components,
+};
+DECK_API.ACTIONS = ACTIONS;
+
+export function runGame(seed, policy, tuning = DEFAULT_TUNING, onCard = null, sources = null) {
+  const s = buildStartingState(seed, tuning, sources);
   while (!s.over) {
-    for (let i = 0; i < s.actionsPerYear; i += 1) policy(s);
+    beginYear(s);
+    if (s.card) {
+      const key = onCard ? onCard(s, s.card) : s.card.choices[0].key;
+      chooseOnCard(s, key);
+    }
+    const acts = actionsThisYear(s);
+    for (let i = 0; i < acts; i += 1) policy(s);
     endYear(s);
   }
   return {
@@ -493,9 +758,13 @@ export function runGame(seed, policy, tuning = DEFAULT_TUNING) {
     skillsPresent: s.taxonomySkills - missingCount(s),
     taxonomySkills: s.taxonomySkills,
     people: s.residents.length,
+    placesOpen: s.places.length,
     placesCovered: s.places.filter((p) => p.covered).length,
     placesCutOff: s.places.filter((p) => p.cutOff).length,
     placesRunning: placesThatRun(s).length,
+    reached: s.places.filter((p) => !p.cutOff).reduce((a, p) => a + p.standsFor, 0),
+    driftedOut: s.driftedOut,
+    cardMix: s.cardMix,
     settledIndex: s.settledIndex,
     projectedIndex: s.projectedIndex,
     pressure: Math.round(s.pressure * 100) / 100,
