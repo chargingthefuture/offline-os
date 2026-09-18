@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Peace-Battle 2</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Peace-Battle 2">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  [hidden]{display:none!important;}
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:2px;}
+  .back:hover,.back:focus-visible{color:var(--amber);}
+
+  .topline{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:6px 0 6px;}
+  .count{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:30px;
+    line-height:1;color:var(--amber);font-variant-numeric:tabular-nums;}
+  .count small{display:block;font-family:inherit;font-weight:400;font-size:10.5px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
+  .counters{text-align:right;font-size:11px;color:var(--muted);line-height:1.7;white-space:nowrap;}
+  .counters b{color:var(--text);font-variant-numeric:tabular-nums;}
+
+  /* The card is the year. It sits above everything because it is what the year is about. */
+  .card{background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 13px;
+    margin-bottom:10px;}
+  .card.scheme{border-color:#5a3730;}
+  .card .kind{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:10px;
+    text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:5px;}
+  .card.scheme .kind{color:#c2664a;}
+  .card h2{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:17px;
+    line-height:1.25;margin:0 0 7px;color:var(--text);}
+  .card p{margin:0 0 7px;font-size:12px;line-height:1.7;color:var(--muted);}
+  .card p:last-of-type{margin-bottom:10px;}
+  .picks{display:grid;gap:7px;}
+  .pick{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:9px 11px;font:inherit;color:var(--text);cursor:pointer;}
+  .pick:hover,.pick:focus-visible{border-color:var(--amber);}
+  .pick .pl{font-size:13px;font-weight:600;line-height:1.35;}
+  .pick .pc{display:block;font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.5;}
+  .named{margin-top:9px;border-top:1px solid var(--line);padding-top:7px;}
+  .named summary{font-size:10.5px;color:var(--muted);cursor:pointer;letter-spacing:.04em;}
+  .named p{font-size:11px;margin:6px 0 0;}
+  .named .nm{color:#c2664a;font-weight:600;}
+
+  .places{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;
+    -webkit-overflow-scrolling:touch;}
+  .pbtn{flex:0 0 auto;background:var(--panel);border:1px solid var(--line);border-radius:9px;
+    padding:6px 9px;font:inherit;color:var(--text);cursor:pointer;text-align:left;min-width:96px;}
+  .pbtn[aria-pressed="true"]{border-color:var(--amber);background:var(--panel-2);}
+  .pbtn .n{display:block;font-size:10.5px;color:var(--muted);white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;max-width:132px;}
+  .pbtn .v{display:block;font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;
+    font-size:15px;line-height:1.25;font-variant-numeric:tabular-nums;}
+  .pbtn .st{display:block;font-size:10px;white-space:nowrap;}
+  .pbtn .st.run{color:#57a87a;}
+  .pbtn .st.stop{color:#e5794b;}
+  .pbtn .st.gone{color:#a2412c;}
+  .pbtn .st.held{color:#6f9fd8;}
+
+  .rosterhead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:2px 0 4px;}
+  .rosterhead{flex-wrap:wrap;}
+  .rosterhead .t{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:14px;
+    text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+  .rosterhead .s{flex:1 1 100%;}
+  .rosterhead .s{font-size:11px;color:var(--muted);}
+  .roster{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px 6px;
+    margin-bottom:8px;}
+  .job{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:baseline;width:100%;
+    background:none;border:0;border-radius:6px;padding:5px;font:inherit;color:inherit;
+    cursor:pointer;text-align:left;border-bottom:1px solid #22242a;}
+  .job:last-child{border-bottom:0;}
+  .job[aria-pressed="true"]{background:var(--panel-2);outline:1px solid var(--amber);}
+  .job .jn{font-size:11.5px;color:var(--text);}
+  .job .who{font-size:11px;color:var(--muted);text-align:right;}
+  .job.thin .who{color:var(--amber);}
+  .job.empty .jn{color:#8a8f99;}
+  .job.empty .who{color:#e5794b;}
+  .job .hint{display:block;font-size:9.5px;color:#7b8089;margin-top:1px;}
+
+  .events{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;
+    font-size:11.5px;line-height:1.65;color:var(--muted);margin-bottom:8px;min-height:38px;}
+  .events b{color:var(--text);}
+  .events .bad{color:#e5794b;}
+  .events .good{color:#57a87a;}
+  .events div{margin-bottom:2px;}
+  .events div:last-child{margin-bottom:0;}
+
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;}
+  .act{background:var(--amber);border:1px solid var(--amber);border-radius:10px;color:#16171b;
+    padding:11px 6px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;}
+  .act.ghost{background:none;color:var(--text);border-color:var(--line);font-weight:400;}
+  .act.wide{grid-column:1/3;}
+  .act[disabled]{opacity:.4;cursor:default;}
+  .act:focus-visible,.job:focus-visible,.pbtn:focus-visible,.reset:focus-visible,
+  .pick:focus-visible,.seed input:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+
+  .index{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;}
+  .ix{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:7px 9px;}
+  .ix .n{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);line-height:1.4;}
+  .ix .v{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:17px;
+    font-variant-numeric:tabular-nums;}
+
+  svg.map{display:block;width:100%;height:auto;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:12px;margin-bottom:8px;touch-action:manipulation;}
+  svg.map .link{stroke:#2c2f36;stroke-width:.7;}
+  svg.map .link.live{stroke:#454b57;}
+  svg.map text{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-size:2.6px;fill:#8a8f99;
+    text-anchor:middle;pointer-events:none;}
+  svg.map .rg{font-size:2.9px;fill:#5f656f;letter-spacing:.08em;text-transform:uppercase;}
+  svg.map .node{cursor:pointer;}
+  svg.map .sel{fill:none;stroke:var(--amber);stroke-width:.7;stroke-dasharray:1.4 1.2;}
+
+  .bars{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 8px;margin-bottom:10px;}
+  .barrow{display:grid;grid-template-columns:1fr 46px;gap:6px;align-items:center;padding:3px 4px;}
+  .barrow .nm{font-size:10.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .barrow .num{font-size:10.5px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;}
+  .barrow .track{grid-column:1/3;height:4px;border-radius:3px;background:#2c2f36;overflow:hidden;}
+  .barrow .fill{display:block;height:100%;background:var(--amber);}
+  .barrow .fill.done{background:#2f6b4f;}
+
+  .over{background:var(--panel-2);border:1px solid var(--amber);border-radius:12px;padding:12px 14px;
+    margin-bottom:8px;}
+  .over .t{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;font-size:16px;
+    text-transform:uppercase;letter-spacing:.05em;color:var(--amber);margin-bottom:4px;}
+  .over p{margin:0 0 6px;font-size:12px;color:var(--muted);line-height:1.7;}
+
+  .seed{display:flex;gap:6px;align-items:center;margin-bottom:8px;}
+  .seed label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);}
+  .seed input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    color:var(--text);padding:7px 9px;font:inherit;font-size:12px;font-variant-numeric:tabular-nums;}
+  .seed button{background:none;border:1px solid var(--line);border-radius:8px;color:var(--muted);
+    padding:7px 10px;font:inherit;font-size:11.5px;cursor:pointer;white-space:nowrap;}
+  .seed button:hover{color:var(--amber);border-color:var(--amber);}
+
+  .reset{width:100%;background:none;border:1px solid var(--line);border-radius:10px;color:var(--muted);
+    padding:9px 12px;font:inherit;font-size:12px;cursor:pointer;margin-bottom:14px;}
+
+  details.about{border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;}
+  details.about summary{font-family:'Barlow Semi Condensed','Inter',sans-serif;font-weight:700;
+    font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);cursor:pointer;}
+  details.about h3{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--text);
+    margin:12px 0 4px;}
+  details.about p{font-size:11px;color:var(--muted);line-height:1.75;margin:0 0 8px;}
+  .toggle{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin:8px 0 2px;}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;}}
+</style>
+</head>
+<body>
+  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+
+  <div class="topline">
+    <div class="count"><span id="skills">184</span> of <span id="total">657</span>
+      <small>skills somebody can be found for</small></div>
+    <div class="counters">
+      Year <b id="year">1</b> of <b id="years">50</b><br>
+      Actions <b id="acts">3</b> &middot; people <b id="people">147</b><br>
+      Reached <b id="reached">0</b>
+    </div>
+  </div>
+
+  <div id="cardBox"></div>
+  <div id="overBox"></div>
+
+  <div class="places" id="places"></div>
+
+  <div class="rosterhead">
+    <div class="t" id="placeName">&nbsp;</div>
+    <div class="s" id="placeState">&nbsp;</div>
+  </div>
+  <div class="roster" id="roster"></div>
+
+  <div class="events" id="events"></div>
+
+  <div class="actions">
+    <button type="button" class="act" id="teach">Teach this job</button>
+    <button type="button" class="act" id="look">Look for people</button>
+    <button type="button" class="act" id="reach">Reach further in</button>
+    <button type="button" class="act ghost" id="arith">Show the arithmetic</button>
+    <button type="button" class="act ghost wide" id="openWay">Open a way somewhere new</button>
+  </div>
+
+  <div class="index">
+    <div class="ix"><div class="n">Community Value Index<br>settled</div><div class="v" id="settled">0</div></div>
+    <div class="ix"><div class="n">Value waiting<br>to happen</div><div class="v" id="projected">0</div></div>
+  </div>
+
+  <svg class="map" id="map" viewBox="0 0 100 92" role="img" aria-label="The network"></svg>
+
+  <div class="bars" id="bars"></div>
+
+  <div class="seed">
+    <label for="seedInput">Seed</label>
+    <input id="seedInput" type="text" inputmode="numeric" autocomplete="off" spellcheck="false">
+    <button type="button" id="seedCopy">Copy</button>
+    <button type="button" id="seedPlay">Play it</button>
+  </div>
+
+  <button type="button" class="reset" id="reset">Start again</button>
+
+  <details class="about" id="about"></details>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+/* GAME */
+</script>
+</body>
+</html>

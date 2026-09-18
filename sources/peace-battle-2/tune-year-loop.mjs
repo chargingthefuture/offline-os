@@ -15,7 +15,7 @@
 
 import {
   ACTIONS, DEFAULT_TUNING, runGame, findableResidents, missingInSector, skillDepth,
-  teachingCapacity, placesThatRun,
+  teachingCapacity, placesThatRun, components, regionsWithRoom, actionsThisYear,
 } from './year-loop.mjs';
 
 const SECTORS = (s) => Object.keys(s.skillsBySector);
@@ -49,6 +49,20 @@ function careful(s) {
 
   const findable = findableResidents(s);
 
+  // Grow, once what is already open is not in trouble. Distribution is the defense and a board left
+  // at six places is a board betting everything on six things not being cut — but a place opened is
+  // also a place to hold, so this sits below holding rather than above it.
+  const exposed = s.places.filter((p) => !p.covered && !p.cutOff && p.isolation > 0).length;
+  const room = regionsWithRoom(s);
+  if (exposed <= 1 && room.size > 0) {
+    // Finish a region already started before opening another, because a region's first place costs
+    // two actions and a half-opened region is two actions spent on one place.
+    const started = [...room.keys()].filter((key) => s.places.some((p) => p.region === key));
+    const fresh = [...room.keys()].filter((key) => !s.places.some((p) => p.region === key));
+    const target = started[0] ?? fresh[0];
+    if (target) return ACTIONS.openAWay(s, target);
+  }
+
   const open = s.places.filter((p) => !p.cutOff).sort((a, b) => b.standsFor - a.standsFor)[0];
   if (findable.length === 0) return open ? ACTIONS.look(s, open.key) : ACTIONS.showTheArithmetic(s);
 
@@ -69,24 +83,29 @@ function careful(s) {
   // sectors that only teaching can reach are the thin ones, which is the same reading the opening
   // board gave. So the score is what this year's teaching would bring, divided by how often that
   // sector walks in by itself.
-  // Staffing comes first. A place short only a job or two is a place that can be finished and taken
-  // off the board for good, and teaching into that job is the only way to get it there.
-  const shortest = s.places
-    .map((place) => {
-      if (place.covered || place.cutOff) return null;
-      const here = findable.filter((r) => r.place === place.key);
+  // Staffing is a question about the network, not about a place. No place holds all thirteen and
+  // none is meant to, so what matters is whether the component a place sits in can fill them. When a
+  // component is short, teaching into the gap is the only thing that puts it back together.
+  const short = components(s)
+    .map((group) => {
+      const here = findable.filter((r) => group.includes(r.place));
+      if (here.length === 0) return null;
       const empty = s.teams.filter((team) => !here.some((r) => team.sectors.some((sec) => r.sectors[sec])));
-      return empty.length > 0 && empty.length <= 3 && here.length > 0
-        ? { place, empty, standsFor: place.standsFor } : null;
+      return empty.length > 0 ? { group, empty, size: here.length } : null;
     })
     .filter(Boolean)
-    .sort((a, b) => a.empty.length - b.empty.length || b.standsFor - a.standsFor)[0];
-  if (shortest) {
-    for (const team of shortest.empty) {
+    .sort((a, b) => a.empty.length - b.empty.length || b.size - a.size)[0];
+  if (short) {
+    for (const team of short.empty) {
       const sector = team.sectors
         .map((sec) => ({ sec, capacity: teachingCapacity(s, sec, findable) }))
         .sort((a, b) => b.capacity - a.capacity)[0];
-      if (sector && sector.capacity > 0) return ACTIONS.teach(s, sector.sec, shortest.place.key);
+      if (sector && sector.capacity > 0) {
+        const where = s.places
+          .filter((p) => !p.cutOff && short.group.includes(p.key))
+          .sort((a, b) => b.standsFor - a.standsFor)[0];
+        if (where) return ACTIONS.teach(s, sector.sec, where.key);
+      }
     }
   }
 
@@ -112,16 +131,47 @@ function careful(s) {
   return open ? ACTIONS.look(s, open.key) : ACTIONS.showTheArithmetic(s);
 }
 
+// --- How each player answers a card ------------------------------------------------------------------
+//
+// A card's choices are the same moves the player has, framed by a situation. The careful reading is
+// to take the one that keeps the network whole and aims at what only teaching can reach; the careless
+// one picks whichever is first.
+function carefulOnCard(s, card) {
+  const keys = card.choices.map((c) => c.key);
+  // Hold the board before anything else: a place going over the edge takes the places beside it.
+  for (const key of ['reach', 'hold', 'cover']) if (keys.includes(key)) return key;
+  if (keys.includes('answer') && s.pressure >= 0.3) return 'answer';
+  if (keys.includes('arithmetic') && s.pressure >= 0.3) return 'arithmetic';
+  // Only teaching reaches the thin end of the list, and the thin end is what a run ends short of.
+  if (keys.includes('thin')) return 'thin';
+  if (keys.includes('teach')) return 'teach';
+  // Somebody arriving where a job is empty is worth the action it costs to get them there. Gating
+  // this on how exposed the board is was tried and is worse — 71% against 83% — because a place
+  // short of a job is a place the whole component stops for, and the action was never the expensive
+  // part.
+  if (keys.includes('move')) return 'move';
+  if (keys.includes('help')) return 'help';
+  return keys[0];
+}
+
+function carelessOnCard(s, card) {
+  return card.choices[Math.floor(s.rng() * card.choices.length)].key;
+}
+
 // --- The careless player --------------------------------------------------------------------------
 //
 // Picks a legal action at random. Not a saboteur — somebody doing things without reading the board.
 function careless(s) {
   const pick = (list) => list[Math.floor(s.rng() * list.length)];
   const open = s.places.filter((p) => !p.cutOff);
-  const kind = Math.floor(s.rng() * 4);
+  const kind = Math.floor(s.rng() * 5);
   if (kind === 0 && open.length > 0) return ACTIONS.reach(s, pick(open).key);
   if (kind === 1 && open.length > 0) return ACTIONS.teach(s, pick(SECTORS(s)), pick(open).key);
   if (kind === 2 && open.length > 0) return ACTIONS.look(s, pick(open).key);
+  if (kind === 3) {
+    const room = [...regionsWithRoom(s).keys()];
+    if (room.length > 0) return ACTIONS.openAWay(s, pick(room));
+  }
   return ACTIONS.showTheArithmetic(s);
 }
 
@@ -133,9 +183,9 @@ const median = (xs) => {
   return sorted[Math.floor(sorted.length / 2)];
 };
 
-export function sweep(policy, seeds, tuning = DEFAULT_TUNING) {
+export function sweep(policy, seeds, tuning = DEFAULT_TUNING, onCard = null) {
   const runs = [];
-  for (let i = 0; i < seeds; i += 1) runs.push(runGame(20260914 + i, policy, tuning));
+  for (let i = 0; i < seeds; i += 1) runs.push(runGame(20260914 + i, policy, tuning, onCard));
   const wins = runs.filter((r) => r.won);
   return {
     runs: runs.length,
@@ -147,6 +197,9 @@ export function sweep(policy, seeds, tuning = DEFAULT_TUNING) {
     medianCovered: median(runs.map((r) => r.placesCovered)),
     medianCutOff: median(runs.map((r) => r.placesCutOff)),
     medianRunning: median(runs.map((r) => r.placesRunning)),
+    medianOpen: median(runs.map((r) => r.placesOpen)),
+    medianReached: median(runs.map((r) => r.reached)),
+    medianDrifted: median(runs.map((r) => r.driftedOut)),
     medianSettled: median(runs.map((r) => r.settledIndex)),
     medianProjected: median(runs.map((r) => r.projectedIndex)),
   };
@@ -159,16 +212,18 @@ function report(name, r, taxonomySkills) {
   process.stdout.write(`  catalog filled in ${r.winRate}% of ${r.runs} runs`
     + `${r.medianWinYear ? `, median year ${r.medianWinYear} of 50` : ''}\n`);
   process.stdout.write(`  median skills at the end ${r.medianSkills} of ${taxonomySkills}\n`);
-  process.stdout.write(`  median people ${r.medianPeople}, places covered ${r.medianCovered}, `
+  process.stdout.write(`  median people ${r.medianPeople}, drifted out ${r.medianDrifted}\n`);
+  process.stdout.write(`  median places open ${r.medianOpen} of 34, covered ${r.medianCovered}, `
     + `cut off ${r.medianCutOff}, running ${r.medianRunning}\n`);
+  process.stdout.write(`  median reached ${r.medianReached.toLocaleString()} of 5,000,000\n`);
   process.stdout.write(`  index settled ${bn(r.medianSettled)}, projected ${bn(r.medianProjected)}\n`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const seeds = Number(process.argv[2] ?? 300);
-  const probe = runGame(1, careful);
-  const carefulResult = sweep(careful, seeds);
-  const carelessResult = sweep(careless, seeds);
+  const probe = runGame(1, careful, DEFAULT_TUNING, carefulOnCard);
+  const carefulResult = sweep(careful, seeds, DEFAULT_TUNING, carefulOnCard);
+  const carelessResult = sweep(careless, seeds, DEFAULT_TUNING, carelessOnCard);
   report('Careful', carefulResult, probe.taxonomySkills);
   process.stdout.write('\n');
   report('Careless', carelessResult, probe.taxonomySkills);
@@ -185,4 +240,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   }
 }
 
-export { careful, careless };
+export { careful, careless, carefulOnCard, carelessOnCard };

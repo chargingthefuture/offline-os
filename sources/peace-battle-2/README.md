@@ -397,9 +397,141 @@ with nineteen skills that were never going to arrive by themselves.
 Retail & Services is the other end of it: all fourteen of its skills are already held. A sector can
 be finished on day one, and one is.
 
-## What this does not settle
+## The rewrite (owner decision, 2026-09-18)
 
-Items 7, 8 and 9. Drawing it is item 7. The cost of a detractor and of an unavailability roll are
-item 8, tuned against these same seeds so they are known rather than guessed — the loop already has
-both, at placeholder magnitudes that the item 8 sweep replaces. The explanatory text behind a
-disclosure is item 9.
+Everything above was built and shipped at `peace-battle-2-v10`, and then the surface was rejected: it
+read as a calculator. Four global buttons, a counter row, and deltas, with 147 people sitting in the
+data and rendering as a roster that never did anything a player would remember.
+
+The model was not the problem and is not redone. What changed is the shape of the world it describes
+and what the screen does with it.
+
+### The board is a network that grows
+
+The six-place fixed map is retired. `world-places.mjs` holds what replaced it: the opening six, plus
+twenty-eight places across nine regions that open as the player reaches them.
+
+A single walled place is the shape this adversary is built to take — one address, one set of links,
+one thing to cut — so a game where the answer is one well-defended settlement would be arguing
+something false. Growing the network is the game.
+
+Three rules make that more than decoration:
+
+- **No place holds all thirteen jobs, and none is meant to.** A place runs when the component it is
+  joined to can fill them. Somewhere with four people runs because it is joined to somewhere with the
+  rest, which is why cutting a link is the attack that matters rather than a flourish.
+- **Links form as places join.** Everything inside a region connects; a region reaches the world
+  through bridges, at whichever of its neighbours was opened first. Cutting a bridge isolates a
+  region.
+- **A cut-off place is isolated, never destroyed.** Its people stop being findable and its skills
+  leave the catalog until it is reached again. Nobody dies and nothing is razed.
+
+Opening a region costs three actions for its first place and one for each after, so a half-opened
+region is two actions spent on nothing. Actions per year grow with the board, capped at six, because
+thirty places cannot be held with the three moves six were held with.
+
+### What the country data actually is
+
+Recorded here because the section above reads as a census and is not one.
+
+Country is a required field on a Directory listing, and on a community-generated listing it was
+filled in from what could be worked out rather than from what the person said. It skews to the United
+States: somebody writing in English on Quora reads as American whether or not they are, and there is
+no way to tell from outside. People correct it themselves once they claim a listing.
+
+So the 89% figure above is the shape of an inference, and this file's correction of the issue's
+earlier expectation was overstated. It stays because the map grain was chosen from it honestly at the
+time, and it decides nothing now: places unlock rather than being fixed. What it does mean is that no
+copy in the game may present the opening board as where survivors are.
+
+### The year opens with a card
+
+`event-deck.mjs`. Twelve cards, built from live state — the people are the board's people, the places
+are open places, the figures are read rather than written. A card that could be printed before the
+run started would be decoration.
+
+Drawn by kind and then chosen inside it, rather than weighted per card: weighting per card made
+schemes the common year purely because more of them are written, and a deck where most years are an
+attack teaches that nothing works.
+
+### Schemes act on coordination, and their names sit behind a disclosure
+
+The twelve scheme slugs are copied from the canonical ClickLog list, and only the ones whose real
+effect is on coordination are here — a link stops working, a place stops being reachable, somebody
+stops being findable. The bodily and personal ones are not in this deck and are not to be added.
+
+The card face carries the effect. The name sits behind a disclosure, closed unless the player opens
+it or turns names on for good. Two reasons: somebody should be able to play without reading the name
+of a method they have lived through, and ClickLog's scheme tags mark real incidents, which makes them
+evidence rather than material for a game.
+
+### Admission is structural, not a guess
+
+Somebody arrives, the player sees what they can do, and never learns what they are. There is no
+accuse control, no reveal, no detector, and no hidden flag the player is invited to guess at. A
+suspicion game would have survivors rehearse the thing being done to them.
+
+The filter is that the network runs on exchange: `neverExchangesShare` of arrivals exchange nothing,
+and anybody exchanging nothing for `driftOutAfter` years drifts out on their own. It is never
+surfaced. What it does surface as is Look being worth less than its headline number, which is true
+and is the lesson. It costs a real amount — 95% of careful runs finish with it at zero, 58% at 40%.
+
+### Nothing stays held
+
+The one structural hole the first build had and the board was too small to expose. Covering a place
+made it permanently immune, so a careful player covered everything and isolation had nowhere left to
+land. On a board that can be finished that is a fixed point, and every knob aimed at it did nothing:
+isolation at two and a half times the shipped rate changed the win rate by nothing at all.
+
+So a place reached for good stops being so at `coveredComesBack` each year. The other side does not
+stop when a place stops being interesting, and holding the network is not a job that finishes.
+
+### Where the rewrite landed
+
+Two hundred seeds, the careful player against the careless one, both answering cards:
+
+| | catalog filled | median year | places open | cut off | reached |
+|---|---|---|---|---|---|
+| Careful | 93% | 42 of 50 | 34 of 34 | 0 | 4,999,999 of 5,000,000 |
+| Careless | 0% | — | 19 | 17 | 243,507 |
+
+A careless player opens places and cannot hold them: nineteen open, seventeen cut off, a fifth of a
+million reached, 291 of the 657 skills. A careful one grows to the whole board and finishes inside
+two generations with eight years to spare.
+
+### What the friction costs, re-measured
+
+Sixty seeds each, every other dial held where it ships.
+
+| Dial | Setting | Catalog filled | Median year |
+|---|---|---|---|
+| Unavailability | 0% / 6% shipped / 15% | 100% / 88.3% / 63.3% | 40 / 41 / 46 |
+| Detractors | 0.00 / 0.20 shipped / 0.50 | 91.7% / 88.3% / 91.7% | 42 / 41 / 43 |
+| Isolation per six places | 0 / 1 shipped / 2 / 3 | 100% / 88.3% / 71.7% / 48.3% | 41 / 41 / 43 / 43 |
+| Holding comes undone | 0% / 13% shipped / 20% | 100% / 88.3% / 0% | 25 / 41 / — |
+| Arrivals who exchange nothing | 0% / 12% shipped / 40% | 95% / 88.3% / 58.3% | 40 / 41 / 45 |
+
+Holding is the sharpest by a distance and has a cliff rather than a slope: at 20% a careful player
+never finishes, at 13% they usually do, and with it switched off entirely the game is over by year
+25. Detractors are worth almost nothing across their whole range, which is the measurement rather
+than a verdict on the mechanic — the action that answers them is cheap and a player who never
+bothers still mostly finishes.
+
+### One source, two callers
+
+`build-app-data.mjs` is gone. The previous build kept the rules in two places, the headless loop and
+a hand-copied port inside the page, with nothing checking they still agreed.
+
+`build-app.mjs` reads `world-places.mjs`, `year-loop.mjs` and `event-deck.mjs`, strips their module
+syntax, and drops them into `app/shell.html` beside `app/ui.js`. The sweep and the game are then the
+same rules by construction. It refuses to write a page where two modules declare the same top-level
+name, because three files landing in one scope makes that a page which throws on load rather than a
+linker error.
+
+Re-run it after any change to the model, the deck, the world or the screen:
+
+```
+node sources/peace-battle-2/build-app.mjs
+node sources/peace-battle-2/tune-year-loop.mjs 200
+node sources/peace-battle-2/measure-friction.mjs
+```
