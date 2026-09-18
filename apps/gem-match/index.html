@@ -521,8 +521,10 @@
         "Match " + minimum + "+ — 4+ creates a special";
 
       document.getElementById("hint").textContent =
-        "Match 3 normally. Match 4+ creates a random special gem. " +
-        "Tap or swap special gems to activate them.";
+        "Match 3 normally. Match 4+ creates a special gem, and 5+ always " +
+        "creates a rainbow that clears a whole colour. Swap a special with " +
+        "any neighbour to set it off -- that counts as a move even when no " +
+        "colour lines up.";
 
       document.getElementById("progress").textContent =
         Math.min(score, high) + " / " + high;
@@ -761,7 +763,39 @@
       return works;
     }
 
+    /*
+      Swapping a special gem sets it off whether or not the swap lines up a
+      colour run (see trySwap), so any special with a neighbour to trade
+      places with is a playable move on its own.
+    */
+    function hasPlayableSpecial() {
+      for (var r = 0; r < N; r++) {
+        for (var c = 0; c < N; c++) {
+          var gem = board[r][c];
+
+          if (!gem || !gem.special) {
+            continue;
+          }
+
+          if (
+            (r > 0 && board[r - 1][c]) ||
+            (r < N - 1 && board[r + 1][c]) ||
+            (c > 0 && board[r][c - 1]) ||
+            (c < N - 1 && board[r][c + 1])
+          ) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    }
+
     function hasMove() {
+      if (hasPlayableSpecial()) {
+        return true;
+      }
+
       for (var r = 0; r < N; r++) {
         for (var c = 0; c < N; c++) {
           if (
@@ -783,16 +817,26 @@
       return false;
     }
 
+    /*
+      A run of 5+ always yields the rainbow -- the one that clears a whole
+      colour -- so the big match has a payoff worth aiming for. A run of 4
+      has a small chance at one too, and mostly hands out the gems that
+      actually clear something; the changer is the weakest of the set, so it
+      shows up least.
+    */
     function randomSpecial(length) {
       if (length >= 5) {
-        var stronger = ["rainbow", "line"];
-
-        return stronger[
-          Math.floor(Math.random() * stronger.length)
-        ];
+        return "rainbow";
       }
 
-      var normal = ["bomb", "changer", "line"];
+      var normal = [
+        "bomb",
+        "bomb",
+        "line",
+        "line",
+        "rainbow",
+        "changer"
+      ];
 
       return normal[
         Math.floor(Math.random() * normal.length)
@@ -1125,6 +1169,17 @@
         });
 
         var activated = Object.keys(effectSet).map(Number);
+
+        /*
+          A special set off by a swap clears its gems outside resolve(), so
+          score them here -- otherwise a bomb could take out nine gems for
+          nothing.
+        */
+        if (activated.length) {
+          score += activated.length * 12;
+          paint();
+          saveBest();
+        }
 
         render(activated);
 
