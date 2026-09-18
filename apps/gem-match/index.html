@@ -526,15 +526,16 @@
         "Swap to match " + minimum + " or more";
 
       document.getElementById("rule").textContent =
-        "Match " + minimum + "+ — 4+ creates a special";
+        "Match " + minimum + "+ — every 4+ match creates a special";
 
       document.getElementById("hint").textContent =
-        "Match " + minimum + " normally. Clearing 4+ gems in one match " +
-        "creates a special, corners and crosses included -- five in a line, " +
-        "or six round a corner, always makes a rainbow that takes a whole " +
-        "colour. The swirl paints the block around it one colour so it " +
-        "lines up. Swap a special with any neighbour to set it off -- that " +
-        "counts as a move even when no colour lines up.";
+        "Match " + minimum + " normally. Every match clearing 4+ gems " +
+        "leaves a random special behind, corners and crosses included, and " +
+        "every match in a cascade counts. Five in a line, or seven round a " +
+        "corner, always makes a rainbow that takes a whole colour. The " +
+        "swirl paints the block around it one colour so it lines up. Swap " +
+        "a special with any neighbour to set it off -- that counts as a " +
+        "move even when no colour lines up.";
 
       document.getElementById("progress").textContent =
         Math.min(score, high) + " / " + high;
@@ -1179,7 +1180,6 @@
 
           var runs = getRuns();
           var clearSet = {};
-          var best = null;
           var points = 0;
 
           matches.forEach(function(index) {
@@ -1190,33 +1190,28 @@
             points += matchPoints(run.length, chain);
           });
 
-          // The biggest shape earns the special, counted in gems cleared, so
-          // a corner pays like the straight line of the same size.
+          /*
+            Every 4+ match leaves a special behind -- every one, not just the
+            biggest in the step. Two matches that land together each earn
+            their own gem, and so does each link of a cascade. A match is
+            measured in gems cleared, so a corner pays like the straight line
+            of the same size, and the gem it leaves is drawn at random.
+
+            The gem is kept out of clearSet so it survives the clear that
+            created it.
+          */
           matchShapes(runs).forEach(function(shape) {
             if (shape.size < 4) {
               return;
             }
 
-            if (!best || shape.size > best.size) {
-              best = shape;
-            }
-          });
+            delete clearSet[shape.center];
 
-          /*
-            Preserve one gem from the biggest 4+ match and turn it
-            into a special gem instead of clearing it.
-          */
-          if (best) {
-            delete clearSet[best.center];
-
-            var specialRow = rowOf(best.center);
-            var specialCol = colOf(best.center);
-
-            board[specialRow][specialCol] = newGem(
-              best.color,
-              randomSpecial(best.size, best.longest)
+            board[rowOf(shape.center)][colOf(shape.center)] = newGem(
+              shape.color,
+              randomSpecial(shape.size, shape.longest)
             );
-          }
+          });
 
           activateSpecialsInSet(clearSet);
 
