@@ -527,7 +527,7 @@
       + 'playing against is the clock, the people who say it cannot be done, and what is done to the '
       + 'links between places.</p>'
       + '<h3>Seeds</h3>'
-      + '<p>A seed is the whole world. The same number gives the same board, the same draws and the '
+      + '<p>A seed is the world in one number. The same number gives the same board, the same draws and the '
       + 'same dice, so two people playing one seed are playing the identical run and can compare what '
       + 'they built. Nothing is sent anywhere — the number is the entire arrangement.</p>'
       + '<h3>The named list</h3>'
