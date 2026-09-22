@@ -27,9 +27,16 @@ offline-os/
     storage.js            localStorage layer + export/import
     pwa.js                service-worker registration helper
     icons/                app icons
+  shared/fonts/           self-hosted Inter + Barlow Semi Condensed (see Fonts)
   apps/
     roadwork/             first tile — a hand-written app
       index.html  sw.js  manifest.webmanifest
+    plaintext/            plain-text notes
+    peace-battle/         teach-or-work game on one passage of a 1903 book
+    peace-battle-2/       BUILT output — do not edit by hand (see sources/peace-battle-2)
+    gamepad-signal-path/  controller input reference
+    2048/ snake/ breakout/ invaders/ pong/ gem-match/ word-wheel/
+                          small hand-written games
     chess/                BUILT output — do not edit by hand (see sources/chess)
     vox/                  BUILT output — do not edit by hand (see sources/vox)
     cascade/              falling-blocks puzzle (hand-written, like the others)
@@ -41,7 +48,14 @@ offline-os/
                           writes the deployable app to apps/chess/
     vox/                  Vox source (Vite + Phaser); same build flow, output
                           goes to apps/vox/
+    peace-battle/         the 1903 source text every number in the game is
+                          checked against
+    peace-battle-2/       the numbers the game runs on (aggregates only) and
+                          the generators that write apps/peace-battle-2/
 ```
+
+`apps.json` also lists apps that live elsewhere (Parity, SpecterRealm, Farah's Arcade) as
+`external` entries.
 
 ## Adding an app
 
@@ -57,23 +71,25 @@ offline-os/
 { "name": "My Tool", "blurb": "what it does", "url": "apps/my-tool/", "icon": "🛠", "status": "experimental" }
 ```
 
-`status` is one of `active`, `experimental`, or `external`.
+`status` is one of `active`, `experimental`, or `external`. An optional `"pinned": true`
+puts the tile at the front of the grid.
 
-### Apps built from source (Chess, Vox)
+### Apps built from source (Chess, Vox, Peace-Battle 2)
 
-Most apps are hand-written static files. Chess (Vite + React) and Vox
-(Vite + Phaser) are the exceptions: their sources live in `sources/chess/` and
-`sources/vox/`, and their **built output is committed** at `apps/chess/` and
-`apps/vox/`, so GitHub Pages still serves the repo as-is with no build step.
-To change either:
+Most apps are hand-written static files. Chess (Vite + React), Vox
+(Vite + Phaser), and Peace-Battle 2 (plain scripts in `sources/peace-battle-2/`,
+run with `node build-app.mjs`) are the exceptions: their sources live under
+`sources/`, and their **built output is committed** under `apps/`, so GitHub
+Pages still serves the repo as-is with no build step. To change Chess or Vox:
 
 1. Edit the source in `sources/<name>/`.
 2. From `sources/<name>/`, run `npm install` once, then `npm run build` — it
    type-checks and writes the app to `apps/<name>/` (wiping it first).
 3. Commit both the source change and the regenerated `apps/<name>/` files.
 
-Never edit `apps/chess/` or `apps/vox/` by hand; the next build overwrites
-them. Chess engine rules (Stockfish worker + wasm naming, two-worker setup)
+Never edit `apps/chess/`, `apps/vox/`, or `apps/peace-battle-2/` by hand; the
+next build overwrites them. Peace-Battle 2's own README in its source folder
+says what each generator does and where its numbers come from. Chess engine rules (Stockfish worker + wasm naming, two-worker setup)
 are in `sources/chess/CLAUDE.md`; Vox's own agent rules are in
 `sources/vox/AGENTS.md`.
 
