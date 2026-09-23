@@ -94,6 +94,13 @@
       "status": "external"
     },
     {
+      "name": "CTF Reader",
+      "blurb": "Feeds in publication order — sign in with your Skills Economy account",
+      "url": "https://rss.chargingthefuture.com",
+      "icon": "📡",
+      "status": "external"
+    },
+    {
       "name": "Glowline",
       "blurb": "Glowing-line arcade game",
       "url": "apps/glowline/",
