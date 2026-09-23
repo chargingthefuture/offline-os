@@ -17,6 +17,13 @@
       "pinned": true
     },
     {
+      "name": "Backing Rep Log",
+      "blurb": "Log truck backing reps — type, pull-ups, time, near-misses — and watch the average drop",
+      "url": "apps/backing-log/",
+      "icon": "🚛",
+      "status": "active"
+    },
+    {
       "name": "Peace-Battle",
       "blurb": "Teach or work — replay the 1903 chain that reached nine million",
       "url": "apps/peace-battle/",
