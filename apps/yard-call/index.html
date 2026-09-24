@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Yard Jockey Call Sheet</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Yard Call">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  :root{
+    --go-bg:#1c2e24; --stop-bg:#3a201c;
+    --say-bg:#2a2414; --say-line:var(--amber);
+    --cond:'Barlow Semi Condensed','Inter',system-ui,sans-serif;
+  }
+  body{max-width:680px;font-size:17px;line-height:1.5;
+    padding-top:calc(env(safe-area-inset-top,0px) + 18px);padding-bottom:calc(env(safe-area-inset-bottom,0px) + 48px);}
+  body.alerting{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 90px);}
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back:hover{color:var(--amber);}
+
+  h2,h3{font-family:var(--cond);text-wrap:balance;margin:0;}
+  .stripe{height:10px;background:repeating-linear-gradient(-45deg,var(--amber) 0 14px,var(--bg) 14px 28px);border-radius:3px;margin:8px 0 14px;}
+  .top h1{font-size:2.1rem;font-weight:700;line-height:1.05;}
+  .top .sub{font-size:15px;margin-top:6px;}
+
+  nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;
+    display:flex;gap:8px;overflow-x:auto;border-bottom:1px solid var(--line);margin-top:14px;}
+  nav a{flex:0 0 auto;font-family:var(--cond);font-weight:700;font-size:1.05rem;text-transform:uppercase;
+    letter-spacing:.04em;text-decoration:none;color:var(--text);background:var(--panel);border:1px solid var(--line);
+    padding:6px 14px;border-radius:999px;}
+  nav a:focus-visible,button:focus-visible{outline:3px solid var(--amber);outline-offset:2px;}
+
+  section{padding-top:26px;scroll-margin-top:64px;}
+  h2{font-size:1.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em;display:flex;align-items:center;gap:10px;}
+  .tag{font-size:.8rem;padding:2px 10px;border-radius:4px;letter-spacing:.06em;color:var(--bg);}
+  .tag.go{background:var(--green);} .tag.stop{background:var(--red);}
+  .lead{color:var(--muted);margin:6px 0 14px;}
+
+  .steps{display:grid;gap:14px;list-style:none;padding:0;margin:0;counter-reset:s;}
+  .steps>li{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;counter-increment:s;}
+  .steps h3{font-size:1.15rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;display:flex;gap:10px;align-items:baseline;}
+  .steps h3::before{content:counter(s);font-size:1rem;background:var(--amber);color:var(--bg);min-width:26px;height:26px;
+    display:inline-grid;place-items:center;border-radius:50%;flex:0 0 auto;}
+  .say{background:var(--say-bg);border-left:5px solid var(--say-line);padding:10px 14px;margin:10px 0 0;
+    border-radius:0 6px 6px 0;font-size:1.08rem;font-weight:500;}
+  .note{color:var(--muted);font-size:.95rem;margin:8px 0 0;}
+  ul.qs{margin:10px 0 0;padding-left:0;list-style:none;display:grid;gap:8px;}
+  ul.qs li{background:var(--say-bg);border-left:5px solid var(--say-line);padding:8px 12px;border-radius:0 6px 6px 0;font-weight:500;}
+
+  .group{margin-top:14px;}
+  .group h3{font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{font:600 1rem/1.2 'Inter',sans-serif;padding:9px 14px;border-radius:8px;border:2px solid transparent;color:var(--text);text-align:left;}
+  .yes .chip{background:var(--go-bg);border-color:var(--green);}
+  .no .chip{background:var(--stop-bg);cursor:pointer;}
+  .no .chip[aria-pressed="true"]{background:var(--red);color:var(--bg);border-color:var(--red);}
+  .titles .chip{background:var(--panel);border-color:var(--line);}
+
+  #alert{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--red);color:var(--bg);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:12px;align-items:center;
+    justify-content:space-between;font-weight:600;}
+  #alert[hidden]{display:none;}
+  #alert button{font:700 1rem var(--cond);text-transform:uppercase;letter-spacing:.05em;background:var(--bg);
+    color:var(--red);border:0;border-radius:6px;padding:8px 12px;flex:0 0 auto;cursor:pointer;}
+
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:14px;}
+  .box h3{font-size:1.1rem;text-transform:uppercase;letter-spacing:.03em;}
+  .box ul{margin:8px 0 0;padding-left:20px;}
+
+  .notes{display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+  .notes label{display:grid;gap:4px;font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);}
+  .notes input[type=text],.notes input[type=tel],.notes textarea{font-size:1.05rem;min-width:0;text-transform:none;letter-spacing:0;resize:vertical;}
+  .notes input:focus,.notes textarea:focus{outline:3px solid var(--amber);outline-offset:0;border-color:transparent;}
+  .notes .check{grid-column:1/-1;display:flex;gap:10px;align-items:center;text-transform:none;letter-spacing:0;font-size:1rem;color:var(--text);}
+  .notes .check input{width:22px;height:22px;flex:none;accent-color:var(--green);}
+  .notes .wide{grid-column:1/-1;}
+  .clearbtn{grid-column:1/-1;justify-self:start;font:700 1rem var(--cond);text-transform:uppercase;letter-spacing:.05em;
+    background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:8px 14px;cursor:pointer;}
+  .clearbtn.armed{background:var(--red);color:var(--bg);border-color:var(--red);}
+  @media (max-width:520px){.notes{grid-template-columns:1fr;}}
+  @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth;}}
+</style>
+</head>
+<body>
+  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+  <header class="top">
+    <div class="stripe" aria-hidden="true"></div>
+    <h1>Yard Jockey Call Sheet</h1>
+    <p class="sub">Read the yellow boxes out loud. Tap any red word the recruiter says and it lights up.</p>
+  </header>
+
+  <nav aria-label="Sections">
+    <a href="#script">Script</a>
+    <a href="#notes">Notes</a>
+    <a href="#yes">Yes</a>
+    <a href="#no">No</a>
+    <a href="#titles">Job titles</a>
+    <a href="#arrive">On arrival</a>
+  </nav>
+
+  <section id="script">
+    <h2>Phone script</h2>
+    <p class="lead">Lead with what you want. Ask the questions and let them describe the job.</p>
+    <ol class="steps">
+      <li>
+        <h3>Open</h3>
+        <p class="say">"Hi, my name is Farah. I have a Class A CDL and I'm looking for a full-time spotter position at a high-volume yard, where the shift is trailer moves only. I want as much seat time as I can get."</p>
+      </li>
+      <li>
+        <h3>Zero experience, said plainly</h3>
+        <p class="say">"I want to be upfront: I have zero backing experience. I need a position that trains from scratch and gives new people one to two weeks to get up to speed. Do you have spotter openings that accept that?"</p>
+        <p class="note">If they hesitate or say "some experience preferred," jump to step 6.</p>
+      </li>
+      <li>
+        <h3>Ask about the job</h3>
+        <ul class="qs">
+          <li>"What does a typical shift look like?"</li>
+          <li>"About how many trailer moves per shift?"</li>
+          <li>"Who trains me, and for how long?"</li>
+          <li>"Has this site taken a brand-new spotter from you before, and did that person work out?"</li>
+          <li>"Is there a second shift or night shift?"</li>
+        </ul>
+        <p class="note">Listen for the red words below. Tap them as you hear them. Nights and weekends are easier to get and quieter to learn on.</p>
+      </li>
+      <li>
+        <h3>Start date</h3>
+        <ul class="qs">
+          <li>"I'm available to start immediately. How soon could I start?"</li>
+          <li>"What has to happen before my first shift, like a drug test, background check, or road test? How long does each one take?"</li>
+          <li>"Is the drug test urine, mouth swab, or hair?"</li>
+          <li>"Can I come in today or tomorrow to do the paperwork and testing?"</li>
+        </ul>
+        <p class="note">Bring your documents to the first visit so paperwork can be done the same day. If the start is two weeks or more away, keep calling other agencies.</p>
+      </li>
+      <li>
+        <h3>Pay, hours, location</h3>
+        <ul class="qs">
+          <li>"Is pay weekly? Do you offer a pay card or daily pay?"</li>
+          <li>"When would my first paycheck come?"</li>
+          <li>"I want as many hours as I can get. Is overtime or extra shifts available, even half days on the weekend?"</li>
+          <li>"What's the exact address of the site, and what time does the shift start and end?"</li>
+          <li>"Do I need steel-toe boots or a safety vest, and do you provide them?"</li>
+          <li>"Is there a locker or safe place on site for my bag?"</li>
+        </ul>
+        <p class="note">Put the address in your map app on walking directions before you say yes. Two hours one way is your limit. Many agencies pay one week behind, so the first check can take up to two weeks.</p>
+      </li>
+      <li>
+        <h3>Backing only</h3>
+        <p class="say">"I'm only looking for spotter-only positions. Does this job include any loading or unloading, dock work, forklift or pallet jack, shuttle runs or street moves, yard checks, gate or clerk duties, or trailer cleanouts?"</p>
+      </li>
+      <li>
+        <h3>Get it in writing</h3>
+        <p class="say">"Great. Can you text or email me confirming that zero backing experience is okay and that the job is trailer moves only?"</p>
+        <p class="note">If they won't put it in a text or email, treat it as a no.</p>
+      </li>
+      <li>
+        <h3>If it's not a fit</h3>
+        <p class="say">"I understand. Please keep my number if a spotter-only job comes up that trains from zero. Thank you."</p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="notes">
+    <h2>Call notes</h2>
+    <p class="lead">Type answers here during the call. They stay on this phone and go into the dashboard's Export all.</p>
+    <form class="notes" id="notesForm" autocomplete="off">
+      <label>Agency<input id="n-agency" type="text"></label>
+      <label>Recruiter name<input id="n-recruiter" type="text"></label>
+      <label>Recruiter phone<input id="n-phone" type="tel" inputmode="tel"></label>
+      <label>Start date<input id="n-start" type="text"></label>
+      <label>Before starting (tests, checks)<input id="n-prereq" type="text"></label>
+      <label>Site address<input id="n-address" type="text"></label>
+      <label>Walk time one way<input id="n-walk" type="text" placeholder="e.g. 1 hr 20 min"></label>
+      <label>Pay rate<input id="n-rate" type="text"></label>
+      <label>Weekly pay? First check when?<input id="n-payday" type="text"></label>
+      <label>Shift and start time<input id="n-shift" type="text"></label>
+      <label>Overtime or weekend hours?<input id="n-ot" type="text"></label>
+      <label>Trained a beginner before?<input id="n-trained" type="text"></label>
+      <label>Boots, vest, locker<input id="n-gear" type="text"></label>
+      <label class="check"><input id="n-writing" type="checkbox"> Got it in writing (zero experience OK, trailer moves only)</label>
+      <label class="wide">Other notes<textarea id="n-other" rows="3"></textarea></label>
+      <button type="button" id="clearNotes" class="clearbtn">Clear notes</button>
+    </form>
+  </section>
+
+  <section id="yes" class="yes">
+    <h2>Yes <span class="tag go">Part of backing</span></h2>
+    <p class="lead">These come with every trailer move. They're OK.</p>
+    <div class="group">
+      <h3>Trailer moves</h3>
+      <div class="chips">
+        <span class="chip">Backing into dock doors</span>
+        <span class="chip">Parking trailers in yard slots</span>
+        <span class="chip">Pulling trailers across the yard</span>
+        <span class="chip">Hooking and dropping trailers</span>
+        <span class="chip">Cranking landing gear</span>
+        <span class="chip">Air lines / gladhands</span>
+        <span class="chip">Opening trailer doors before backing in</span>
+        <span class="chip">Wheel chocks, dock locks</span>
+        <span class="chip">Pre-trip on the yard truck</span>
+        <span class="chip">Getting moves by radio or tablet</span>
+      </div>
+    </div>
+    <div class="group">
+      <h3>Good signs</h3>
+      <div class="chips">
+        <span class="chip">"Spotter only"</span>
+        <span class="chip">"Dedicated spotter"</span>
+        <span class="chip">"High-volume yard"</span>
+        <span class="chip">"Distribution center"</span>
+        <span class="chip">"We train"</span>
+        <span class="chip">"No experience needed"</span>
+        <span class="chip">Lots of moves per shift</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="no" class="no">
+    <h2>No <span class="tag stop">Walk</span></h2>
+    <p class="lead">If the job includes any of these, it's not backing only.</p>
+    <div class="group">
+      <h3>Experience required</h3>
+      <div class="chips">
+        <button class="chip" aria-pressed="false">"Must have backing experience"</button>
+        <button class="chip" aria-pressed="false">"6 months / 1 year experience"</button>
+        <button class="chip" aria-pressed="false">"Experience preferred"</button>
+        <button class="chip" aria-pressed="false">"Must pass a backing test on day one"</button>
+      </div>
+    </div>
+    <div class="group">
+      <h3>Warehouse and dock</h3>
+      <div class="chips">
+        <button class="chip" aria-pressed="false">Loader / unloader</button>
+        <button class="chip" aria-pressed="false">Lumper</button>
+        <button class="chip" aria-pressed="false">Dock worker</button>
+        <button class="chip" aria-pressed="false">Material handler</button>
+        <button class="chip" aria-pressed="false">Forklift</button>
+        <button class="chip" aria-pressed="false">PIT (powered industrial truck)</button>
+        <button class="chip" aria-pressed="false">Pallet jack</button>
+        <button class="chip" aria-pressed="false">Live unload</button>
+        <button class="chip" aria-pressed="false">Floor load</button>
+        <button class="chip" aria-pressed="false">Cross-dock</button>
+        <button class="chip" aria-pressed="false">Load securement / bracing / strapping</button>
+        <button class="chip" aria-pressed="false">Trailer cleanout / sweeping</button>
+        <button class="chip" aria-pressed="false">Trailer wash</button>
+      </div>
+    </div>
+    <div class="group">
+      <h3>Driving off the yard</h3>
+      <div class="chips">
+        <button class="chip" aria-pressed="false">Shuttle runs</button>
+        <button class="chip" aria-pressed="false">Street moves</button>
+        <button class="chip" aria-pressed="false">Local routes</button>
+        <button class="chip" aria-pressed="false">P&amp;D (pickup and delivery)</button>
+        <button class="chip" aria-pressed="false">OTR</button>
+        <button class="chip" aria-pressed="false">Regional</button>
+      </div>
+    </div>
+    <div class="group">
+      <h3>Office and yard tasks</h3>
+      <div class="chips">
+        <button class="chip" aria-pressed="false">Yard checks</button>
+        <button class="chip" aria-pressed="false">Yard audits</button>
+        <button class="chip" aria-pressed="false">Gate / gatehouse</button>
+        <button class="chip" aria-pressed="false">Check-in</button>
+        <button class="chip" aria-pressed="false">Yard clerk</button>
+        <button class="chip" aria-pressed="false">Dispatch</button>
+        <button class="chip" aria-pressed="false">Fueling equipment</button>
+        <button class="chip" aria-pressed="false">"Other duties as assigned"</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="titles" class="titles">
+    <h2>Job titles</h2>
+    <p class="lead">Search and ask for each one. They're the same job.</p>
+    <div class="chips">
+      <span class="chip">Yard jockey</span>
+      <span class="chip">Yard spotter</span>
+      <span class="chip">Spotter driver</span>
+      <span class="chip">Yard driver</span>
+      <span class="chip">Yard truck driver</span>
+      <span class="chip">Hostler</span>
+      <span class="chip">Yard hostler</span>
+      <span class="chip">Yard dog</span>
+      <span class="chip">Switcher</span>
+      <span class="chip">Shifter</span>
+      <span class="chip">Terminal tractor operator</span>
+    </div>
+  </section>
+
+  <section id="arrive">
+    <h2>On arrival</h2>
+    <ol class="steps">
+      <li>
+        <h3>Before you clock in</h3>
+        <p class="say">"Before I clock in, I want to confirm two things: this position accepts zero backing experience with one to two weeks to learn, and the work is trailer moves only, with no loading, dock work, forklift, shuttle runs, yard checks, or gate duties. Is that right?"</p>
+        <p class="note">If the answer is anything but yes, walk.</p>
+      </li>
+    </ol>
+    <div class="box">
+      <h3>Have ready</h3>
+      <ul>
+        <li>CDL and DOT medical card</li>
+        <li>Social Security card, plus birth certificate or passport</li>
+        <li>The agency's text or email confirming zero experience and trailer moves only</li>
+      </ul>
+    </div>
+  </section>
+
+<div id="alert" hidden>
+  <span id="alertText">They said a red word. Ask if it's part of this job.</span>
+  <button type="button" id="clear">Clear</button>
+</div>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+registerPWA('sw.js');
+(function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
+
+var chips=[].slice.call(document.querySelectorAll('.no .chip'));
+var alertBox=document.getElementById('alert');
+var alertText=document.getElementById('alertText');
+function update(){
+  var on=chips.filter(function(c){return c.getAttribute('aria-pressed')==='true';});
+  alertBox.hidden=on.length===0;
+  document.body.classList.toggle('alerting',on.length>0);
+  if(on.length) alertText.textContent=on.length===1
+    ? 'Red word: '+on[0].textContent.replace(/"/g,'')+'. If it’s part of the job, walk.'
+    : on.length+' red words. If any are part of the job, walk.';
+}
+chips.forEach(function(c){c.addEventListener('click',function(){
+  c.setAttribute('aria-pressed',c.getAttribute('aria-pressed')==='true'?'false':'true');update();
+});});
+document.getElementById('clear').addEventListener('click',function(){
+  chips.forEach(function(c){c.setAttribute('aria-pressed','false');});update();
+});
+
+var SKEY='yard-call-notes';
+var LEGACY_KEY='yard-call-notes';   // raw localStorage key used by the standalone version of this page
+var fields=[].slice.call(document.querySelectorAll('#notesForm input, #notesForm textarea'));
+function parse(s){try{var d=JSON.parse(s||'{}');return d&&typeof d==='object'?d:{};}catch(e){return {};}}
+function save(){
+  var d={};fields.forEach(function(f){d[f.id]=f.type==='checkbox'?f.checked:f.value;});
+  try{window.storage.set(SKEY,JSON.stringify(d));}catch(e){}
+}
+function fill(saved){
+  fields.forEach(function(f){
+    if(f.id in saved){if(f.type==='checkbox')f.checked=!!saved[f.id];else f.value=saved[f.id];}
+  });
+}
+async function load(){
+  var r=null;
+  try{r=await window.storage.get(SKEY);}catch(e){}
+  if(r){fill(parse(r.value));return;}
+  var legacy=null;
+  try{legacy=localStorage.getItem(LEGACY_KEY);}catch(e){}
+  if(legacy){fill(parse(legacy));save();try{localStorage.removeItem(LEGACY_KEY);}catch(e){}}
+}
+fields.forEach(function(f){f.addEventListener('input',save);f.addEventListener('change',save);});
+load();
+
+var clearBtn=document.getElementById('clearNotes');var armTimer;
+clearBtn.addEventListener('click',function(){
+  if(!clearBtn.classList.contains('armed')){
+    clearBtn.classList.add('armed');clearBtn.textContent='Tap again to clear';
+    armTimer=setTimeout(function(){clearBtn.classList.remove('armed');clearBtn.textContent='Clear notes';},3000);
+    return;
+  }
+  clearTimeout(armTimer);
+  fields.forEach(function(f){if(f.type==='checkbox')f.checked=false;else f.value='';});save();
+  clearBtn.classList.remove('armed');clearBtn.textContent='Cleared';
+  setTimeout(function(){clearBtn.textContent='Clear notes';},1500);
+});
+</script>
+</body>
+</html>
