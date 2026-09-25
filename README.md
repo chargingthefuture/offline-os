@@ -33,7 +33,6 @@ offline-os/
       index.html  sw.js  manifest.webmanifest
     plaintext/            plain-text notes
     backing-log/          truck backing reps: pull-ups, time, near-misses per day
-    yard-call/            yard jockey call sheet: recruiter script, call notes, red words
     peace-battle/         teach-or-work game on one passage of a 1903 book
     peace-battle-2/       BUILT output — do not edit by hand (see sources/peace-battle-2)
     gamepad-signal-path/  controller input reference
