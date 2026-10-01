@@ -109,8 +109,8 @@ function teardrop2(xb, cy, Rb, xt, Rt, A = 44, T = 30) {
 }
 
 // Two overlapping ellipses woven into ONE closed self-crossing tube.
-// Right ellipse centered at (cx+E,cy), left at (cx-E,cy); parametrized so the whole
-// right ellipse is traced (t in [0,PI]) then the whole left ellipse (t in [PI,2PI]).
+// Right ellipse centered at (cx+E,cy), left at (cx-E,cy); parametrized so the entire
+// right ellipse is traced (t in [0,PI]) then the entire left ellipse (t in [PI,2PI]).
 // The two ellipses overlap, so the curve crosses itself at TWO points — the top and
 // bottom of the overlap lens, at (cx, cy +/- b*s). Wall points within junctionR of
 // either crossing are dropped, opening both crossing junctions (like eightTube).
@@ -741,7 +741,7 @@ function level21() {
 }
 
 // --- Level 22: a long descent under a heavy pull. Hold the nose up or ride
-// the floor; the corridor drops the whole way down. ------------------------
+// the floor; the corridor drops all the way down. ------------------------
 function level22() {
   const length = 7000;
   const mid = (x) => 380 + x * 0.055 + Math.sin(x / 820) * 90;

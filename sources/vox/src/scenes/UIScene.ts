@@ -363,7 +363,7 @@ export class UIScene extends Phaser.Scene {
     );
     overlay.add(
       this.add
-        .text(W / 2, 138, `The whole ${world.name.replace(/^The /, '')} runbook, and what answers it in real life:`, {
+        .text(W / 2, 138, `The entire ${world.name.replace(/^The /, '')} runbook, and what answers it in real life:`, {
           fontFamily: 'monospace',
           fontSize: '13px',
           color: p.uiDim,
@@ -391,7 +391,7 @@ export class UIScene extends Phaser.Scene {
     col(lines.slice(0, half), 60);
     col(lines.slice(half), 500);
 
-    // Every implemented world cleared → the whole Specterati runbook is done.
+    // Every implemented world cleared → the entire Specterati runbook is done.
     const allDone = WORLDS.filter((w) => w.implemented.length > 0).every((w) =>
       progress.worldsCleared.includes(w.id),
     );

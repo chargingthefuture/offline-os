@@ -9,7 +9,7 @@ training features layered on top:
 - **Explain** *(network, opt-in)* — sends the position and the coach's top moves to Claude,
   which writes the human "why." Only fires when you turn it on **and** ask for it.
 
-Everything except Explain works **fully offline**, and the whole thing installs to your phone's
+Everything except Explain works **fully offline**, and the entire app installs to your phone's
 home screen.
 
 ## Features

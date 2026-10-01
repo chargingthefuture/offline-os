@@ -107,7 +107,7 @@ const trim = () => {
 trim();
 
 // --- 4. Who holds what --------------------------------------------------------------------------
-// Two passes, and the order is the whole difficulty.
+// Two passes, and the order is where the difficulty lies.
 //
 // A sector needs two different things: enough PEOPLE to reach its holder floor, and enough EXTRA
 // holdings beyond one-each to reach its total. Those come from different people. The floor is met by

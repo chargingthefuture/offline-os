@@ -148,7 +148,7 @@ export const STORY = [
   { say: (b) => b === "broker"
       ? ["Broker: The lattice is holding, but the far sectors are still shaking loose.",
          "GL-1N3: Then we go get them."]
-      : ["The Pulse: The Core is awake, and it is pulling the whole grid with it.",
+      : ["The Pulse: The Core is awake, and it is pulling the entire grid with it.",
          "GL-1N3: Hold on. I'm coming."] },
   { race: (b) => ({
     name: b === "broker" ? "Act 8 — Overflow" : "Act 8 — Cascade",
@@ -201,7 +201,7 @@ export const STORY = [
     },
   }) },
   { say: (b) => b === "broker"
-      ? ["Broker: One more push and the whole grid settles.",
+      ? ["Broker: One more push and the entire grid settles.",
          "GL-1N3: Say when."]
       : ["The Pulse: Broker's last sentinels are between us and the Beacon.",
          "GL-1N3: Then they had better keep up."] },

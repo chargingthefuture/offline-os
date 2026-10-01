@@ -54,7 +54,7 @@ canvas#game {
   width: min(560px, 100%);
   text-align: center;
   /* Auto top/bottom margins centre the panel when it fits, but collapse to 0 when
-     it is taller than the screen — so the top stays reachable and the whole list
+     it is taller than the screen — so the top stays reachable and the entire list
      scrolls. (Flex align/justify centring hides the overflowing top instead.) */
   margin: auto 0;
 }

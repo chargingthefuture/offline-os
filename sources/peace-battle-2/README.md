@@ -174,7 +174,7 @@ Florida seven, California six.
 
 The teams are wildly uneven, and the thin end is thinner than any guess would have made it:
 
-| Team | People on the whole board |
+| Team | People on the entire board |
 |---|---|
 | Communications & Documentation | 68 |
 | Health & Wellbeing | 37 |
@@ -221,7 +221,7 @@ milestone the issue expected.
 
 Two things fall out of the same table. A run that fills the catalog does it with about three and a
 half thousand people, against a participating population of two and a half million — three orders of
-magnitude below the ceiling. So the index figure the economy is aimed at belongs to the whole
+magnitude below the ceiling. So the index figure the economy is aimed at belongs to the entire
 population and not to a board this size, and a run that reached every skill would still report an
 index nowhere near it. Reporting the index at the end rather than requiring it is the only way that
 is not a lie.
@@ -264,11 +264,11 @@ outside the United States connect to each other and to the bucket holding most o
 
 The single most important rule in the loop. One Teach reaches a number of people for every findable
 person who already works in that sector, rather than a flat number. That is the Du Bois arithmetic
-the whole game rests on — 2,000 trained 50,000, who taught nine millions — and it makes looking for
+the game rests on — 2,000 trained 50,000, who taught nine millions — and it makes looking for
 people and teaching them one strategy instead of two: a sector held by one person teaches one person,
 and a sector held by sixty-eight teaches the board.
 
-A first version used a flat yield, and a careful player then filled the whole catalog with the
+A first version used a flat yield, and a careful player then filled the entire catalog with the
 original 147 people and never looked for anybody. That board is not the one being argued for.
 
 ### A skill is present when somebody findable holds it
@@ -360,13 +360,13 @@ rather than a character, and unavailability is somebody not available this year.
 Unavailability is the sharpest. A board where nobody is ever out of reach finishes every time; one
 where people are out of reach fifteen years in a hundred finishes one run in seven. That is
 replacement level doing its work — with nobody ever away, a capability one person holds is as good as
-one ten people hold, and the whole idea stops meaning anything.
+one ten people hold, and the idea stops meaning anything.
 
 Isolation has a cliff rather than a slope: one place a year is survivable and two is not, with
 nothing in between. That is why the number carried over from the sixteen-place map had to change, and
 it is worth knowing the tolerance is this narrow rather than assuming there is room in it.
 
-Detractors are the mildest, worth about two years across their whole range. That is the measurement
+Detractors are the mildest, worth about two years across their entire range. That is the measurement
 rather than a verdict on the mechanic — what moves a detractor is arithmetic, the action that answers
 them is cheap, and a player who never bothers still mostly finishes.
 
@@ -496,7 +496,7 @@ Two hundred seeds, the careful player against the careless one, both answering c
 | Careless | 0% | — | 19 | 17 | 243,507 |
 
 A careless player opens places and cannot hold them: nineteen open, seventeen cut off, a fifth of a
-million reached, 291 of the 657 skills. A careful one grows to the whole board and finishes inside
+million reached, 291 of the 657 skills. A careful one grows to the entire board and finishes inside
 two generations with eight years to spare.
 
 ### What the friction costs, re-measured
@@ -513,7 +513,7 @@ Sixty seeds each, every other dial held where it ships.
 
 Holding is the sharpest by a distance and has a cliff rather than a slope: at 20% a careful player
 never finishes, at 13% they usually do, and with it switched off entirely the game is over by year
-25. Detractors are worth almost nothing across their whole range, which is the measurement rather
+25. Detractors are worth almost nothing across their entire range, which is the measurement rather
 than a verdict on the mechanic — the action that answers them is cheap and a player who never
 bothers still mostly finishes.
 

@@ -220,7 +220,7 @@ var SURNAME = ["Okonkwo","Varga","Delacroix","Mbeki","Lindqvist","Ferreira","Had
 
 // The world the board grows into. Work item 1 of issue #47.
 //
-// The previous build had six fixed places and that was the whole world. This one starts there and
+// The previous build had six fixed places and that was the entire world. This one starts there and
 // opens outward, because a single walled place is the shape the adversary is built to take — one
 // address, one set of links, one thing to cut. Distribution is the defense, so growing the network
 // has to be something the player does rather than something the board hands them.
@@ -488,7 +488,7 @@ function apportion(openingStandsFor) {
   const openingTotal = Object.values(openingStandsFor).reduce((a, b) => a + b, 0);
   const worldWeight = REGIONS.reduce((a, r) => a + r.places.reduce((b, p) => b + p.weight, 0), 0);
   // The Directory has reached a small part of the world, so the opening six are given a share of the
-  // whole that matches how little of it they are: one weight point each per fifty thousand people
+  // total that matches how little of it they are: one weight point each per fifty thousand people
   // the generated board put behind them, which lands the six at a little under a tenth.
   const openingWeight = openingTotal / 50_000;
   const total = openingWeight + worldWeight;
@@ -509,7 +509,7 @@ function apportion(openingStandsFor) {
 // The event deck. Work item 3 of issue #47.
 //
 // A year arrives as a situation with names in it and a choice whose cost is visible before it is
-// made, rather than as four buttons and a counter row. That was the whole complaint about the build
+// made, rather than as four buttons and a counter row. That was the complaint about the build
 // this replaces, and the deck is the answer to it.
 //
 // Every card is built from live state: the people are the board's people, the places are open
@@ -1239,7 +1239,7 @@ const DEFAULT_TUNING = {
   // What one action moves.
   reachClears: 1, // isolation a Reach takes off a place
   reachClearsWhereItRuns: 2, // and where the place already runs, because people there do the work
-  // Teaching is per teacher, which is the Du Bois arithmetic the whole game rests on: 2,000 trained
+  // Teaching is per teacher, which is the Du Bois arithmetic the game rests on: 2,000 trained
   // 50,000, who taught nine millions. So one Teach reaches this many people for every findable person
   // who already works in that sector. A sector held by one person teaches one person; a sector held by
   // sixty-eight teaches the board. It is why the thin end of the list is the real problem and why
@@ -1270,7 +1270,7 @@ const DEFAULT_TUNING = {
   arithmeticEffect: 0.25, // pressure one Show the arithmetic takes off
   startingPressure: 0.2,
   // Nobody on the board holds more than this. It is the most skills any one of the 147 holds, so a
-  // run cannot pile the whole catalog onto a handful of people the real list has no equivalent of.
+  // run cannot pile the entire catalog onto a handful of people the real list has no equivalent of.
   maxSkillsPerPerson: 24,
   // How many findable people a skill wants behind it before teaching moves on. Below this, one
   // unavailability roll takes the skill off the map.
@@ -2193,7 +2193,7 @@ function runGame(seed, policy, tuning = DEFAULT_TUNING, onCard = null, sources =
     S.places.forEach(function (p) { open[p.key] = p; });
     var parts = [];
 
-    // The view frames what is open rather than the whole world, so six places at the start are a
+    // The view frames what is open rather than the entire world, so six places at the start are a
     // board rather than a cluster in the corner of an empty rectangle. It widens as the network does.
     var xs = [];
     var ys = [];
