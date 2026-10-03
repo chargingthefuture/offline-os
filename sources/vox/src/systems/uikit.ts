@@ -83,7 +83,7 @@ export function addScanlines(
   h = 540,
 ): Phaser.GameObjects.Grid | null {
   if (disabled) return null;
-  // Faint horizontal lines: a grid of thin dark rows over the whole view.
+  // Faint horizontal lines: a grid of thin dark rows over the entire view.
   const grid = scene.add
     .grid(0, 0, w, h, w, 3, undefined, undefined, 0x000000, 0.14)
     .setOrigin(0, 0)

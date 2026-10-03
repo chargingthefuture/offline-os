@@ -55,7 +55,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Precache the app shell AND the default engine (worker JS + ~7 MB wasm) so the whole
+        // Precache the app shell AND the default engine (worker JS + ~7 MB wasm) so the entire
         // app plays fully offline. The wasm is far over Workbox's 2 MiB default, so raise the
         // per-file cap to precache it.
         globPatterns: ['**/*.{js,css,html,svg,png,ico,wasm,webmanifest}'],

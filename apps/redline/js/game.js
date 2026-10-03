@@ -1102,7 +1102,7 @@
   // Keep the game landscape and filling the screen. In the browser (not an
   // installed app) iOS ignores the manifest's landscape hint, and rotation lock
   // can keep Safari in portrait — so when the screen is portrait on a touch
-  // device we rotate the whole stage 90 degrees. The player turns the phone
+  // device we rotate the entire stage 90 degrees. The player turns the phone
   // sideways and sees an upright, full-screen landscape game either way.
   const stage = document.getElementById("stage");
   function layout() {

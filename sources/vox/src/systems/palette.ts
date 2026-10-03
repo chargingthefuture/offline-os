@@ -1,6 +1,6 @@
 // Two palettes: the normal one (night-city, defiant neon) and the calm one (soft pastel,
 // low contrast, no harsh brights). Everything that draws reads colors from here so the
-// calm-mode switch restyles the whole game at once.
+// calm-mode switch restyles the entire game at once.
 
 import { settings } from './settings';
 

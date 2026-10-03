@@ -29,10 +29,6 @@ offline-os/
     icons/                app icons
   shared/fonts/           self-hosted Inter + Barlow Semi Condensed (see Fonts)
   apps/
-    roadwork/             first tile — a hand-written app
-      index.html  sw.js  manifest.webmanifest
-    plaintext/            plain-text notes
-    backing-log/          truck backing reps: pull-ups, time, near-misses per day
     peace-battle/         teach-or-work game on one passage of a 1903 book
     peace-battle-2/       The Lit Country — a map game, hand-written ES modules + data/
     gamepad-signal-path/  controller input reference
@@ -53,16 +49,16 @@ offline-os/
                           checked against
 ```
 
-`apps.json` also lists apps that live elsewhere (Parity, SpecterRealm, Farah's Arcade) as
+`apps.json` also lists apps that live elsewhere (SpecterRealm, Farah's Arcade) as
 `external` entries.
 
 ## Adding an app
 
 1. Create `apps/<name>/index.html`. In its `<head>` link the shared theme and
-   add the PWA tags (copy from `apps/roadwork/index.html`).
+   add the PWA tags (copy from `apps/cascade/index.html`).
 2. Use `window.storage.get/set` for persistence (provided by
    `shared/storage.js`) so it's covered by backup/restore.
-3. Give it a `manifest.webmanifest` and `sw.js` (copy Roadwork's, change the
+3. Give it a `manifest.webmanifest` and `sw.js` (copy Cascade's, change the
    `VERSION` string and the file list).
 4. Add an entry to `apps.json`:
 

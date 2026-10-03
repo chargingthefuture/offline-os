@@ -103,7 +103,7 @@ const STICK_DEADZONE = 0.35;
 
 window.addEventListener("gamepadconnected", () => { padConnected = true; });
 window.addEventListener("gamepaddisconnected", () => {
-  // If no pads remain, stop letting a stale stick value hold the steer.
+  // If no pads remain, stop letting an old stick value hold the steer.
   const pads = navigator.getGamepads ? navigator.getGamepads() : [];
   padConnected = Array.from(pads).some(Boolean);
   if (!padConnected && activeRace && padSteer !== 0) { padSteer = 0; applySteer(); }
@@ -247,7 +247,7 @@ replayBtn.addEventListener("click", replay);
 
 function toTitle() {
   endScreen.classList.remove("visible");
-  // The count comes from the level list itself, so the title can't go stale.
+  // The count comes from the level list itself, so the title can't fall out of date.
 const campaignHint = document.getElementById("campaignHint");
 if (campaignHint) {
   campaignHint.textContent =
@@ -271,7 +271,7 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-// The count comes from the level list itself, so the title can't go stale.
+// The count comes from the level list itself, so the title can't fall out of date.
 const campaignHint = document.getElementById("campaignHint");
 if (campaignHint) {
   campaignHint.textContent =
