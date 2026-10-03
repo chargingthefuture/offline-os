@@ -1,6 +1,6 @@
 /* Peace-Battle 2 — service worker. Precaches the shell, the modules and the data files so it
  * runs fully offline. Bump VERSION to push updates. */
-var VERSION = 'peace-battle-2-v13';
+var VERSION = 'peace-battle-2-v14';
 var SHELL = [
   './',
   './index.html',

@@ -1,6 +1,6 @@
 /* Pong — service worker. Precaches the shell (incl. shared assets) so it
  * runs fully offline. Bump VERSION to push updates. */
-var VERSION = 'pong-v1';
+var VERSION = 'pong-v2';
 var SHELL = [
   './',
   './index.html',
