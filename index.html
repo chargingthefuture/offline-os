@@ -16,6 +16,18 @@
 
 <link rel="stylesheet" href="shared/fonts.css">
 <link rel="stylesheet" href="shared/theme.css">
+<style>
+  /* Copy-URL button sits over the tile's top-right corner. It is a sibling of the
+     <a>, not a child, because a button inside a link is invalid and taps would navigate. */
+  .tile-wrap{position:relative;display:flex;}
+  .tile-wrap a.tile{flex:1;min-width:0;}
+  .copy{position:absolute;top:8px;right:8px;width:34px;height:34px;padding:0;
+    display:flex;align-items:center;justify-content:center;border-radius:9px;
+    border:1px solid var(--line);background:var(--panel-2);color:var(--muted);cursor:pointer;}
+  .copy:active{transform:scale(.92);}
+  .copy svg{width:16px;height:16px;}
+  .copy.done{color:var(--green);border-color:var(--green);}
+</style>
 </head>
 <body>
   <div class="header">
@@ -66,6 +78,27 @@ function statusPill(s){
   return '';
 }
 
+var COPY_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+var CHECK_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg>';
+
+// Plain-text copy. Clipboard API needs a secure context; fall back to execCommand.
+async function copyText(t){
+  try{ if(navigator.clipboard&&window.isSecureContext){ await navigator.clipboard.writeText(t); return true; } }catch(e){}
+  var ta=document.createElement('textarea');
+  ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,t.length);
+  var ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+  ta.remove(); return ok;
+}
+
+document.getElementById('apps').addEventListener('click',async function(e){
+  var b=e.target.closest('.copy'); if(!b) return;
+  e.preventDefault();
+  if(!await copyText(b.dataset.url)){ window.prompt('Copy URL',b.dataset.url); return; }
+  b.classList.add('done'); b.innerHTML=CHECK_SVG;
+  clearTimeout(b._t); b._t=setTimeout(function(){ b.classList.remove('done'); b.innerHTML=COPY_SVG; },1500);
+});
+
 async function renderApps(){
   var box=document.getElementById('apps');
   try{
@@ -80,12 +113,16 @@ async function renderApps(){
     box.innerHTML='<div class="app-grid">'+apps.map(function(a){
       var ext=/^https?:\/\//.test(a.url);
       var attrs=ext?' target="_blank" rel="noopener"':'';
-      return '<a class="tile" href="'+esc(a.url)+'"'+attrs+'>'
+      var full=new URL(a.url,location.href).href;
+      return '<div class="tile-wrap">'
+        +'<a class="tile" href="'+esc(a.url)+'"'+attrs+'>'
         +'<span class="ico">'+esc(a.icon||'▦')+'</span>'
         +'<span class="name">'+esc(a.name)+'</span>'
         +'<span class="blurb">'+esc(a.blurb||'')+'</span>'
         +statusPill(a.status)
-        +'</a>';
+        +'</a>'
+        +'<button class="copy" type="button" data-url="'+esc(full)+'" aria-label="Copy URL for '+esc(a.name)+'" title="Copy URL">'+COPY_SVG+'</button>'
+        +'</div>';
     }).join('')+'</div>';
   }catch(e){
     box.innerHTML='<div class="empty">Could not load apps.json.</div>';
