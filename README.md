@@ -30,7 +30,7 @@ offline-os/
   shared/fonts/           self-hosted Inter + Barlow Semi Condensed (see Fonts)
   apps/
     peace-battle/         teach-or-work game on one passage of a 1903 book
-    peace-battle-2/       BUILT output — do not edit by hand (see sources/peace-battle-2)
+    peace-battle-2/       The Lit Country — a map game, hand-written ES modules + data/
     gamepad-signal-path/  controller input reference
     2048/ snake/ breakout/ invaders/ pong/ gem-match/ word-wheel/
                           small hand-written games
@@ -47,8 +47,6 @@ offline-os/
                           goes to apps/vox/
     peace-battle/         the 1903 source text every number in the game is
                           checked against
-    peace-battle-2/       the numbers the game runs on (aggregates only) and
-                          the generators that write apps/peace-battle-2/
 ```
 
 `apps.json` also lists apps that live elsewhere (SpecterRealm, Farah's Arcade) as
@@ -71,11 +69,10 @@ offline-os/
 `status` is one of `active`, `experimental`, or `external`. An optional `"pinned": true`
 puts the tile at the front of the grid.
 
-### Apps built from source (Chess, Vox, Peace-Battle 2)
+### Apps built from source (Chess, Vox)
 
-Most apps are hand-written static files. Chess (Vite + React), Vox
-(Vite + Phaser), and Peace-Battle 2 (plain scripts in `sources/peace-battle-2/`,
-run with `node build-app.mjs`) are the exceptions: their sources live under
+Most apps are hand-written static files. Chess (Vite + React) and Vox
+(Vite + Phaser) are the exceptions: their sources live under
 `sources/`, and their **built output is committed** under `apps/`, so GitHub
 Pages still serves the repo as-is with no build step. To change Chess or Vox:
 
@@ -84,9 +81,11 @@ Pages still serves the repo as-is with no build step. To change Chess or Vox:
    type-checks and writes the app to `apps/<name>/` (wiping it first).
 3. Commit both the source change and the regenerated `apps/<name>/` files.
 
-Never edit `apps/chess/`, `apps/vox/`, or `apps/peace-battle-2/` by hand; the
-next build overwrites them. Peace-Battle 2's own README in its source folder
-says what each generator does and where its numbers come from. Chess engine rules (Stockfish worker + wasm naming, two-worker setup)
+Never edit `apps/chess/` or `apps/vox/` by hand; the next build overwrites them.
+Peace Battle 2 is hand-written: `apps/peace-battle-2/` holds `index.html`, four ES
+modules (`game.js` rules, `render.js` canvas, `ui.js` DOM, `content.js` card text) and
+`data/` (the skills taxonomy, per-sector counts and the day-one baseline, read at load
+and precached by its service worker). Chess engine rules (Stockfish worker + wasm naming, two-worker setup)
 are in `sources/chess/CLAUDE.md`; Vox's own agent rules are in
 `sources/vox/AGENTS.md`.
 
