@@ -1,6 +1,6 @@
 /* Snake — service worker. Precaches the shell (incl. shared assets) so it
  * runs fully offline. Bump VERSION to push updates. */
-var VERSION = 'snake-v1';
+var VERSION = 'snake-v2';
 var SHELL = [
   './',
   './index.html',

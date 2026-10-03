@@ -1,6 +1,6 @@
 /* Breakout — service worker. Precaches the shell (incl. shared assets) so it
  * runs fully offline. Bump VERSION to push updates. */
-var VERSION = 'breakout-v1';
+var VERSION = 'breakout-v2';
 var SHELL = [
   './',
   './index.html',
