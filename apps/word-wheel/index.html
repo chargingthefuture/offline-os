@@ -159,7 +159,7 @@ async function saveBest(){ if(total>best){ best=total; document.getElementById('
 
 // Forget phrases that have left the deck, so the record can't outgrow it.
 function tidy(){ var live={}; PUZZLES.forEach(function(q){ if(seen[q.t]) live[q.t]=seen[q.t]; }); seen=live; }
-// Never-played phrases come first, so nothing repeats until the whole deck has
+// Never-played phrases come first, so nothing repeats until the entire deck has
 // been through. The record is stored, so that holds across launches — the old
 // in-memory bag reopened a full deck every time the app was opened.
 function nextIndex(){

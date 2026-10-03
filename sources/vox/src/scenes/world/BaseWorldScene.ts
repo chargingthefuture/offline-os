@@ -80,7 +80,7 @@ export abstract class BaseWorldScene extends Phaser.Scene implements BossHost {
 
     this.buildBackdrop();
     this.platforms = this.physics.add.staticGroup();
-    // Solid ground the whole way — no bottomless pits anywhere in VOX
+    // Solid ground all the way — no bottomless pits anywhere in VOX
     this.block(this.worldWidth / 2, GROUND_Y + 20, this.worldWidth, 40);
 
     const spawnIdx = Math.min(getCheckpoint(this.worldId), this.checkpointXs.length - 1);

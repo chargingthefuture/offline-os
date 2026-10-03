@@ -90,11 +90,11 @@ Proposition (#26) lunges and is left open; the SecretKeeper (#33) is armored unt
 secret slips out, hittable only in that window; the FakeFriend (#37) wears your own colors
 until it drops the act; and Forced family (#49) barges in and shoves. The final boss, THE
 RECRUITERS — "the club that was never yours to join" — recruits fake friends and dangles
-lures. Beat it and the whole network is done.
+lures. Beat it and the entire network is done.
 
 Everywhere: bosses shrink with every hit, beacons save your spot generously, going down
 costs nothing (the boss keeps its damage), and the world-clear screen lists that world's
-whole runbook with the real-life answer to each tactic. The title screen has a compact
+entire runbook with the real-life answer to each tactic. The title screen has a compact
 "play" button plus a **select world** menu; each world unlocks as you clear the one before.
 
 **All 51 problems the app lists are now represented across the seven worlds.** Clear every

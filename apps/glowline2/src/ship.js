@@ -1,6 +1,6 @@
 // The dart. It always thrusts forward along its heading; the player only steers and
 // boosts. Sliding along a wall at a shallow angle charges the boost meter and keeps
-// the ship's speed; hitting a wall head-on bleeds speed. That trade is the whole game.
+// the ship's speed; hitting a wall head-on bleeds speed. That trade is the game.
 
 import { add, sub, scale, dot, len, norm, fromAngle, clamp, closestOnSegment, steerToward } from './vec.js';
 

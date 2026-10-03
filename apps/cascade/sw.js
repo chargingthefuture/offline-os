@@ -6,7 +6,7 @@
  *  - When offline (no data), requests fall back to the last cached copy, so
  *    the game keeps working with no connection.
  */
-const CACHE = "oos-cascade-v1";
+const CACHE = "oos-cascade-v2";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {

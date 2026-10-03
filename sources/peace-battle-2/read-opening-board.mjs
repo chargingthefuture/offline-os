@@ -126,7 +126,7 @@ const places = [...new Set(residents.map((r) => r.place))];
 const sectorsOf = (r) => Object.keys(r.sectors);
 const staffs = (r, team) => team.sectors.some((s) => r.sectors[s]);
 
-// Per team: how many people on the whole board can staff it, and how many in each place. The
+// Per team: how many people on the entire board can staff it, and how many in each place. The
 // board-wide figure is replacement level at team grain — how many people stand behind the one doing
 // the job — and it is read off the shape rather than assigned.
 const teamReadings = TEAMS.map((team) => {
@@ -153,7 +153,7 @@ const placeReadings = places.map((place) => {
     // The covered-population figure the issue expected to change. The sixteen-city map totalled
     // 30,570,000 real city populations; this board is not cities, and the population it is for is
     // the survivor population the economy is aimed at. So the 5,000,000 is apportioned across the
-    // six places by where the Directory's own people are, and the whole board totals that figure
+    // six places by where the Directory's own people are, and the entire board totals that figure
     // instead of thirty million.
     standsFor: Math.round((here.length / residents.length) * SURVIVOR_POPULATION),
     runs: missing.length === 0,

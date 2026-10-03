@@ -1,7 +1,7 @@
 // The event deck. Work item 3 of issue #47.
 //
 // A year arrives as a situation with names in it and a choice whose cost is visible before it is
-// made, rather than as four buttons and a counter row. That was the whole complaint about the build
+// made, rather than as four buttons and a counter row. That was the complaint about the build
 // this replaces, and the deck is the answer to it.
 //
 // Every card is built from live state: the people are the board's people, the places are open

@@ -1,5 +1,5 @@
 // THE RECRUITERS — World 7 boss, the last of the Specterati. The club that was never yours
-// to join: it recruits fake friends against you and dangles lures. Beat it and the whole
+// to join: it recruits fake friends against you and dangles lures. Beat it and the entire
 // network is done. Shrinks with every hit, like all of them.
 
 import Phaser from 'phaser';

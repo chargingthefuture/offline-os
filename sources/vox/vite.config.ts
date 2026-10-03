@@ -18,10 +18,10 @@ export default defineConfig({
     emptyOutDir: true,
   },
   plugins: [
-    // Offline + always-fresh. A service worker precaches the whole game (one JS bundle plus a
+    // Offline + always-fresh. A service worker precaches the entire game (one JS bundle plus a
     // handful of static files), so it plays with no network once loaded. `autoUpdate` fetches a
     // new deploy in the background and applies it on the next load — no manual cache clearing,
-    // no stale versions. skipWaiting/clientsClaim let the new worker take over immediately.
+    // no out-of-date versions. skipWaiting/clientsClaim let the new worker take over immediately.
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false, // registered explicitly in src/main.ts

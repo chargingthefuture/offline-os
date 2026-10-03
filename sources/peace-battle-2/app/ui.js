@@ -239,7 +239,7 @@
     S.places.forEach(function (p) { open[p.key] = p; });
     var parts = [];
 
-    // The view frames what is open rather than the whole world, so six places at the start are a
+    // The view frames what is open rather than the entire world, so six places at the start are a
     // board rather than a cluster in the corner of an empty rectangle. It widens as the network does.
     var xs = [];
     var ys = [];

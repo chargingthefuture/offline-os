@@ -134,7 +134,7 @@ function careful(s) {
 // --- How each player answers a card ------------------------------------------------------------------
 //
 // A card's choices are the same moves the player has, framed by a situation. The careful reading is
-// to take the one that keeps the network whole and aims at what only teaching can reach; the careless
+// to take the one that keeps the network intact and aims at what only teaching can reach; the careless
 // one picks whichever is first.
 function carefulOnCard(s, card) {
   const keys = card.choices.map((c) => c.key);
@@ -147,7 +147,7 @@ function carefulOnCard(s, card) {
   if (keys.includes('teach')) return 'teach';
   // Somebody arriving where a job is empty is worth the action it costs to get them there. Gating
   // this on how exposed the board is was tried and is worse — 71% against 83% — because a place
-  // short of a job is a place the whole component stops for, and the action was never the expensive
+  // short of a job is a place the entire component stops for, and the action was never the expensive
   // part.
   if (keys.includes('move')) return 'move';
   if (keys.includes('help')) return 'help';

@@ -52,7 +52,7 @@ export const DEFAULT_TUNING = {
   // What one action moves.
   reachClears: 1, // isolation a Reach takes off a place
   reachClearsWhereItRuns: 2, // and where the place already runs, because people there do the work
-  // Teaching is per teacher, which is the Du Bois arithmetic the whole game rests on: 2,000 trained
+  // Teaching is per teacher, which is the Du Bois arithmetic the game rests on: 2,000 trained
   // 50,000, who taught nine millions. So one Teach reaches this many people for every findable person
   // who already works in that sector. A sector held by one person teaches one person; a sector held by
   // sixty-eight teaches the board. It is why the thin end of the list is the real problem and why
@@ -83,7 +83,7 @@ export const DEFAULT_TUNING = {
   arithmeticEffect: 0.25, // pressure one Show the arithmetic takes off
   startingPressure: 0.2,
   // Nobody on the board holds more than this. It is the most skills any one of the 147 holds, so a
-  // run cannot pile the whole catalog onto a handful of people the real list has no equivalent of.
+  // run cannot pile the entire catalog onto a handful of people the real list has no equivalent of.
   maxSkillsPerPerson: 24,
   // How many findable people a skill wants behind it before teaching moves on. Below this, one
   // unavailability roll takes the skill off the map.

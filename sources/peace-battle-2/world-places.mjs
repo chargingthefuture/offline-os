@@ -1,6 +1,6 @@
 // The world the board grows into. Work item 1 of issue #47.
 //
-// The previous build had six fixed places and that was the whole world. This one starts there and
+// The previous build had six fixed places and that was the entire world. This one starts there and
 // opens outward, because a single walled place is the shape the adversary is built to take — one
 // address, one set of links, one thing to cut. Distribution is the defense, so growing the network
 // has to be something the player does rather than something the board hands them.
@@ -268,7 +268,7 @@ export function apportion(openingStandsFor) {
   const openingTotal = Object.values(openingStandsFor).reduce((a, b) => a + b, 0);
   const worldWeight = REGIONS.reduce((a, r) => a + r.places.reduce((b, p) => b + p.weight, 0), 0);
   // The Directory has reached a small part of the world, so the opening six are given a share of the
-  // whole that matches how little of it they are: one weight point each per fifty thousand people
+  // total that matches how little of it they are: one weight point each per fifty thousand people
   // the generated board put behind them, which lands the six at a little under a tenth.
   const openingWeight = openingTotal / 50_000;
   const total = openingWeight + worldWeight;

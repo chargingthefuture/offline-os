@@ -61,7 +61,7 @@ export class World7Scene extends BaseWorldScene implements World7Host {
     this.spawnEnemy(new SecretKeeper(this, 2550, GROUND_Y - 40));
     this.spawnEnemy(new ForcedFamily(this, 2750, GROUND_Y - 40));
     this.spawnEnemy(new SecretKeeper(this, 2950, GROUND_Y - 40));
-    // Section 4 — the whole recruitment drive
+    // Section 4 — the entire recruitment drive
     this.spawnEnemy(new FakeFriend(this, 3200, GROUND_Y - 40));
     this.spawnEnemy(new Baiter(this, this, 3350, GROUND_Y - 40));
     this.spawnEnemy(new PushyNewcomer(this, 3550, GROUND_Y - 40));

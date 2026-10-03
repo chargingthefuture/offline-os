@@ -9,7 +9,7 @@
  * When you add or rename a file the game loads, add it to FILES below so the very
  * first offline visit has it cached. Bumping CACHE_VERSION clears the old cache.
  */
-const CACHE_VERSION = "oos-redline-v1";
+const CACHE_VERSION = "oos-redline-v2";
 
 const FILES = [
   ".",
