@@ -63,7 +63,7 @@ async function run(file, atten) {
   });
 
   // Sound arrives in chunks of any length; DeepFilterNet wants exactly N
-  // samples at a time. Queue input, run whole frames, hand back what is done.
+  // samples at a time. Queue input, run full frames, hand back what is done.
   let pending = new Float32Array(N * 4);
   let pendingLen = 0;
   let toDrop = DELAY;
