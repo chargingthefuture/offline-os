@@ -1,4 +1,4 @@
-/* Hush worker: reads a recording, runs every bit of its sound through
+/* Noise Cleanup worker: reads a recording, runs every bit of its sound through
  * DeepFilterNet3, and writes a new MP4 with the picture copied untouched.
  * Runs off the main thread so the page stays responsive on a phone.
  *
