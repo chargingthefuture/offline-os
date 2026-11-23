@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hush</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16171b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hush">
+<link rel="apple-touch-icon" href="../../shared/icons/icon-180.png">
+<link rel="icon" href="../../shared/icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../shared/fonts.css">
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+  .back{display:inline-block;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:4px;}
+  .back:hover{color:var(--amber);}
+  .pick{display:block;text-align:center;cursor:pointer;}
+  .pick input{display:none;}
+  .file{margin-top:12px;font-size:14px;word-break:break-all;}
+  .file .meta{color:var(--muted);font-size:12px;margin-top:2px;}
+  .note{color:var(--muted);font-size:12px;line-height:1.45;margin:10px 0 0;}
+  .bar{height:10px;border-radius:6px;background:var(--panel-2);border:1px solid var(--line);overflow:hidden;margin:10px 0 6px;}
+  .bar > div{height:100%;width:0;background:var(--amber);transition:width .2s;}
+  .status{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:8px;}
+  .err{color:var(--red);font-size:14px;line-height:1.4;}
+  video,audio{width:100%;border-radius:12px;background:#000;margin-top:4px;}
+  .gap{height:10px;}
+  .hidden{display:none !important;}
+  .opt{background:var(--panel-2);color:var(--text);font:inherit;font-size:14px;cursor:pointer;text-align:center;}
+  .opt small{display:block;color:var(--muted);font-size:11px;margin-top:3px;}
+  .opt.on-amber small{color:#3a2a00;}
+</style>
+</head>
+<body>
+  <a class="back" href="../../" id="backOS">&lsaquo; OS</a>
+  <div class="header">
+    <div><h1>Hush</h1><p class="sub">Clean background noise off a recording, on this phone</p></div>
+  </div>
+
+  <div class="card">
+    <div class="lbl">1 · Recording</div>
+    <label class="btn ghost pick">
+      Choose a video or audio file
+      <input type="file" id="file" accept="video/*,audio/*">
+    </label>
+    <div class="file hidden" id="fileInfo"><div id="fileName"></div><div class="meta" id="fileMeta"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="lbl">2 · Strength</div>
+    <div class="row3" id="strength">
+      <button class="opt" data-db="12">Light<small>noise turned down</small></button>
+      <button class="opt" data-db="24">Strong<small>most noise gone</small></button>
+      <button class="opt" data-db="100">Max<small>all it can</small></button>
+    </div>
+    <p class="note">Start with Max. If your own voice sounds robotic, try Strong.</p>
+  </div>
+
+  <button class="btn" id="go" disabled>Clean it up</button>
+  <div class="gap"></div>
+
+  <div class="card hidden" id="work">
+    <div class="lbl" id="stage">Working…</div>
+    <div class="bar"><div id="barFill"></div></div>
+    <div class="status"><span id="pct">0%</span><span id="eta"></span></div>
+    <p class="note">Keep this screen open until it finishes. The first run downloads the noise model (34 MB) once; after that Hush works with no connection.</p>
+    <div class="gap"></div>
+    <button class="btn ghost" id="cancel">Stop</button>
+  </div>
+
+  <div class="card hidden" id="errCard"><div class="err" id="err"></div></div>
+
+  <div class="card hidden" id="result">
+    <div class="lbl">3 · Listen and save</div>
+    <div class="row2" style="margin-bottom:10px">
+      <button class="opt on-amber" id="showAfter">Cleaned</button>
+      <button class="opt" id="showBefore">Original</button>
+    </div>
+    <div id="player"></div>
+    <div class="status" style="margin-top:6px"><span id="doneMeta"></span></div>
+    <div class="gap"></div>
+    <button class="btn" id="share">Share (YouTube, TikTok…)</button>
+    <div class="gap"></div>
+    <a class="btn ghost" id="save" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box">Save to phone</a>
+  </div>
+
+  <p class="note">Nothing leaves your phone. The cleaning runs here, with DeepFilterNet3. The picture is copied as is; only the sound is redone.</p>
+
+<script src="../../shared/storage.js"></script>
+<script src="../../shared/pwa.js"></script>
+<script>
+registerPWA('sw.js');
+(function(){var b=document.getElementById('backOS');if(b){var m=location.pathname.match(/^(.*?\/)apps\//);if(m)b.href=m[1];}})();
+
+var $ = function (id) { return document.getElementById(id); };
+var SKEY = 'hush.strength';
+var file = null, atten = 100, worker = null, outBlob = null, outUrl = null, inUrl = null, outName = '', wake = null;
+
+function mb(n) { return (n / 1048576).toFixed(n < 10485760 ? 1 : 0) + ' MB'; }
+function clock(s) {
+  s = Math.max(0, Math.round(s));
+  var m = Math.floor(s / 60), r = s % 60;
+  return m + ':' + (r < 10 ? '0' : '') + r;
+}
+
+function setStrength(db) {
+  atten = db;
+  Array.prototype.forEach.call(document.querySelectorAll('#strength .opt'), function (b) {
+    b.classList.toggle('on-amber', Number(b.dataset.db) === db);
+  });
+}
+document.querySelectorAll('#strength .opt').forEach(function (b) {
+  b.addEventListener('click', function () {
+    setStrength(Number(b.dataset.db));
+    window.storage.set(SKEY, String(atten));
+  });
+});
+window.storage.get(SKEY).then(function (r) { setStrength(r && Number(r.value) ? Number(r.value) : 100); });
+
+$('file').addEventListener('change', function () {
+  file = this.files && this.files[0];
+  $('go').disabled = !file;
+  $('result').classList.add('hidden');
+  $('errCard').classList.add('hidden');
+  if (!file) return;
+  $('fileInfo').classList.remove('hidden');
+  $('fileName').textContent = file.name;
+  $('fileMeta').textContent = mb(file.size);
+  var probe = document.createElement(file.type.indexOf('audio') === 0 ? 'audio' : 'video');
+  probe.preload = 'metadata';
+  var u = URL.createObjectURL(file);
+  probe.onloadedmetadata = function () {
+    if (isFinite(probe.duration)) $('fileMeta').textContent = mb(file.size) + ' · ' + clock(probe.duration);
+    URL.revokeObjectURL(u);
+  };
+  probe.onerror = function () { URL.revokeObjectURL(u); };
+  probe.src = u;
+});
+
+function showError(text) {
+  $('err').textContent = text;
+  $('errCard').classList.remove('hidden');
+}
+
+function busy(on) {
+  $('work').classList.toggle('hidden', !on);
+  $('go').disabled = on || !file;
+  $('file').disabled = on;
+  if (on && navigator.wakeLock) {
+    navigator.wakeLock.request('screen').then(function (w) { wake = w; }).catch(function () {});
+  } else if (!on && wake) { wake.release().catch(function () {}); wake = null; }
+}
+
+$('go').addEventListener('click', function () {
+  if (!file) return;
+  if (!window.Worker || !window.AudioEncoder || !window.VideoDecoder) {
+    showError('This browser cannot do it. Open Hush in Chrome on Android (version 94 or newer).');
+    return;
+  }
+  $('errCard').classList.add('hidden');
+  $('result').classList.add('hidden');
+  $('barFill').style.width = '0';
+  $('pct').textContent = '0%';
+  $('eta').textContent = '';
+  $('stage').textContent = 'Starting…';
+  busy(true);
+
+  if (!worker) worker = new Worker('worker.js', { type: 'module' });
+  worker.onmessage = function (e) {
+    var m = e.data;
+    if (m.type === 'stage') $('stage').textContent = m.text;
+    else if (m.type === 'progress') {
+      var p = Math.min(1, m.value);
+      $('barFill').style.width = (p * 100).toFixed(1) + '%';
+      $('pct').textContent = Math.floor(p * 100) + '%';
+      if (p > 0.03) $('eta').textContent = 'about ' + clock(m.elapsed / p - m.elapsed) + ' left';
+    } else if (m.type === 'done') {
+      busy(false);
+      finish(m);
+    } else if (m.type === 'canceled') {
+      busy(false);
+    } else if (m.type === 'error') {
+      busy(false);
+      showError('Could not clean this file: ' + m.message);
+    }
+  };
+  worker.onerror = function (e) {
+    busy(false);
+    showError('Could not start the cleaner: ' + (e.message || 'the worker failed to load') + '.');
+    worker = null;
+  };
+  worker.postMessage({ type: 'run', file: file, atten: atten });
+});
+
+$('cancel').addEventListener('click', function () {
+  if (worker) worker.postMessage({ type: 'cancel' });
+});
+
+function finish(m) {
+  if (outUrl) URL.revokeObjectURL(outUrl);
+  if (inUrl) URL.revokeObjectURL(inUrl);
+  outBlob = new Blob([m.buffer], { type: m.mime });
+  outUrl = URL.createObjectURL(outBlob);
+  inUrl = URL.createObjectURL(file);
+  var base = file.name.replace(/\.[^.]+$/, '') || 'recording';
+  outName = base + '-hush.' + (m.hasVideo ? 'mp4' : 'm4a');
+  $('save').href = outUrl;
+  $('save').download = outName;
+  $('doneMeta').textContent = mb(outBlob.size) + ' · cleaned in ' + clock(m.seconds);
+  $('share').classList.toggle('hidden', !navigator.canShare);
+  $('result').dataset.video = m.hasVideo ? '1' : '';
+  show(true);
+  $('result').classList.remove('hidden');
+}
+
+function show(after) {
+  $('showAfter').classList.toggle('on-amber', after);
+  $('showBefore').classList.toggle('on-amber', !after);
+  var old = $('player').querySelector('video,audio');
+  var t = old ? old.currentTime : 0;
+  var el = document.createElement($('result').dataset.video ? 'video' : 'audio');
+  el.controls = true;
+  el.playsInline = true;
+  el.src = after ? outUrl : inUrl;
+  el.addEventListener('loadedmetadata', function () { if (t) el.currentTime = t; });
+  $('player').innerHTML = '';
+  $('player').appendChild(el);
+}
+$('showAfter').addEventListener('click', function () { show(true); });
+$('showBefore').addEventListener('click', function () { show(false); });
+
+$('share').addEventListener('click', function () {
+  var f = new File([outBlob], outName, { type: outBlob.type });
+  if (navigator.canShare && navigator.canShare({ files: [f] })) {
+    navigator.share({ files: [f], title: outName }).catch(function (err) {
+      if (err && err.name !== 'AbortError') showError('Sharing failed: ' + err.message + '. Use Save to phone, then upload from your gallery.');
+    });
+  } else {
+    showError('This phone cannot share files from a web page. Use Save to phone, then upload from your gallery.');
+  }
+});
+</script>
+</body>
+</html>
