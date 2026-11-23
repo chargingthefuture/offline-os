@@ -36,6 +36,7 @@ export class Game {
     // and also resumes the audio if the browser suspended it.
     const kick = () => audio.start();
     window.addEventListener('pointerdown', kick);
+    window.addEventListener('pointerup', kick);
     window.addEventListener('keydown', kick);
 
     this.toMenu();

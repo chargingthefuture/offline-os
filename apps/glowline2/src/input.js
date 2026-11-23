@@ -48,6 +48,16 @@ export class Input {
     canvas.addEventListener('pointerup', (e) => this._onPointer(e, false));
     canvas.addEventListener('pointercancel', (e) => this._onPointer(e, false));
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    // iOS starts text selection and the long-press menu from touch events, which a
+    // cancelled pointerdown does not stop. Cancelling the touches keeps a held
+    // steer button from selecting the page; pointer events still fire.
+    const stopTouch = (e) => { if (e.cancelable) e.preventDefault(); };
+    for (const t of ['touchstart', 'touchmove', 'touchend']) {
+      canvas.addEventListener(t, stopTouch, { passive: false });
+    }
+    document.addEventListener('selectstart', (e) => {
+      if (!(e.target instanceof Element) || !e.target.closest('.overlay')) e.preventDefault();
+    });
   }
 
   // Read the active gamepad once per frame. Fills the steer/boost cache that sample()

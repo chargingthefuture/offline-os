@@ -28,6 +28,8 @@ export class Renderer {
 
     this.resize();
     window.addEventListener('resize', () => this.resize());
+    window.addEventListener('orientationchange', () => this.resize());
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', () => this.resize());
   }
 
   resize() {
@@ -73,6 +75,12 @@ export class Renderer {
   }
 
   draw(game) {
+    // iOS can change the canvas's laid-out size (rotation, toolbars, leaving the
+    // selection menu) without a resize event, leaving the bitmap sized for the old
+    // box and the picture stretched. Match it every frame; the check is cheap.
+    const cw = this.canvas.clientWidth, ch = this.canvas.clientHeight;
+    if (cw && ch && (cw !== this.W || ch !== this.H ||
+        this.dpr !== Math.min(window.devicePixelRatio || 1, 2.5))) this.resize();
     const ctx = this.ctx;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     this._background();
