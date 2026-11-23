@@ -17,7 +17,11 @@ html, body {
   font-family: "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif;
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
+  /* Holding a steer button is a long press: without these, iOS selects the page
+     and shows its Copy / Translate menu mid-run. */
+  -webkit-user-select: none;
   user-select: none;
+  -webkit-touch-callout: none;
 }
 
 #stage {
@@ -31,6 +35,9 @@ canvas#game {
   width: 100%;
   height: 100%;
   touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* Overlays -------------------------------------------------------------- */

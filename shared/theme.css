@@ -3,6 +3,9 @@
    Every app links this file so all of the OS shares one look. */
 
 :root{
+  /* Declaring dark keeps Android Chrome's auto-dark from recolouring light
+     elements (it turned one Gem Match colour near-black). */
+  color-scheme:dark;
   --bg:#16171b;
   --panel:#1f2127;
   --panel-2:#262931;
