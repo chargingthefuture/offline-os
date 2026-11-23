@@ -155,8 +155,8 @@ function busy(on) {
 
 $('go').addEventListener('click', function () {
   if (!file) return;
-  if (!window.Worker || !window.AudioEncoder || !window.VideoDecoder) {
-    showError('This browser cannot do it. Open Hush in Chrome on Android (version 94 or newer).');
+  if (!window.Worker || !window.WebAssembly || !(window.OfflineAudioContext || window.webkitOfflineAudioContext)) {
+    showError('This browser is too old for Hush. Update iOS (16.4 or newer) or Chrome, then try again.');
     return;
   }
   $('errCard').classList.add('hidden');
@@ -171,6 +171,7 @@ $('go').addEventListener('click', function () {
   worker.onmessage = function (e) {
     var m = e.data;
     if (m.type === 'stage') $('stage').textContent = m.text;
+    else if (m.type === 'needPcm') decodeForWorker(m.buffer);
     else if (m.type === 'progress') {
       var p = Math.min(1, m.value);
       $('barFill').style.width = (p * 100).toFixed(1) + '%';
@@ -193,6 +194,26 @@ $('go').addEventListener('click', function () {
   };
   worker.postMessage({ type: 'run', file: file, atten: atten });
 });
+
+/* Browsers with no audio decoder in workers (iOS) decode the sound here with
+ * Web Audio, mixed to one channel at 48 kHz, and hand it back to the worker. */
+function decodeForWorker(buffer) {
+  var Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  var ctx = new Ctx(1, 48000, 48000);
+  var fail = function (err) {
+    worker.postMessage({ type: 'pcmError', message: 'this phone could not decode the sound (' + ((err && err.message) || 'unknown reason') + ')' });
+  };
+  try {
+    ctx.decodeAudioData(buffer, function (audio) {
+      var n = audio.length, ch = audio.numberOfChannels, mono = new Float32Array(n);
+      for (var c = 0; c < ch; c++) {
+        var d = audio.getChannelData(c);
+        for (var i = 0; i < n; i++) mono[i] += d[i] / ch;
+      }
+      worker.postMessage({ type: 'pcm', data: mono }, [mono.buffer]);
+    }, fail);
+  } catch (err) { fail(err); }
+}
 
 $('cancel').addEventListener('click', function () {
   if (worker) worker.postMessage({ type: 'cancel' });

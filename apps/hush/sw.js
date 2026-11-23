@@ -1,7 +1,7 @@
 /* Hush service worker. Precaches the page, the worker, the media libraries
  * and the 34 MB DeepFilterNet model so cleaning works with no connection.
  * Bump VERSION to update. */
-var VERSION = 'hush-v2';
+var VERSION = 'hush-v3';
 var SHELL = [
   './',
   './index.html',
