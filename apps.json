@@ -71,10 +71,10 @@
       "status": "active"
     },
     {
-      "name": "Hush",
+      "name": "Noise Cleanup",
       "blurb": "Clean background noise off a recording before you upload it",
-      "url": "apps/hush/",
-      "icon": "🤫",
+      "url": "apps/noise-cleanup/",
+      "icon": "🧹",
       "status": "experimental"
     },
     {

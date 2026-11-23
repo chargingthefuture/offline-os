@@ -40,9 +40,11 @@ offline-os/
     glowline/             neon arcade racer (ships its own icons + manifest)
     glowline2/            neon maze racer (ships its own icons + manifest)
     redline/              speed platformer (ships its own icons + manifest)
-    hush/                 cleans background noise off a recording (DeepFilterNet3
+    noise-cleanup/        cleans background noise off a recording (DeepFilterNet3
                           in the browser); vendor/ holds the 34 MB model and the
                           MP4 libraries, copied from npm with their licenses
+    hush/                 redirect to noise-cleanup/ (its old name); its sw.js
+                          clears the old 34 MB cache and unregisters itself
   sources/
     chess/                Chess source (Vite + React); `npm run build` here
                           writes the deployable app to apps/chess/

@@ -15,6 +15,10 @@ how to add/remove apps, the backup/restore model, and deploy.
   banned and the same word came back one frame over. So the word itself is out, in every frame,
   negated forms included — entire, all of, end to end, or nothing. Applies to replies and to
   anything rendered in an app.
+- **New tiles need the owner's approval of the name before committing**
+  (owner directive, 2026-11-23). Propose the app's name and wait for a yes
+  before the folder, `apps.json` entry or any commit uses it. A rename the
+  owner asks for is already approved.
 - Ship changes via a branch + PR against `main`; `main` auto-deploys to GitHub Pages.
 - Every app is offline-first: shared theme/fonts, `window.storage` for any
   persisted data (so it's covered by the dashboard's export/import backup),
