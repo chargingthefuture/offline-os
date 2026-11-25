@@ -183,6 +183,26 @@ The gate in step 4 — green checks, mergeable, no open change-requests — is t
 repository that requires human review before merge should keep that requirement: set the gate to
 match the repository's own rules rather than merging around them.
 
+### Two lanes by risk (owner decision, 2026-06-05)
+
+Pick the lane when the request is opened, from what the change touches:
+
+- Low-risk lane, the default: copy, styling, layout, documentation, refactors, type, lint and test
+  changes, dead-code removal. Open it ready for review and turn on auto-merge right away; it merges
+  itself once the checks pass.
+- Owner-review lane: anything that moves money or credits, touches sign-in or access checks, deletes
+  or migrates stored data, changes a database schema, adds or changes an interface other code calls,
+  or adds new stateful logic or a new feature area. Open it ready for review, not as a draft, and do
+  not turn on auto-merge. Say in the body that it waits on the owner's review. It is not a blocker:
+  keep working, and the owner reviews and merges it.
+
+A repository names its own risky areas in its rules file; the list above is the floor. If a risky
+request merges before its review findings were applied, open a small follow-up request with the
+findings that still hold.
+
+This repository's risky areas: anything that deletes or renames stored data (`window.storage`
+keys, the backup file format), moves an app to a new address, or adds a new app.
+
 Mechanism, by where the agent runs:
 
 - Claude Code on the web: use the GitHub tools to open the request, update its branch from the
@@ -290,6 +310,23 @@ delete it as part of that change. Do not list it as a follow-up or ask whether t
 first: search the entire repository for readers and writers, including scripts, migrations and
 generated files. Something already unused before you arrived is different: mention it and leave it
 unless told otherwise.
+
+---
+
+## One-shot workflows are deleted when they are done (owner directive, 2026-09-23 — all agents)
+
+A workflow written to do something once — create a service, connect two systems, run a backfill — is
+removed once it has done it, along with any script only it used. It is not kept in case it is wanted
+again.
+
+Every entry in the Actions list is something somebody might press. A list that mixes live operations
+with finished one-offs makes the dangerous press and the routine one look alike, and finished ones
+pile up faster than anybody prunes them. Git history keeps the work, and whoever recovers a copy
+reads it in full first.
+
+The sequence: ship the workflow, run it, confirm it did what it was for, then delete it in the same
+piece of work. Say in the workflow's own header that it is temporary. Recurring workflows stay:
+deploys, checks, scheduled jobs, anything with a next run.
 
 ---
 
